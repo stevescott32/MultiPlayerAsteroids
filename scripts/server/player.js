@@ -30,6 +30,19 @@ function createPlayer() {
     let speed = 0.0002;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
 
+    let thrust = 0.1;
+    let directionVector = {
+        x: 0,
+        y: 0
+    }
+
+    Object.defineProperty(that, 'thrust', {
+        get: () => thrust
+    });
+    Object.defineProperty(that, 'directionVector', {
+        get: () => directionVector,
+    });
+
     Object.defineProperty(that, 'direction', {
         get: () => direction
     });
@@ -66,8 +79,8 @@ function createPlayer() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * elapsedTime * speed);
-        position.y += (vectorY * elapsedTime * speed);
+        position.x += (vectorX * thrust);
+        position.y += (vectorY * thrust);
     };
 
     //------------------------------------------------------------------
@@ -98,6 +111,8 @@ function createPlayer() {
     //
     //------------------------------------------------------------------
     that.update = function(when) {
+
+        
     };
 
     return that;

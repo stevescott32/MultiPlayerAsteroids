@@ -51,7 +51,7 @@ function processInput() {
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(currentTime);
+        activeClients[clientId].player.update(elapsedTime);
     }
 }
 

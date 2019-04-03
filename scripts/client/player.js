@@ -17,7 +17,19 @@ MyGame.components.Player = function() {
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;
+    let thrust = 0.1;
+    let directionVector = {
+        x: 0,
+        y: 0
+    }
 
+    Object.defineProperty(that, 'thrust', {
+        get: () => thrust
+    });
+    Object.defineProperty(that, 'directionVector', {
+        get: () => directionVector,
+         set: (value)=> {directioinVector.x += value, directionVector.y += value}
+    });
     Object.defineProperty(that, 'direction', {
         get: () => direction,
         set: (value) => { direction = value }
@@ -50,8 +62,8 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * elapsedTime * speed);
-        position.y += (vectorY * elapsedTime * speed);
+        position.x += (vectorX * thrust);
+        position.y += (vectorY * thrust);
     };
 
     //------------------------------------------------------------------
