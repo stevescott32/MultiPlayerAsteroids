@@ -202,7 +202,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.move(elapsedTime);
             },
-            'w', true);
+            'ArrowUp', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -214,7 +214,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateRight(elapsedTime);
             },
-            'd', true);
+            'ArrowRight', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -226,7 +226,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateLeft(elapsedTime);
             },
-            'a', true);
+            'ArrowLeft', true);
 
         //
         // Get the game loop started
