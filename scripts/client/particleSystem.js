@@ -88,6 +88,7 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
         return api;
     }
     
+    // create a stream of fire particles in the direction of a spaceship's rotation + pi/2 
     function createThrustEffect(spaceship) {
         let x = spaceship.center.x + Math.cos(spaceship.rotation) * spaceship.radius; 
         let y = spaceship.center.y + Math.sin(spaceship.rotation) * spaceship.radius; 
@@ -98,12 +99,13 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 0.1, stdev: 0.1 }, 
             explosionLifetime: 0.1, 
             density: 3, 
-            imageSrc: "resources/textures/fire.png",
+            imageSrc: "assets/textures/fire.png",
             thrustEffect: true,
             spaceShipDirection: spaceship.rotation
         })); 
     }
 
+    // create an effect for when the spaceship lands after a hyperspace 
     function createHyperspaceEffect(spaceship) {
         effects.push(makeEffect({
             center: { x: spaceship.center.x, y: spaceship.center.y },
@@ -112,10 +114,11 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
-            imageSrc: "resources/textures/flare.png"
+            imageSrc: "assets/textures/flare.png"
         })); 
     }
 
+    // create an effect for when the spaceship starts a new life
     function createNewLifeEffect(spaceship) {
         effects.push(makeEffect({
             center: { x: spaceship.center.x, y: spaceship.center.y },
@@ -124,10 +127,11 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
-            imageSrc: "resources/images/lasers/greenBlob.png"
+            imageSrc: "assets/lasers/greenBlob.png"
         })); 
     }
 
+    // create an effect of an asteroid breaking apart, based on its size category
     function createAsteroidBreakup(asteroid) {
         let sc = asteroid.size.sizeCategory; 
         effects.push(makeEffect({
@@ -137,10 +141,11 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: (0.18 + sc * 0.05), stdev: 0.1 }, 
             explosionLifetime: 0.18 + sc * 0.03, 
             density: sc * sc * 5, 
-            imageSrc: "resources/textures/smoke.png"
+            imageSrc: "assets/textures/smoke.png"
         })); 
     }
 
+    // explode the ship at xPos and yPos
     function createShipExplosion(xPos, yPos) {
         effects.push(makeEffect({
             center: { x: xPos, y: yPos },
@@ -149,10 +154,11 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
             density: 10, 
-            imageSrc: "resources/textures/fire.png"
+            imageSrc: "assets/textures/fire.png"
         })); 
     }
 
+    // massive effect to clear all object from the screen 
     function clearScreen() {
         effects.push(makeEffect({
             center: { x: Game.graphics.canvas.width / 2, y: Game.graphics.canvas.height / 2 },
@@ -161,10 +167,11 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
             density: 10, 
-            imageSrc: "resources/images/lasers/purpleBlob.png"
+            imageSrc: "assets/lasers/purpleBlob.png"
         })); 
     }
 
+    // explode a UFO. A rather long effect
     function createUFOExplosion(xPos, yPos) {
         effects.push(makeEffect({
             center: { x: xPos, y: yPos },
@@ -173,7 +180,7 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
             density: 5, 
-            imageSrc: "resources/textures/smoke.png"
+            imageSrc: "assets/textures/smoke.png"
         })); 
         effects.push(makeEffect({
             center: { x: xPos, y: yPos },
@@ -182,7 +189,7 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
             density: 8, 
-            imageSrc: "resources/textures/fire.png"
+            imageSrc: "assets/textures/fire.png"
         })); 
 
     }
