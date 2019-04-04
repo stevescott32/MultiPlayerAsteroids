@@ -132,7 +132,7 @@ function createPlayer() {
     //
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
-
+        reportUpdate = true;
         position.x += directionVector.x * elapsedTime/100;
         position.y += directionVector.y * elapsedTime/100;
        
