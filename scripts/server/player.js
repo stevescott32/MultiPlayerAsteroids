@@ -20,6 +20,10 @@ function createPlayer() {
         x: random.nextDouble(),
         y: random.nextDouble()
     };
+    let directionVector = {
+        x: 0,
+        y: 0
+    };
 
     let size = {
         width: 0.01,
@@ -30,12 +34,12 @@ function createPlayer() {
     let speed = 0.0002;                  // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
 
-    let thrust = 0.1;
-    let directionVector = {
-        x: 0,
-        y: 0
-    }
+    let thrust = 0.001;
+    let maxSpeed = .1;
 
+    Object.defineProperty(that, 'maxSpeed', {
+        get: () => maxSpeed
+    });
     Object.defineProperty(that, 'thrust', {
         get: () => thrust
     });
@@ -79,8 +83,25 @@ function createPlayer() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * thrust);
-        position.y += (vectorY * thrust);
+        directionVector.x += (vectorX * thrust * elapsedTime/100);
+        if(directionVector.x > maxSpeed)
+        {
+            directionVector.x = maxSpeed;
+        }
+        if(directionVector.x < 0-maxSpeed)
+        {
+            directionVector.x = maxSpeed;
+        }
+        directionVector.y += (vectorY * thrust * elapsedTime/100);
+        if(directionVector.y > maxSpeed)
+        {
+            directionVector.y = maxSpeed;
+        }
+        if(directionVector.y < 0-maxSpeed)
+        {
+            directionVector.y = maxSpeed;
+        }
+
     };
 
     //------------------------------------------------------------------
@@ -110,9 +131,11 @@ function createPlayer() {
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
-    that.update = function(when) {
+    that.update = function(elapsedTime) {
 
-        
+        position.x += directionVector.x * elapsedTime/100;
+        position.y += directionVector.y * elapsedTime/100;
+       
     };
 
     return that;

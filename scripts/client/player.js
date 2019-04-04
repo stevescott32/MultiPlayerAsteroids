@@ -17,18 +17,21 @@ MyGame.components.Player = function() {
     let direction = 0;
     let rotateRate = 0;
     let speed = 0;
-    let thrust = 0.1;
+    let thrust = 0.001;
     let directionVector = {
         x: 0,
         y: 0
     }
+    let maxSpeed = .1;
 
     Object.defineProperty(that, 'thrust', {
         get: () => thrust
     });
+    Object.defineProperty(that, 'maxSpeed', {
+        get: () => maxSpeed
+    });
     Object.defineProperty(that, 'directionVector', {
         get: () => directionVector,
-         set: (value)=> {directioinVector.x += value, directionVector.y += value}
     });
     Object.defineProperty(that, 'direction', {
         get: () => direction,
@@ -62,8 +65,25 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * thrust);
-        position.y += (vectorY * thrust);
+        directionVector.x += (vectorX * thrust * elapsedTime/100);
+        if(directionVector.x > maxSpeed)
+        {
+            directionVector.x = maxSpeed;
+        }
+        if(directionVector.x < 0-maxSpeed)
+        {
+            directionVector.x = maxSpeed;
+        }
+        directionVector.y += (vectorY * thrust * elapsedTime/100);
+        if(directionVector.y > maxSpeed)
+        {
+            directionVector.y = maxSpeed;
+        }
+        if(directionVector.y < 0-maxSpeed)
+        {
+            directionVector.y = maxSpeed;
+        }
+        
     };
 
     //------------------------------------------------------------------
@@ -85,6 +105,9 @@ MyGame.components.Player = function() {
     };
 
     that.update = function(elapsedTime) {
+        position.x +=directionVector.x * elapsedTime/100;
+        position.y += directionVector.y * elapsedTime/100;
+      
     };
 
     return that;
