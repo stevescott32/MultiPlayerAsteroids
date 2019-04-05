@@ -3,6 +3,7 @@ let http = require('http'),
     fs = require('fs'),
     game = require('./scripts/server/game');
 
+// translate file extensions to needed headers
 let mimeTypes = {
         '.js' : 'text/javascript',
         '.html' : 'text/html',
@@ -13,6 +14,7 @@ let mimeTypes = {
     };
 
 function handleRequest(request, response) {
+    // if no url is required, go to index.html. Otherwise, go to the url in the request
     let lookup = (request.url === '/') ? '/index.html' : decodeURI(request.url);
     let file = lookup.substring(1, lookup.length);
 

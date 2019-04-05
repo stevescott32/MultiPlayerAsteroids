@@ -6,6 +6,7 @@
 'use strict';
 
 let present = require('present');
+// module for creating players
 let Player = require('./player');
 
 const UPDATE_RATE_MS = 250;
@@ -26,10 +27,14 @@ function processInput() {
     let processMe = inputQueue;
     inputQueue = [];
 
+    // loop through all the inputs to be processed
     for (let inputIndex in processMe) {
         let input = processMe[inputIndex];
+        // get the client associated with this input 
         let client = activeClients[input.clientId];
+        // update the lastMessageId to be the message id we are currently processing
         client.lastMessageId = input.message.id;
+        // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
                 client.player.move(input.message.elapsedTime);
@@ -61,8 +66,11 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+    // iterate through all active clients 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
+        // update object that will be sent to client, 
+        // containing the information needed for update
         let update = {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
@@ -84,6 +92,7 @@ function updateClients(elapsedTime) {
         }
     }
 
+    // all clients are updated, change reportUpdate to false
     for (let clientId in activeClients) {
         activeClients[clientId].player.reportUpdate = false;
     }
@@ -179,6 +188,8 @@ function initializeSocketIO(httpServer) {
             socket: socket,
             player: newPlayer
         };
+        // the third step (acknowledge) in the TCP 3-way handshake process
+        // (syn, syn-ack, ack)
         socket.emit('connect-ack', {
             direction: newPlayer.direction,
             position: newPlayer.position,
@@ -187,6 +198,7 @@ function initializeSocketIO(httpServer) {
             speed: newPlayer.speed
         });
 
+        // push any new inputs into the input queue 
         socket.on('input', data => {
             inputQueue.push({
                 clientId: socket.id,
@@ -194,11 +206,14 @@ function initializeSocketIO(httpServer) {
             });
         });
 
+        // when a player disconnects, remove them from the list of
+        // active clients 
         socket.on('disconnect', function() {
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
 
+        // tell the players that the newPlayer is connected 
         notifyConnect(socket, newPlayer);
     });
 }
@@ -224,3 +239,4 @@ function terminate() {
 }
 
 module.exports.initialize = initialize;
+module.exports.terminate = terminate; 
