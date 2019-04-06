@@ -5,6 +5,7 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
+    let localAsteroids = []; 
 
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
@@ -33,6 +34,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
+
+        localAsteroids = data.asteroids; 
     });
 
     //------------------------------------------------------------------
@@ -69,6 +72,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     socket.on('disconnect-other', function(data) {
         delete playerOthers[data.clientId];
+    });
+
+    socket.on('update-asteroid', function(data) {
+        if(data.asteroids) {
+            console.log("Asteroids count " + data.asteroids.length); 
+        } else { console.log('No asteroids'); }
+        for(let a in data.asteroids) {
+            console.log(data.asteroids[a]); 
+        }
     });
 
     //------------------------------------------------------------------

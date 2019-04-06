@@ -8,6 +8,18 @@
 let present = require('present');
 // module for creating players
 let Player = require('./player');
+let AsteroidManager = require('./asteroidManager'); 
+let asteroidManager = AsteroidManager.create({
+    imageSrc: '',
+    audioSrc: '', 
+    maxSize: 200,
+    minSize: 65, 
+    maxSpeed: 100,
+    minSpeed: 50,
+    interval: 1, // seconds
+    maxAsteroids: 12,
+    initialAsteroids: 8
+}); 
 
 const UPDATE_RATE_MS = 250;
 let quit = false;
@@ -49,6 +61,18 @@ function processInput() {
     }
 }
 
+function updateAsteroids(elapsedTime) {
+    if(!asteroidManager.asteroids) {
+        console.log('No asteroids on the server'); 
+    }
+    let update = {
+        asteroids: asteroidManager.asteroids,
+    }
+    for (let clientId in activeClients) {
+        activeClients[clientId].socket.emit('update-asteroid', update);
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -58,6 +82,7 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(elapsedTime);
     }
+    updateAsteroids(elapsedTime); 
 }
 
 //------------------------------------------------------------------
@@ -188,7 +213,7 @@ function initializeSocketIO(httpServer) {
             socket: socket,
             player: newPlayer
         };
-        // the third step (acknowledge) in the TCP 3-way handshake process
+        // the third step (acknowledge) in the TCP 3-step handshake process
         // (syn, syn-ack, ack)
         socket.emit('connect-ack', {
             direction: newPlayer.direction,
@@ -225,6 +250,7 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
+    asteroidManager.startGame(); 
     gameLoop(present(), 0);
 }
 

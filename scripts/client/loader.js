@@ -27,6 +27,10 @@ MyGame.loader = (function() {
             message: 'Input loaded',
             onComplete: null
         }, {
+            scripts: ['asteroidManager'],
+            message: 'Asteroid models loaded',
+            onComplete: null
+        }, {
             scripts: ['player', 'player-remote'],
             message: 'Player models loaded',
             onComplete: null
@@ -52,6 +56,9 @@ MyGame.loader = (function() {
         }, {
             key: 'player-other',
             source: 'assets/playerShip1_red.png'
+        }, {
+            key: 'asteroid', 
+            source: 'assets/asteroid.png'
         }];
 
     //------------------------------------------------------------------
