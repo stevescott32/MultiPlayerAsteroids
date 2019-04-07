@@ -12,8 +12,8 @@ let AsteroidManager = require('./asteroidManager');
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '', 
-    maxSize: 200,
-    minSize: 65, 
+    maxSize: 100,
+    minSize: 20, 
     maxSpeed: 100,
     minSpeed: 50,
     interval: 1, // seconds
@@ -65,11 +65,13 @@ function updateAsteroids(elapsedTime) {
     if(!asteroidManager.asteroids) {
         console.log('No asteroids on the server'); 
     }
-    let update = {
-        asteroids: asteroidManager.asteroids,
-    }
-    for (let clientId in activeClients) {
-        activeClients[clientId].socket.emit('update-asteroid', update);
+    else {
+        let update = {
+            asteroids: asteroidManager.asteroids,
+        }
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('update-asteroid', update);
+        }
     }
 }
 

@@ -39,7 +39,7 @@ MyGame.loader = (function() {
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid'],
             message: 'Renderers loaded',
             onComplete: null
         }, {
