@@ -36,7 +36,11 @@ function createPlayer() {
 
     let thrust = 0.001;
     let maxSpeed = .1;
+    let laserArray = [];
 
+    Object.defineProperty(that, 'laserArray', {
+        get: () => laserArray
+    });
     Object.defineProperty(that, 'maxSpeed', {
         get: () => maxSpeed
     });
@@ -104,6 +108,14 @@ function createPlayer() {
 
     };
 
+     //------------------------------------------------------------------
+    //
+    // Fires a laser
+    //
+    //------------------------------------------------------------------
+    that.shoot = function(){
+
+    }
     //------------------------------------------------------------------
     //
     // Rotates the player right based on how long it has been since the
