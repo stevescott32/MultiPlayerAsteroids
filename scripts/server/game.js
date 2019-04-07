@@ -62,7 +62,6 @@ function processInput() {
 }
 
 function updateAsteroids(elapsedTime) {
-    asteroidManager.update(elapsedTime); 
     if(!asteroidManager.asteroids) {
         console.log('No asteroids on the server'); 
     }

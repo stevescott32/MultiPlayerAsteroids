@@ -23,6 +23,7 @@ MyGame.components.AsteroidManager = function (managerSpec) {
 
   /// move asteroids according to speed and the elapsed time 
   function update(elapsedTime) {
+    console.log('Updating asteroid on client'); 
     // remove dead asteroids
     asteroids = asteroids.filter(asteroid => !asteroid.isDead);
 

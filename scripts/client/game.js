@@ -190,8 +190,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
-        for(let a in localAsteroids) {
-            let asteroid = localAsteroids[a]; 
+        for(let a in asteroidManager.asteroids) {
+            let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
                 renderer.Asteroid.render(asteroid, asteroidTexture); 
             }
