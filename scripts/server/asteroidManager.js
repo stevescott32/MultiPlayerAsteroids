@@ -41,15 +41,17 @@ function createAsteroidManager(managerSpec) {
   function populateAstroids(elapsedTime) {
     // if the script has been paused by the browser or something, 
     // we don't want to create a wall of astroids from all directions 
-    if (accumulatedTime > 2 * managerSpec.interval * 1000) {
+/*    if (accumulatedTime > 2 * managerSpec.interval * 1000) {
       accumulatedTime = 2 * managerSpec.interval * 1000;
     }
+    */
     // if we didn't generate an asteroid recently, make one 
     if (accumulatedTime > managerSpec.interval * 1000) {
       accumulatedTime -= managerSpec.interval * 1000;
 
       if(asteroids.length < managerSpec.maxAsteroids) {
         asteroids.push(generateNewAsteroid());
+        console.log('Populating a new asteroid'); 
       }
     }
     else {
@@ -111,7 +113,7 @@ function createAsteroidManager(managerSpec) {
   function startGame() {
     asteroids = [];
     accumulatedTime = 0;
-    for(let i = 0; i  < 15; i ++) {
+    for(let i = 0; i  < managerSpec.initialAsteroids; i ++) {
       asteroids.push(generateNewAsteroid()); 
     }
   }

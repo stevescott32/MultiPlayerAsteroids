@@ -17,7 +17,7 @@ let asteroidManager = AsteroidManager.create({
     maxSpeed: 100,
     minSpeed: 50,
     interval: 1, // seconds
-    maxAsteroids: 12,
+    maxAsteroids: 25,
     initialAsteroids: 8
 }); 
 
@@ -62,6 +62,7 @@ function processInput() {
 }
 
 function updateAsteroids(elapsedTime) {
+    asteroidManager.update(elapsedTime); 
     if(!asteroidManager.asteroids) {
         console.log('No asteroids on the server'); 
     }
