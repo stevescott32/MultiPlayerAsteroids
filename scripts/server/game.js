@@ -66,6 +66,7 @@ function updateAsteroids(elapsedTime) {
         console.log('No asteroids on the server'); 
     }
     else {
+        asteroidManager.update(elapsedTime); 
         let update = {
             asteroids: asteroidManager.asteroids,
         }

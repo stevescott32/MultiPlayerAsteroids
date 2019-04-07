@@ -13,8 +13,8 @@ MyGame.renderer.Asteroid = (function(graphics) {
     //
     // ------------------------------------------------------------------
     that.render = function(model, texture) {
-        console.log('Rendering asteroid at ' + model.position.x + ': ' + model.position.y + ': ' + 
-            ' size ' + model.size.height + ': ' + model.size.width); 
+        /*console.log('Rendering asteroid at ' + model.position.x + ': ' + model.position.y + ': ' + 
+            ' size ' + model.size.height + ': ' + model.size.width);*/ 
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction);
         graphics.drawImage(texture, model.position, model.size);

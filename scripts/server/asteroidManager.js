@@ -14,26 +14,26 @@ let Asteroid = require('./asteroid');
 // at some random location.
 //
 //------------------------------------------------------------------
-function createAsteroidManager() {
+function createAsteroidManager(managerSpec) {
   let asteroids = [];
   let accumulatedTime = 0;
 
   function generateBrokenAsteroid(x, y, sizeCategory) {
     return Asteroid.create({
-      center: { x: x, y: y },
+      position: { x: x, y: y },
       sizeCategory: sizeCategory,
     });
   }
 
   function generateNewAsteroid() {
     let sizeCategory = Math.ceil(Math.random() * 3);
-    let center = {
+    let position = {
       x: random.nextDouble(),
       y: random.nextDouble()
     }
 
     return Asteroid.create({
-      center: center,
+      position: position,
       sizeCategory: sizeCategory
     });
   }
@@ -63,7 +63,7 @@ function createAsteroidManager() {
     if (asteroid.size.sizeCategory > 1) {
       let numToGenerate = 3 + (3 % asteroid.size.sizeCategory);
       for (let a = 0; a < numToGenerate; a++) {
-        asteroids.push(generateBrokenAsteroid(asteroid.center.x, asteroid.center.y, asteroid.size.sizeCategory - 1));
+        asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
       }
     }
     if(!disableAudio) {
@@ -82,24 +82,27 @@ function createAsteroidManager() {
     populateAstroids(elapsedTime);
     for (let a = 0; a < asteroids.length; a++) {
       let asteroid = asteroids[a];
-      asteroid.center.x += asteroid.xSpeed * elapsedTime / 1000;
-      asteroid.center.y += asteroid.ySpeed * elapsedTime / 1000;
-      asteroid.rotation += asteroid.rotationSpeed * elapsedTime / 1000;
+      asteroid.position.x += asteroid.velocity.x * elapsedTime;
+      asteroid.position.y += asteroid.velocity.y * elapsedTime;
+      asteroid.rotation += asteroid.rotationSpeed * elapsedTime;
+
+      /*console.log('Updating asteroid at ' + asteroid.position.x + ': ' + asteroid.position.y + ': ' + 
+      ' size ' + asteroid.size.height + ': ' + asteroid.size.width);*/
 
       /*
-      if(asteroid.center.x + asteroid.radius < 0) 
+      if(asteroid.position.x + asteroid.radius < 0) 
       {
-          asteroid.center.x = Game.graphics.canvas.width + asteroid.radius; 
+          asteroid.position.x = Game.graphics.canvas.width + asteroid.radius; 
       }
-      else if(asteroid.center.x - asteroid.radius > Game.graphics.canvas.width) {
-          asteroid.center.x = 0 - asteroid.radius; 
+      else if(asteroid.position.x - asteroid.radius > Game.graphics.canvas.width) {
+          asteroid.position.x = 0 - asteroid.radius; 
       }
-      else if(asteroid.center.y + asteroid.radius < 0) 
+      else if(asteroid.position.y + asteroid.radius < 0) 
       {
-          asteroid.center.y = Game.graphics.canvas.height + asteroid.radius; 
+          asteroid.position.y = Game.graphics.canvas.height + asteroid.radius; 
       }
-      else if(asteroid.center.y - asteroid.radius > Game.graphics.canvas.height) {
-          asteroid.center.y = 0 - asteroid.radius; 
+      else if(asteroid.position.y - asteroid.radius > Game.graphics.canvas.height) {
+          asteroid.position.y = 0 - asteroid.radius; 
       }
       */
     }
@@ -124,4 +127,4 @@ function createAsteroidManager() {
   return api;
 }
 
-module.exports.create = () => createAsteroidManager(); 
+module.exports.create = (spec) => createAsteroidManager(spec); 

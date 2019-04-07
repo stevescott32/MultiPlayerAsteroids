@@ -4,10 +4,10 @@ let random = require ('./random');
 let managerSpec =  {
     imageSrc: "resources/images/asteroid.png",
         audioSrc: 'resources/audio/coin10.wav',
-        maxSize: 0.15,
-        minSize: 0.05, 
-        maxSpeed: 0.1,
-        minSpeed: 0.01,
+        maxSize: 0.9,
+        minSize: 0.03, 
+        maxSpeed: 0.00015,
+        minSpeed: 0.00005,
         interval: 1, // seconds
         maxAsteroids: 12,
         initialAsteroids: 8,
@@ -19,6 +19,7 @@ function createAsteroid(asteroidSpec) {
       ((managerSpec.maxSpeed - managerSpec.minSpeed) / 2) + managerSpec.minSpeed,
       (managerSpec.maxSpeed - managerSpec.minSpeed) / 4)
       / (asteroidSpec.sizeCategory);
+    console.log('New asteroid speed: ' + speed); 
 
     // larger asteroids rotate more slowely 
     let sign = Math.pow(-1, Math.floor(Math.random() * 2)); // returns 1 or negative one 
@@ -28,8 +29,8 @@ function createAsteroid(asteroidSpec) {
 
     let asteroid = {
       position: {
-        x: asteroidSpec.center.x,
-        y: asteroidSpec.center.y
+        x: asteroidSpec.position.x,
+        y: asteroidSpec.position.y
       },
       size: {
         height: managerSpec.minSize * asteroidSpec.sizeCategory,
