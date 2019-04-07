@@ -5,6 +5,7 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
+    let localAsteroids = []; 
 
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
@@ -15,7 +16,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers = {},
         messageHistory = MyGame.utilities.Queue(),
         messageId = 1,
-        socket = io();
+        socket = io(),
+        asteroidTexture = MyGame.assets['asteroid'];
 
     //------------------------------------------------------------------
     //
@@ -33,6 +35,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
+
     });
 
     //------------------------------------------------------------------
@@ -69,6 +72,22 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     socket.on('disconnect-other', function(data) {
         delete playerOthers[data.clientId];
+    });
+
+    socket.on('update-asteroid', function(data) {
+        if(data.asteroids) {
+            console.log(data.asteroids); 
+            try {
+                localAsteroids = (data.asteroids); 
+            } catch {
+                console.log('Invalid asteroids received'); 
+            }
+            console.log(localAsteroids); 
+            for(let a in data.asteroids) {
+                //console.log(data.asteroids[a]); 
+            }
+            //console.log("Asteroids count " + data.asteroids.length); 
+        } else { console.log('No asteroids'); }
     });
 
     //------------------------------------------------------------------
@@ -164,6 +183,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+        for(let a in localAsteroids) {
+            let asteroid = localAsteroids[a]; 
+            if(asteroid) {
+                renderer.Asteroid.render(asteroid, asteroidTexture); 
+            }
+        }
     }
 
     //------------------------------------------------------------------
@@ -202,7 +227,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.move(elapsedTime);
             },
-            'w', true);
+            'ArrowUp', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -214,7 +239,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateRight(elapsedTime);
             },
-            'd', true);
+            'ArrowRight', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -226,7 +251,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateLeft(elapsedTime);
             },
-            'a', true);
+            'ArrowLeft', true);
 
         //
         // Get the game loop started

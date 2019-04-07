@@ -5,7 +5,7 @@
 //------------------------------------------------------------------
 MyGame.components.PlayerRemote = function() {
     'use strict';
-    let that = {};
+    let player = {}; // object that will be returned 
     let size = {
         width: 0.05,
         height: 0.05
@@ -26,15 +26,15 @@ MyGame.components.PlayerRemote = function() {
         updateWindow: 0      // Server reported time elapsed since last update
     };
 
-    Object.defineProperty(that, 'state', {
+    Object.defineProperty(player, 'state', {
         get: () => state
     });
 
-    Object.defineProperty(that, 'goal', {
+    Object.defineProperty(player, 'goal', {
         get: () => goal
     });
 
-    Object.defineProperty(that, 'size', {
+    Object.defineProperty(player, 'size', {
         get: () => size
     });
 
@@ -44,7 +44,7 @@ MyGame.components.PlayerRemote = function() {
     // from the previous state to the goal (new) state.
     //
     //------------------------------------------------------------------
-    that.update = function(elapsedTime) {
+    player.update = function(elapsedTime) {
         // Protect agains divide by 0 before the first update from the server has been given
         if (goal.updateWindow === 0) return;
 
@@ -59,5 +59,5 @@ MyGame.components.PlayerRemote = function() {
         }
     };
 
-    return that;
+    return player;
 };

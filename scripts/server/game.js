@@ -6,7 +6,20 @@
 'use strict';
 
 let present = require('present');
+// module for creating players
 let Player = require('./player');
+let AsteroidManager = require('./asteroidManager'); 
+let asteroidManager = AsteroidManager.create({
+    imageSrc: '',
+    audioSrc: '', 
+    maxSize: 100,
+    minSize: 20, 
+    maxSpeed: 100,
+    minSpeed: 50,
+    interval: 1, // seconds
+    maxAsteroids: 12,
+    initialAsteroids: 8
+}); 
 
 const UPDATE_RATE_MS = 250;
 let quit = false;
@@ -26,10 +39,14 @@ function processInput() {
     let processMe = inputQueue;
     inputQueue = [];
 
+    // loop through all the inputs to be processed
     for (let inputIndex in processMe) {
         let input = processMe[inputIndex];
+        // get the client associated with this input 
         let client = activeClients[input.clientId];
+        // update the lastMessageId to be the message id we are currently processing
         client.lastMessageId = input.message.id;
+        // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
                 client.player.move(input.message.elapsedTime);
@@ -44,6 +61,21 @@ function processInput() {
     }
 }
 
+function updateAsteroids(elapsedTime) {
+    if(!asteroidManager.asteroids) {
+        console.log('No asteroids on the server'); 
+    }
+    else {
+        asteroidManager.update(elapsedTime); 
+        let update = {
+            asteroids: asteroidManager.asteroids,
+        }
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('update-asteroid', update);
+        }
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -51,8 +83,9 @@ function processInput() {
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(currentTime);
+        activeClients[clientId].player.update(elapsedTime);
     }
+    updateAsteroids(elapsedTime); 
 }
 
 //------------------------------------------------------------------
@@ -61,8 +94,11 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+    // iterate through all active clients 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
+        // update object that will be sent to client, 
+        // containing the information needed for update
         let update = {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
@@ -84,6 +120,7 @@ function updateClients(elapsedTime) {
         }
     }
 
+    // all clients are updated, change reportUpdate to false
     for (let clientId in activeClients) {
         activeClients[clientId].player.reportUpdate = false;
     }
@@ -179,6 +216,8 @@ function initializeSocketIO(httpServer) {
             socket: socket,
             player: newPlayer
         };
+        // the third step (acknowledge) in the TCP 3-step handshake process
+        // (syn, syn-ack, ack)
         socket.emit('connect-ack', {
             direction: newPlayer.direction,
             position: newPlayer.position,
@@ -187,6 +226,7 @@ function initializeSocketIO(httpServer) {
             speed: newPlayer.speed
         });
 
+        // push any new inputs into the input queue 
         socket.on('input', data => {
             inputQueue.push({
                 clientId: socket.id,
@@ -194,11 +234,14 @@ function initializeSocketIO(httpServer) {
             });
         });
 
+        // when a player disconnects, remove them from the list of
+        // active clients 
         socket.on('disconnect', function() {
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
 
+        // tell the players that the newPlayer is connected 
         notifyConnect(socket, newPlayer);
     });
 }
@@ -210,6 +253,7 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
+    asteroidManager.startGame(); 
     gameLoop(present(), 0);
 }
 
@@ -224,3 +268,4 @@ function terminate() {
 }
 
 module.exports.initialize = initialize;
+module.exports.terminate = terminate; 
