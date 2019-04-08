@@ -18,7 +18,7 @@ MyGame.components.Player = function() {
     let rotateRate = 0;
     let speed = 0;
     let thrust = 0.001;
-    let directionVector = {
+    let velocity = {
         x: 0,
         y: 0
     }
@@ -31,7 +31,7 @@ MyGame.components.Player = function() {
         get: () => maxSpeed
     });
     Object.defineProperty(player, 'directionVector', {
-        get: () => directionVector,
+        get: () => velocity,
     });
     Object.defineProperty(player, 'direction', {
         get: () => direction,
@@ -65,25 +65,25 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        directionVector.x += (vectorX * thrust * elapsedTime/100);
-        directionVector.y += (vectorY * thrust * elapsedTime/100);
+        velocity.x += (vectorX * thrust * elapsedTime/100);
+        velocity.y += (vectorY * thrust * elapsedTime/100);
 
         // if the ship is going to fast in any direction, slow it down
-        if(directionVector.x > maxSpeed)
+        if(velocity.x > maxSpeed)
         {
-            directionVector.x = maxSpeed;
+            velocity.x = maxSpeed;
         }
-        if(directionVector.x < 0-maxSpeed)
+        if(velocity.x < 0-maxSpeed)
         {
-            directionVector.x = maxSpeed;
+            velocity.x = maxSpeed;
         }
-        if(directionVector.y > maxSpeed)
+        if(velocity.y > maxSpeed)
         {
-            directionVector.y = maxSpeed;
+            velocity.y = maxSpeed;
         }
-        if(directionVector.y < 0-maxSpeed)
+        if(velocity.y < 0-maxSpeed)
         {
-            directionVector.y = maxSpeed;
+            velocity.y = maxSpeed;
         }
 
     };
@@ -107,35 +107,42 @@ MyGame.components.Player = function() {
     };
 
     player.update = function(elapsedTime) {
-        position.x += directionVector.x * elapsedTime / 100;
-        position.y += directionVector.y * elapsedTime / 100;
+        position.x += velocity.x * elapsedTime / 100;
+        position.y += velocity.y * elapsedTime / 100;
 
         // if the ship would leave the edge of the world, don't let it
-        if(position.x < 0) { position.x = 0; } 
-        if(position.y < 0) { position.y = 0; }
+        if(position.x < 0) { 
+            position.x = 0; 
+            velocity.x = 0; 
+        } 
+        if(position.y < 0) { 
+            position.y = 0;
+            velocity.y = 0; 
+        }
         if(position.x > MyGame.components.Viewport.worldSize.width) {
             position.x = MyGame.components.Viewport.worldSize.width;
+            velocity.x = 0; 
         }
         if(position.y > MyGame.components.Viewport.worldSize.height) {
             position.y = MyGame.components.Viewport.worldSize.height;
+            velocity.y = 0; 
         }
       
         // if the ship is going to leave its viewport soon, adjust the
         // viewport
         let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
-        if(playerVectorViewport.x > 0.9) {
+        if(playerVectorViewport.x > 0.9 && position.x < MyGame.components.Viewport.worldSize.width - 0.1) {
             MyGame.components.Viewport.shiftX(playerVectorViewport.x - 0.9); 
         }
-        if(playerVectorViewport.y > 0.9) {
+        if(playerVectorViewport.y > 0.9 && position.y < MyGame.components.Viewport.worldSize.height - 0.1) {
             MyGame.components.Viewport.shiftY(playerVectorViewport.y - 0.9); 
         }
-        if(playerVectorViewport.x < 0.1) {
+        if(playerVectorViewport.x < 0.1 && position.x > 0.1) {
             MyGame.components.Viewport.shiftX(-1 * (0.1 - playerVectorViewport.x)); 
         }
-        if(playerVectorViewport.y < 0.1) {
+        if(playerVectorViewport.y < 0.1 && position.y > 0.1) {
             MyGame.components.Viewport.shiftY(-1 * (0.1 - playerVectorViewport.y)); 
         }
-
     };
 
     return player;
