@@ -45,7 +45,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
-
+        MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
+        MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
     });
 
     //------------------------------------------------------------------

@@ -61,13 +61,17 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function rotateCanvas(center, rotation) {
-        context.translate(center.x * canvas.width, center.y * canvas.width);
+        let viewportCenter = MyGame.components.Viewport.toViewport(center); 
+        context.translate(viewportCenter.x * canvas.width, viewportCenter.y * canvas.width);
         context.rotate(rotation);
-        context.translate(-center.x * canvas.width, -center.y * canvas.width);
+        context.translate(-viewportCenter.x * canvas.width, -viewportCenter.y * canvas.width);
 
-        minimapContext.translate(center.x * minimap.width, center.y * minimap.width);
+        let worldSize = MyGame.components.Viewport.worldSize; 
+        minimapContext.translate(center.x / worldSize.width * minimap.width, 
+            center.y / worldSize.height * minimap.height);
         minimapContext.rotate(rotation);
-        minimapContext.translate(-center.x * minimap.width, -center.y * minimap.width);
+        minimapContext.translate(-center.x / worldSize.width * minimap.width, 
+            -center.y / worldSize.height * minimap.height);
     }
 
     //------------------------------------------------------------------
@@ -77,8 +81,8 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: MyGame.components.Viewport.toViewportX(center.x) * canvas.width,
+            y: MyGame.components.Viewport.toViewportY(center.y) * canvas.height
         };
         let localSize = {
             width: size.width * canvas.width,
@@ -91,13 +95,14 @@ MyGame.graphics = (function() {
             localSize.width,
             localSize.height);
 
+        let worldSize = MyGame.components.Viewport.worldSize; 
         let localCenterMini = {
-            x: center.x * minimap.width,
-            y: center.y * minimap.width
+            x: center.x / worldSize.width * minimap.width,
+            y: center.y / worldSize.height * minimap.height
         };
         let localSizeMini = {
-            width: size.width * minimap.width,
-            height: size.height * minimap.height
+            width: size.width / worldSize.width * minimap.width,
+            height: size.height / worldSize.height * minimap.height
         };
 
         minimapContext.drawImage(texture,

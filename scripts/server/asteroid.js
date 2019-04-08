@@ -19,7 +19,6 @@ function createAsteroid(asteroidSpec) {
       ((managerSpec.maxSpeed - managerSpec.minSpeed) / 2) + managerSpec.minSpeed,
       (managerSpec.maxSpeed - managerSpec.minSpeed) / 4)
       / (asteroidSpec.sizeCategory);
-    console.log('New asteroid speed: ' + speed); 
 
     // larger asteroids rotate more slowely 
     let sign = Math.pow(-1, Math.floor(Math.random() * 2)); // returns 1 or negative one 

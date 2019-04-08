@@ -66,6 +66,9 @@ MyGame.components.Player = function() {
         let vectorY = Math.sin(direction);
 
         directionVector.x += (vectorX * thrust * elapsedTime/100);
+        directionVector.y += (vectorY * thrust * elapsedTime/100);
+
+        // if the ship is going to fast in any direction, slow it down
         if(directionVector.x > maxSpeed)
         {
             directionVector.x = maxSpeed;
@@ -74,7 +77,6 @@ MyGame.components.Player = function() {
         {
             directionVector.x = maxSpeed;
         }
-        directionVector.y += (vectorY * thrust * elapsedTime/100);
         if(directionVector.y > maxSpeed)
         {
             directionVector.y = maxSpeed;
@@ -83,7 +85,7 @@ MyGame.components.Player = function() {
         {
             directionVector.y = maxSpeed;
         }
-        
+
     };
 
     //------------------------------------------------------------------
@@ -105,9 +107,35 @@ MyGame.components.Player = function() {
     };
 
     player.update = function(elapsedTime) {
-        position.x +=directionVector.x * elapsedTime/100;
-        position.y += directionVector.y * elapsedTime/100;
+        position.x += directionVector.x * elapsedTime / 100;
+        position.y += directionVector.y * elapsedTime / 100;
+
+        // if the ship would leave the edge of the world, don't let it
+        if(position.x < 0) { position.x = 0; } 
+        if(position.y < 0) { position.y = 0; }
+        if(position.x > MyGame.components.Viewport.worldSize.width) {
+            position.x = MyGame.components.Viewport.worldSize.width;
+        }
+        if(position.y > MyGame.components.Viewport.worldSize.height) {
+            position.y = MyGame.components.Viewport.worldSize.height;
+        }
       
+        // if the ship is going to leave its viewport soon, adjust the
+        // viewport
+        let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
+        if(playerVectorViewport.x > 0.9) {
+            MyGame.components.Viewport.shiftX(playerVectorViewport.x - 0.9); 
+        }
+        if(playerVectorViewport.y > 0.9) {
+            MyGame.components.Viewport.shiftY(playerVectorViewport.y - 0.9); 
+        }
+        if(playerVectorViewport.x < 0.1) {
+            MyGame.components.Viewport.shiftX(-1 * (0.1 - playerVectorViewport.x)); 
+        }
+        if(playerVectorViewport.y < 0.1) {
+            MyGame.components.Viewport.shiftY(-1 * (0.1 - playerVectorViewport.y)); 
+        }
+
     };
 
     return player;
