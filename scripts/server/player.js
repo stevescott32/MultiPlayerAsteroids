@@ -14,7 +14,7 @@ let random = require ('./random');
 //
 //------------------------------------------------------------------
 function createPlayer() {
-    let that = {};
+    let player = {};
 
     let position = {
         x: random.nextDouble(),
@@ -38,40 +38,38 @@ function createPlayer() {
     let maxSpeed = .1;
     let laserArray = [];
 
-    Object.defineProperty(that, 'laserArray', {
-        get: () => laserArray
-    });
-    Object.defineProperty(that, 'maxSpeed', {
+    // define the available methods on player object
+    Object.defineProperty(player, 'maxSpeed', {
         get: () => maxSpeed
     });
-    Object.defineProperty(that, 'thrust', {
+    Object.defineProperty(player, 'thrust', {
         get: () => thrust
     });
-    Object.defineProperty(that, 'directionVector', {
+    Object.defineProperty(player, 'directionVector', {
         get: () => directionVector,
     });
 
-    Object.defineProperty(that, 'direction', {
+    Object.defineProperty(player, 'direction', {
         get: () => direction
     });
 
-    Object.defineProperty(that, 'position', {
+    Object.defineProperty(player, 'position', {
         get: () => position
     });
 
-    Object.defineProperty(that, 'size', {
+    Object.defineProperty(player, 'size', {
         get: () => size
     });
 
-    Object.defineProperty(that, 'speed', {
+    Object.defineProperty(player, 'speed', {
         get: () => speed
     })
 
-    Object.defineProperty(that, 'rotateRate', {
+    Object.defineProperty(player, 'rotateRate', {
         get: () => rotateRate
     });
 
-    Object.defineProperty(that, 'reportUpdate', {
+    Object.defineProperty(player, 'reportUpdate', {
         get: () => reportUpdate,
         set: value => reportUpdate = value
     });
@@ -82,7 +80,7 @@ function createPlayer() {
     // last move took place.
     //
     //------------------------------------------------------------------
-    that.move = function(elapsedTime) {
+    player.move = function(elapsedTime) {
         reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
@@ -113,16 +111,14 @@ function createPlayer() {
     // Fires a laser
     //
     //------------------------------------------------------------------
-    that.shoot = function(){
-
-    }
+    
     //------------------------------------------------------------------
     //
     // Rotates the player right based on how long it has been since the
     // last rotate took place.
     //
     //------------------------------------------------------------------
-    that.rotateRight = function(elapsedTime) {
+    player.rotateRight = function(elapsedTime) {
         reportUpdate = true;
         direction += (rotateRate * elapsedTime);
     };
@@ -133,7 +129,7 @@ function createPlayer() {
     // last rotate took place.
     //
     //------------------------------------------------------------------
-    that.rotateLeft = function(elapsedTime) {
+    player.rotateLeft = function(elapsedTime) {
         reportUpdate = true;
         direction -= (rotateRate * elapsedTime);
     };
@@ -143,14 +139,14 @@ function createPlayer() {
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
-    that.update = function(elapsedTime) {
+    player.update = function(elapsedTime) {
         reportUpdate = true;
         position.x += directionVector.x * elapsedTime/100;
         position.y += directionVector.y * elapsedTime/100;
        
     };
 
-    return that;
+    return player;
 }
 
 module.exports.create = () => createPlayer();
