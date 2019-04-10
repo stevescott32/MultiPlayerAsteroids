@@ -95,6 +95,23 @@ function updateAsteroids(elapsedTime) {
     }
 }
 
+function updateLaser(elapsedTime)
+{
+    //console.log(laserManager.laserArray);
+    if(!laserManager.laserArray) {
+        console.log('No Lasers on the server'); 
+    }
+    else {
+        laserManager.update(elapsedTime); 
+        let update = {
+            lasers: laserManager.laserArray,
+        }
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('update-laser', update);
+        }
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -104,7 +121,9 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(elapsedTime);
     }
-    updateAsteroids(elapsedTime); 
+    updateAsteroids(elapsedTime);
+    updateLaser(elapsedTime);
+    //laserManager.update(elapsedTime);
 }
 
 //------------------------------------------------------------------

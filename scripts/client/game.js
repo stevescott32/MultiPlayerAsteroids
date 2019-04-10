@@ -104,14 +104,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     });
 
     socket.on('update-laser', function(data) {
+        //console.log(data)
         if(data.lasers) {
             try {
                 localLaser = (data.lasers); 
-                laserManager.laserArray = localLaser; 
+                laserManager.laserArray = localLaser;
+                //console.log(laserManager.laserArray) 
             } catch {
                 console.log('Error'); 
             }
-            //console.log("Asteroids count " + data.asteroids.length); 
+            //console.log("Laser count " + data.lasers.length); 
         } else { console.log('No Lasers'); }
     });
 
@@ -207,7 +209,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function render() {
-        console.log("inside Render");
         graphics.clear();
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         for (let id in playerOthers) {
@@ -223,6 +224,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for(let i in laserManager.laserArray){
             let laser = laserManager.laserArray[i];
             if(laser){
+                console.log("Render Laser: " + laser);
                 renderer.Laser.render(laser, laserTexture);
             }
         }

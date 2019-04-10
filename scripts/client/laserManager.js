@@ -3,12 +3,15 @@
 MyGame.components.LaserManager = function (managerSpec) {
     'use strict';
   
+    let timeLimit = 0;
+    let fireRate = 250;
+    let fire = true;
     let image = new Image();
     let imageReady = false;
     image.onload = function () {
       imageReady = true;
     };
-    image.src = managerSpec.imageSrc;
+    image.src = "../assets/laser.png";
   
 
     let laserArray = [];
@@ -18,7 +21,6 @@ MyGame.components.LaserManager = function (managerSpec) {
     function update(elapsedTime) {
       // remove dead asteroids
       //let laser = laserArray.filter(laser => !laser.isDead);
-  
       for (let a = 0; a < laserArray.length; a++) {
         let laser = laserArray[a];
         laser.position.x += laser.velocity.x * elapsedTime;
@@ -34,10 +36,16 @@ MyGame.components.LaserManager = function (managerSpec) {
           y:  y,
         }
     
-         laserArray.push(MyGame.components.Laser.createLaser({
-          position: position,
-          rotation: rotation,
-        }));
+        // if(fire === true)
+        // {
+          // fire = false;
+          // timeLimit = 0;
+          laserArray.push(MyGame.components.Laser.createLaser({
+            position: position,
+            rotation: rotation,
+          }));
+        //}
+         
       }
   
     function startGame() {
@@ -52,6 +60,7 @@ MyGame.components.LaserManager = function (managerSpec) {
       get imageReady() { return imageReady; },
       get image() { return image; },
       get laserArray() { return laserArray; },
+      get timeLimit(){return timeLimit},
       set laserArray(inLasers) { laserArray = inLasers;  }
     };
   

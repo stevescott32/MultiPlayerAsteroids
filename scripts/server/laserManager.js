@@ -5,13 +5,15 @@
 // ------------------------------------------------------------------
 'use strict';
 
-let random = require ('./random');
+
 let Laser = require('./laser');
 
 
 function createLaserManager(managerSpec) {
   let laserArray = [];
   let accumulatedTime = 0; 
+  let fireRate = 250;
+  let fire = true;
 
 
   function generateNewLaser(x,y,rotation) {
@@ -19,7 +21,7 @@ function createLaserManager(managerSpec) {
       x:  x,
       y:  y,
     }
-
+    
      laserArray.push(Laser.create({
       position: position,
       rotation: rotation,
@@ -31,6 +33,11 @@ function createLaserManager(managerSpec) {
   /// move lasers according to speed and the elapsed time 
   function update(elapsedTime) {
     // remove dead lasers
+    accumulatedTime += elapsedTime;
+    if (accumulatedTime > fireRate)
+    {
+      fire = true;
+    }
     laserArray = laserArray.filter( laser => !laser.isDead); 
 
     for (let a = 0; a < laserArray.length; a++) {

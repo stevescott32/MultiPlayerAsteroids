@@ -1,7 +1,7 @@
 MyGame.components.Laser = (function () {
 
 let manager =  {
-        imageSrc: "../assets/lasers/greenLaser.png",
+        imageSrc: "../assets/laser.png",
         //audioSrc: 'resources/audio/coin10.wav',
         size: 0.09,
         speed: .0015,
