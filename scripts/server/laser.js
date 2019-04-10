@@ -1,0 +1,33 @@
+let random = require ('./random');
+
+let manager =  {
+        imageSrc: "../assets/lasers/greenLaser.png",
+        //audioSrc: 'resources/audio/coin10.wav',
+        size: 0.9,
+        speed: 0.015,
+}; 
+
+function createLaser(laserSpec) {
+
+
+    let newlaser = {
+      position: {
+        x: laserSpec.position.x,
+        y: laserSpec.position.y
+      },
+      size: {
+        height: manager.size,
+        width: manager.size,
+      },
+      velocity: {
+        x: Math.cos(laserSpec.rotation) * manager.speed,
+        y: Math.sin(laserSpec.rotation) * manager.speed
+      },
+      radius: manager.size / 2,
+      isDead: false
+    };
+
+    return newlaser;
+  }
+
+  module.exports.create = (laserSpec) => createLaser(laserSpec);

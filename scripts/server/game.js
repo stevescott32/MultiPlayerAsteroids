@@ -9,6 +9,7 @@ let present = require('present');
 // module for creating players
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager'); 
+let LaserManager = require('./laserManager')
 
 // the setting for how large the world is
 const WORLDSIZE = {
@@ -28,6 +29,13 @@ let asteroidManager = AsteroidManager.create({
     initialAsteroids: 8, 
     worldSize: WORLDSIZE
 }); 
+
+let laserManager = LaserManager.create({
+    imageSrc: '',
+    //audioSrc: '', 
+    size: 10,
+    speed: 3,
+});
 
 const UPDATE_RATE_MS = 250;
 let quit = false;
@@ -64,6 +72,9 @@ function processInput() {
                 break;
             case 'rotate-right':
                 client.player.rotateRight(input.message.elapsedTime);
+                break;
+            case 'fire':
+                laserManager.generateNewLaser(client.player.position.x,client.player.position.y, client.player.direction);
                 break;
         }
     }
