@@ -186,11 +186,18 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
+        // render each of the tiles in the viewport
+        for(let x = Math.floor(Viewport.getViewport.x); x < Math.ceil(Viewport.getViewport.x); x++) {
+            for(let x = Math.floor(Viewport.getViewport.x); x < Math.ceil(Viewport.getViewport.x); x++) {
+            }
+        }
         renderer.Player.render(playerSelf.model, playerSelf.texture);
+        // render all other players
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+        // render each of the asteroids
         for(let a in asteroidManager.asteroids) {
             let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
