@@ -32,8 +32,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.size.x = data.size.x;
         playerSelf.model.size.y = data.size.y;
 
+        playerSelf.model.momentum.x = data.momentum.x;
+        playerSelf.model.momentum.y = data.momentum.y;
+        
         playerSelf.model.direction = data.direction;
-        playerSelf.model.speed = data.speed;
+        playerSelf.model.thrustRate = data.thrustRate;
         playerSelf.model.rotateRate = data.rotateRate;
 
     });
@@ -48,6 +51,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         let model = components.PlayerRemote();
         model.state.position.x = data.position.x;
         model.state.position.y = data.position.y;
+        model.state.momentum.x = data.momentum.x;
+        model.state.momentum.y = data.momentum.y;
         model.state.direction = data.direction;
         model.state.lastUpdate = performance.now();
 
@@ -99,6 +104,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
         playerSelf.model.direction = data.direction;
+        playerSelf.model.momentum.x = data.momentum.x;
+        playerSelf.model.momentum.y = data.momentum.y;
+
 
         //
         // Remove messages from the queue up through the last one identified
@@ -144,6 +152,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
+            model.state.momentum.x = data.momentum.x;
+            model.state.momentum.y = data.momentum.y
+            
             model.goal.position.x = data.position.x;
             model.goal.position.y = data.position.y
             model.goal.direction = data.direction;

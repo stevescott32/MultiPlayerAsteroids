@@ -16,31 +16,26 @@ MyGame.components.Player = function() {
     };
     let direction = 0;
     let rotateRate = 0;
-    let speed = 0;
-    let thrust = 0.001;
-    let directionVector = {
+    let thrustRate = 0.0000004;
+    let momentum = {
         x: 0,
         y: 0
     }
     let maxSpeed = .1;
 
-    Object.defineProperty(player, 'thrust', {
-        get: () => thrust
+    Object.defineProperty(player, 'thrustRate', {
+        get: () => thrustRate,
+        set: value => { thrustRate = value; }
     });
     Object.defineProperty(player, 'maxSpeed', {
         get: () => maxSpeed
     });
-    Object.defineProperty(player, 'directionVector', {
-        get: () => directionVector,
+    Object.defineProperty(player, 'momentum', {
+        get: () => momentum,
     });
     Object.defineProperty(player, 'direction', {
         get: () => direction,
         set: (value) => { direction = value }
-    });
-
-    Object.defineProperty(player, 'speed', {
-        get: () => speed,
-        set: value => { speed = value; }
     });
 
     Object.defineProperty(player, 'rotateRate', {
@@ -65,24 +60,25 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        directionVector.x += (vectorX * thrust * elapsedTime/100);
-        if(directionVector.x > maxSpeed)
-        {
-            directionVector.x = maxSpeed;
-        }
-        if(directionVector.x < 0-maxSpeed)
-        {
-            directionVector.x = maxSpeed;
-        }
-        directionVector.y += (vectorY * thrust * elapsedTime/100);
-        if(directionVector.y > maxSpeed)
-        {
-            directionVector.y = maxSpeed;
-        }
-        if(directionVector.y < 0-maxSpeed)
-        {
-            directionVector.y = maxSpeed;
-        }
+        momentum.x += (vectorX * thrustRate * elapsedTime);
+        momentum.y += (vectorY * thrustRate * elapsedTime);
+        // if(momentum.x > maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        // if(momentum.x < 0-maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        
+        // if(momentum.y > maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
+        // if(momentum.y < 0-maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
         
     };
 
@@ -105,8 +101,8 @@ MyGame.components.Player = function() {
     };
 
     player.update = function(elapsedTime) {
-        position.x +=directionVector.x * elapsedTime/100;
-        position.y += directionVector.y * elapsedTime/100;
+        position.x +=(momentum.x * elapsedTime);
+        position.y += (momentum.y * elapsedTime);
       
     };
 
