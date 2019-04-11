@@ -13,14 +13,14 @@ let random = require ('./random');
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer() {
+function createPlayer(worldSize) {
     let player = {};
 
     let position = {
         x: random.nextDouble(),
         y: random.nextDouble()
     };
-    let directionVector = {
+    let velocity = {
         x: 0,
         y: 0
     };
@@ -45,7 +45,7 @@ function createPlayer() {
         get: () => thrust
     });
     Object.defineProperty(player, 'directionVector', {
-        get: () => directionVector,
+        get: () => velocity,
     });
 
     Object.defineProperty(player, 'direction', {
@@ -84,23 +84,23 @@ function createPlayer() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        directionVector.x += (vectorX * thrust * elapsedTime/100);
-        if(directionVector.x > maxSpeed)
+        velocity.x += (vectorX * thrust * elapsedTime/100);
+        if(velocity.x > maxSpeed)
         {
-            directionVector.x = maxSpeed;
+            velocity.x = maxSpeed;
         }
-        if(directionVector.x < 0-maxSpeed)
+        if(velocity.x < 0-maxSpeed)
         {
-            directionVector.x = maxSpeed;
+            velocity.x = maxSpeed;
         }
-        directionVector.y += (vectorY * thrust * elapsedTime/100);
-        if(directionVector.y > maxSpeed)
+        velocity.y += (vectorY * thrust * elapsedTime/100);
+        if(velocity.y > maxSpeed)
         {
-            directionVector.y = maxSpeed;
+            velocity.y = maxSpeed;
         }
-        if(directionVector.y < 0-maxSpeed)
+        if(velocity.y < 0-maxSpeed)
         {
-            directionVector.y = maxSpeed;
+            velocity.y = maxSpeed;
         }
 
     };
@@ -134,12 +134,29 @@ function createPlayer() {
     //------------------------------------------------------------------
     player.update = function(elapsedTime) {
         reportUpdate = true;
-        position.x += directionVector.x * elapsedTime/100;
-        position.y += directionVector.y * elapsedTime/100;
+        position.x += velocity.x * elapsedTime/100;
+        position.y += velocity.y * elapsedTime/100;
        
+        // if the ship would leave the edge of the world, don't let it
+        if(position.x < 0) { 
+            position.x = 0; 
+            velocity.x = 0; 
+        } 
+        if(position.y < 0) { 
+            position.y = 0;
+            velocity.y = 0; 
+        }
+        if(position.x > worldSize.width) {
+            position.x = worldSize.width;
+            velocity.x = 0; 
+        }
+        if(position.y > worldSize.height) {
+            position.y = worldSize.height;
+            velocity.y = 0; 
+        }
     };
 
     return player;
 }
 
-module.exports.create = () => createPlayer();
+module.exports.create = (worldSize) => createPlayer(worldSize);

@@ -7,6 +7,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
     let localAsteroids = []; 
 
+    let asteroidManager = components.AsteroidManager({
+        maxSize: 200,
+        minSize: 65, 
+        maxSpeed: 100,
+        minSpeed: 50,
+        interval: 1, // seconds
+        maxAsteroids: 12,
+        initialAsteroids: 8
+    }); 
+
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
         playerSelf = {
@@ -35,7 +45,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.speed = data.speed;
         playerSelf.model.rotateRate = data.rotateRate;
-
+        MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
+        MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
     });
 
     //------------------------------------------------------------------
@@ -76,15 +87,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
 
     socket.on('update-asteroid', function(data) {
         if(data.asteroids) {
-            console.log(data.asteroids); 
             try {
                 localAsteroids = (data.asteroids); 
+                asteroidManager.asteroids = localAsteroids; 
             } catch {
                 console.log('Invalid asteroids received'); 
-            }
-            console.log(localAsteroids); 
-            for(let a in data.asteroids) {
-                //console.log(data.asteroids[a]); 
             }
             //console.log("Asteroids count " + data.asteroids.length); 
         } else { console.log('No asteroids'); }
@@ -166,6 +173,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function update(elapsedTime) {
         playerSelf.model.update(elapsedTime);
+        asteroidManager.update(elapsedTime); 
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
@@ -183,8 +191,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
-        for(let a in localAsteroids) {
-            let asteroid = localAsteroids[a]; 
+        for(let a in asteroidManager.asteroids) {
+            let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
                 renderer.Asteroid.render(asteroid, asteroidTexture); 
             }

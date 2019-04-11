@@ -9,16 +9,24 @@ let present = require('present');
 // module for creating players
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager'); 
+
+// the setting for how large the world is
+const WORLDSIZE = {
+    height: 5,
+    width: 5 // the world is 5 X times as big as the viewport size 
+}
+
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '', 
-    maxSize: 100,
-    minSize: 20, 
+    maxSize: 180,
+    minSize: 60, 
     maxSpeed: 100,
     minSpeed: 50,
     interval: 1, // seconds
-    maxAsteroids: 12,
-    initialAsteroids: 8
+    maxAsteroids: 25,
+    initialAsteroids: 8, 
+    worldSize: WORLDSIZE
 }); 
 
 const UPDATE_RATE_MS = 250;
@@ -206,11 +214,16 @@ function initializeSocketIO(httpServer) {
         }
     }
     
+    //------------------------------------------------------------------
+    //
+    // Sends the data needed for a client to start the game
+    //
+    //------------------------------------------------------------------
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create()
+        let newPlayer = Player.create(WORLDSIZE)
         newPlayer.clientId = socket.id;
         activeClients[socket.id] = {
             socket: socket,
@@ -223,7 +236,8 @@ function initializeSocketIO(httpServer) {
             position: newPlayer.position,
             size: newPlayer.size,
             rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed
+            speed: newPlayer.speed,
+            worldSize: WORLDSIZE,
         });
 
         // push any new inputs into the input queue 

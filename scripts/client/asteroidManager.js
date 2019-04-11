@@ -2,7 +2,7 @@
 //
 //
 // ------------------------------------------------------------------
-MyGame.components.AsteroidManager = function () {
+MyGame.components.AsteroidManager = function (managerSpec) {
   'use strict';
 
   let image = new Image();
@@ -28,9 +28,9 @@ MyGame.components.AsteroidManager = function () {
 
     for (let a = 0; a < asteroids.length; a++) {
       let asteroid = asteroids[a];
-      asteroid.center.x += asteroid.xSpeed * elapsedTime / 1000;
-      asteroid.center.y += asteroid.ySpeed * elapsedTime / 1000;
-      asteroid.rotation += asteroid.rotationSpeed * elapsedTime / 1000;
+      asteroid.position.x += asteroid.velocity.x * elapsedTime;
+      asteroid.position.y += asteroid.velocity.y * elapsedTime;
+      asteroid.rotation += asteroid.rotationSpeed * elapsedTime;
     }
   }
 
@@ -45,6 +45,7 @@ MyGame.components.AsteroidManager = function () {
     get imageReady() { return imageReady; },
     get image() { return image; },
     get asteroids() { return asteroids; },
+    set asteroids(inAsteroids) { asteroids = inAsteroids;  }
   };
 
   return api;
