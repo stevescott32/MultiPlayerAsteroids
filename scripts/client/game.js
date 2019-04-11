@@ -88,8 +88,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     socket.on('update-asteroid', function(data) {
         if(data.asteroids) {
             try {
-                localAsteroids = (data.asteroids); 
-                asteroidManager.asteroids = localAsteroids; 
+                asteroidManager.asteroids = (data.asteroids); 
             } catch {
                 console.log('Invalid asteroids received'); 
             }
