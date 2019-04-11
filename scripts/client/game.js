@@ -156,7 +156,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     playerSelf.model.rotateLeft(message.elapsedTime);
                     break;
                 case 'fire':
-                    laserManager.generateNewLaser(playerSelf.position.x,playerSelf.position.y, playerSelf.direction);
+                    console.log("Time: " + laserManager.accumulatedTime);
+                    if(laserManager.accumulatedTime > laserManager.fireRate)
+                    {
+                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                            playerSelf.model.direction);
+                    }
                     break;
             }
             memory.enqueue(message);

@@ -74,7 +74,10 @@ function processInput() {
                 client.player.rotateRight(input.message.elapsedTime);
                 break;
             case 'fire':
-                laserManager.generateNewLaser(client.player.position.x,client.player.position.y, client.player.direction);
+                if(laserManager.accumulatedTime > laserManager.fireRate)
+                {
+                    laserManager.generateNewLaser(client.player.position.x,client.player.position.y, client.player.direction);
+                }
                 break;
         }
     }

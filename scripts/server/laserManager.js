@@ -12,7 +12,7 @@ let Laser = require('./laser');
 function createLaserManager(managerSpec) {
   let laserArray = [];
   let accumulatedTime = 0; 
-  let fireRate = 250;
+  let fireRate = 500;
   let fire = true;
 
 
@@ -22,10 +22,16 @@ function createLaserManager(managerSpec) {
       y:  y,
     }
     
-     laserArray.push(Laser.create({
-      position: position,
-      rotation: rotation,
-    }));
+    if(fire === true)
+    {
+      fire = false;
+      accumulatedTime = 0;
+      laserArray.push(Laser.create({
+        position: position,
+        rotation: rotation,
+      }));
+    }
+     
   }
 
 
@@ -58,6 +64,8 @@ function createLaserManager(managerSpec) {
     startGame: startGame,
     generateNewLaser: generateNewLaser,
     get image() { return image; },
+    get accumulatedTime(){return accumulatedTime},
+    get fireRate(){return fireRate},
     get laserArray() { return laserArray; },
   };
 
