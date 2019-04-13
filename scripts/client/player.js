@@ -105,20 +105,20 @@ MyGame.components.Player = function() {
         position.y += momentum.y * elapsedTime;
 
         // if the ship would leave the edge of the world, don't let it
-        if(position.x < 0) { 
-            position.x = 0; 
-            momentum.x = 0; 
-        } 
-        if(position.y < 0) { 
-            position.y = 0;
-            momentum.y = 0; 
+        if (position.x - (size.width / 2) < 0) {
+            position.x = size.width / 2;
+            momentum.x = 0;
         }
-        if(position.x > MyGame.components.Viewport.worldSize.width) {
-            position.x = MyGame.components.Viewport.worldSize.width;
+        if (position.y - (size.height / 2) < 0) {
+            position.y = (size.height / 2);
+            momentum.y = 0;
+        }
+        if(position.x + (size.width / 2) > MyGame.components.Viewport.worldSize.width) {
+            position.x = MyGame.components.Viewport.worldSize.width - (size.width / 2);
             momentum.x = 0; 
         }
-        if(position.y > MyGame.components.Viewport.worldSize.height) {
-            position.y = MyGame.components.Viewport.worldSize.height;
+        if(position.y + (size.height / 2) > MyGame.components.Viewport.worldSize.height) {
+            position.y = MyGame.components.Viewport.worldSize.height - (size.height / 2);
             momentum.y = 0; 
         }
       

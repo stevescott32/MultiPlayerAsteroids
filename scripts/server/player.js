@@ -224,20 +224,20 @@ function createPlayer(worldSize) {
         position.y += (momentum.y * elapsedTime);
 
         // if the ship would leave the edge of the world, don't let it
-        if (position.x < 0) {
-            position.x = 0;
+        if (position.x - (size.width / 2) < 0) {
+            position.x = size.width / 2;
             momentum.x = 0;
         }
-        if (position.y < 0) {
-            position.y = 0;
+        if (position.y - (size.height / 2) < 0) {
+            position.y = (size.height / 2);
             momentum.y = 0;
         }
-        if (position.x > worldSize.width) {
-            position.x = worldSize.width;
+        if (position.x + (size.width / 2) > worldSize.width) {
+            position.x = worldSize.width - (size.width / 2);
             momentum.x = 0;
         }
-        if (position.y > worldSize.height) {
-            position.y = worldSize.height;
+        if (position.y + (size.height / 2) > worldSize.height) {
+            position.y = worldSize.height - (size.height / 2);
             momentum.y = 0;
         }
     };
