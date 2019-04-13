@@ -30,7 +30,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 }); 
 
-const UPDATE_RATE_MS = 1000;
+const UPDATE_RATE_MS = 800;
 
 let laserManager = LaserManager.create({
     imageSrc: '',

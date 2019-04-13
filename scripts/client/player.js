@@ -103,8 +103,6 @@ MyGame.components.Player = function() {
     player.update = function(elapsedTime) {
         position.x += momentum.x * elapsedTime;
         position.y += momentum.y * elapsedTime;
-        console.log('Local player updated to ' + position.x + ': ' + position.y);
-        console.log('Elapsed time: ' + elapsedTime); 
 
         // if the ship would leave the edge of the world, don't let it
         if(position.x < 0) { 

@@ -343,8 +343,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 };
                 socket.emit('input', message);
                 messageHistory.enqueue(message);
-                laserManager.generateNewLaser(playerSelf.model.position.x, playerSelf.model.position.y, 
-                    playerSelf.model.direction)
+                if(laserManager.accumulatedTime > laserManager.fireRate)
+                {
+                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                        playerSelf.model.direction);
+                }
             },
             ' ', true);
 

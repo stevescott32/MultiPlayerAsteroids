@@ -36,7 +36,7 @@ MyGame.components.LaserManager = function (managerSpec) {
           y:  y,
         }
     
-        if(fire === true)
+//        if(fire === true)
         {
             fire = false;
             accumulatedTime = 0;
