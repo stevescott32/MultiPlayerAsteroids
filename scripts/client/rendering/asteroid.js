@@ -6,6 +6,7 @@
 MyGame.renderer.Asteroid = (function(graphics) {
     'use strict';
     let that = {};
+    let canvases = ["viewport", "minimap"]; 
 
     // ------------------------------------------------------------------
     //
@@ -16,8 +17,8 @@ MyGame.renderer.Asteroid = (function(graphics) {
         /*console.log('Rendering asteroid at ' + model.position.x + ': ' + model.position.y + ': ' + 
             ' size ' + model.size.height + ': ' + model.size.width);*/ 
         graphics.saveContext();
-        graphics.rotateCanvas(model.position, model.direction);
-        graphics.drawImage(texture, model.position, model.size);
+        graphics.rotateCanvas(model.position, model.direction, canvases);
+        graphics.drawImage(texture, model.position, model.size, canvases);
         graphics.restoreContext();
     };
 
