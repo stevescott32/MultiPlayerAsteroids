@@ -7,6 +7,7 @@
 
 let random = require ('./random');
 
+
 //------------------------------------------------------------------
 //
 // Public function used to initially create a newly connected player
@@ -20,7 +21,7 @@ function createPlayer(worldSize) {
         x: random.nextDouble(),
         y: random.nextDouble()
     };
-    let velocity = {
+    let momentum = {
         x: 0,
         y: 0
     };
@@ -31,21 +32,19 @@ function createPlayer(worldSize) {
     };
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.0002;                  // unit distance per millisecond
-    let reportUpdate = false;    // Indicates if this model was updated during the last update
 
-    let thrust = 0.001;
-    let maxSpeed = .1;
+    
+    let thrustRate = 0.0000004;         // unit acceleration per millisecond
+    let reportUpdate = false;           // Indicates if this model was updated during the last update
+    let lastUpdateDiff = 0;
 
     // define the available methods on player object
-    Object.defineProperty(player, 'maxSpeed', {
-        get: () => maxSpeed
+   
+    Object.defineProperty(player, 'thrustRate', {
+        get: () => thrustRate
     });
-    Object.defineProperty(player, 'thrust', {
-        get: () => thrust
-    });
-    Object.defineProperty(player, 'directionVector', {
-        get: () => velocity,
+    Object.defineProperty(player, 'momentum', {
+        get: () => momentum,
     });
 
     Object.defineProperty(player, 'direction', {
@@ -60,9 +59,6 @@ function createPlayer(worldSize) {
         get: () => size
     });
 
-    Object.defineProperty(player, 'speed', {
-        get: () => speed
-    })
 
     Object.defineProperty(player, 'rotateRate', {
         get: () => rotateRate
@@ -79,32 +75,36 @@ function createPlayer(worldSize) {
     // last move took place.
     //
     //------------------------------------------------------------------
-    player.move = function(elapsedTime) {
+    player.move = function(elapsedTime,updateDiff) {
+        lastUpdateDiff += updateDiff;
+        player.update(updateDiff, true);
         reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        velocity.x += (vectorX * thrust * elapsedTime/100);
-        if(velocity.x > maxSpeed)
-        {
-            velocity.x = maxSpeed;
-        }
-        if(velocity.x < 0-maxSpeed)
-        {
-            velocity.x = maxSpeed;
-        }
-        velocity.y += (vectorY * thrust * elapsedTime/100);
-        if(velocity.y > maxSpeed)
-        {
-            velocity.y = maxSpeed;
-        }
-        if(velocity.y < 0-maxSpeed)
-        {
-            velocity.y = maxSpeed;
-        }
+        momentum.x += (vectorX * thrustRate * elapsedTime);
+        momentum.y += (vectorY * thrustRate * elapsedTime);
+
+        // if(momentum.x > maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        // if(momentum.x < 0-maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        // if(momentum.y > maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
+        // if(momentum.y < 0-maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
 
     };
 
+    
     //------------------------------------------------------------------
     //
     // Rotates the player right based on how long it has been since the
@@ -132,10 +132,14 @@ function createPlayer(worldSize) {
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
-    player.update = function(elapsedTime) {
-        reportUpdate = true;
-        position.x += velocity.x * elapsedTime/100;
-        position.y += velocity.y * elapsedTime/100;
+    player.update = function(elapsedTime, intraUpdate) {
+        if (intraUpdate === false) {
+            elapsedTime -= lastUpdateDiff;
+            lastUpdateDiff = 0;
+        }
+
+        position.x += (momentum.x * elapsedTime);
+        position.y += (momentum.y * elapsedTime);
        
         // if the ship would leave the edge of the world, don't let it
         if(position.x < 0) { 
