@@ -34,7 +34,7 @@ function createPlayer(worldSize) {
     let rotateRate = Math.PI / 1000;    // radians per millisecond
 
 
-    let thrustRate = 0.000004;         // unit acceleration per millisecond
+    let thrustRate = 0.0000004;         // unit acceleration per millisecond
     let reportUpdate = false;           // Indicates if this model was updated during the last update
     let lastUpdateDiff = 0;
 
@@ -223,6 +223,8 @@ function createPlayer(worldSize) {
         position.x += (momentum.x * elapsedTime);
         position.y += (momentum.y * elapsedTime);
 
+        console.log('Remote player updated to ' + position.x + ': ' + position.y);
+        console.log('Elapsed time: ' + elapsedTime); 
         // if the ship would leave the edge of the world, don't let it
         if (position.x < 0) {
             position.x = 0;

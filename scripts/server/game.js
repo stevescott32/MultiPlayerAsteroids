@@ -29,7 +29,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 }); 
 
-const UPDATE_RATE_MS = 500;
+const UPDATE_RATE_MS = 1000;
 let quit = false;
 let activeClients = {};
 let inputQueue = [];
