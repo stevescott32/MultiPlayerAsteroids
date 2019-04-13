@@ -16,31 +16,30 @@ MyGame.components.Player = function() {
     };
     let direction = 0;
     let rotateRate = 0;
-    let speed = 0;
-    let thrust = 0.001;
-    let velocity = {
+
+    let thrustRate = 0.0000004;
+    let momentum = {
+
         x: 0,
         y: 0
     }
     let maxSpeed = .1;
 
-    Object.defineProperty(player, 'thrust', {
-        get: () => thrust
+    Object.defineProperty(player, 'thrustRate', {
+        get: () => thrustRate,
+        set: value => { thrustRate = value; }
     });
     Object.defineProperty(player, 'maxSpeed', {
         get: () => maxSpeed
     });
-    Object.defineProperty(player, 'directionVector', {
-        get: () => velocity,
+
+    Object.defineProperty(player, 'momentum', {
+        get: () => momentum,
+
     });
     Object.defineProperty(player, 'direction', {
         get: () => direction,
         set: (value) => { direction = value }
-    });
-
-    Object.defineProperty(player, 'speed', {
-        get: () => speed,
-        set: value => { speed = value; }
     });
 
     Object.defineProperty(player, 'rotateRate', {
@@ -65,26 +64,27 @@ MyGame.components.Player = function() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
-        velocity.x += (vectorX * thrust * elapsedTime/100);
-        velocity.y += (vectorY * thrust * elapsedTime/100);
 
-        // if the ship is going to fast in any direction, slow it down
-        if(velocity.x > maxSpeed)
-        {
-            velocity.x = maxSpeed;
-        }
-        if(velocity.x < 0-maxSpeed)
-        {
-            velocity.x = maxSpeed;
-        }
-        if(velocity.y > maxSpeed)
-        {
-            velocity.y = maxSpeed;
-        }
-        if(velocity.y < 0-maxSpeed)
-        {
-            velocity.y = maxSpeed;
-        }
+        momentum.x += (vectorX * thrustRate * elapsedTime);
+        momentum.y += (vectorY * thrustRate * elapsedTime);
+        // if(momentum.x > maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        // if(momentum.x < 0-maxSpeed)
+        // {
+        //     momentum.x = maxSpeed;
+        // }
+        
+        // if(momentum.y > maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
+        // if(momentum.y < 0-maxSpeed)
+        // {
+        //     momentum.y = maxSpeed;
+        // }
+        
 
     };
 
@@ -107,10 +107,10 @@ MyGame.components.Player = function() {
     };
 
     player.update = function(elapsedTime) {
-        position.x += velocity.x * elapsedTime / 100;
-        position.y += velocity.y * elapsedTime / 100;
 
-        // if the ship would leave the edge of the world, don't let it
+        position.x +=(momentum.x * elapsedTime);
+        position.y += (momentum.y * elapsedTime);
+      // if the ship would leave the edge of the world, don't let it
         if(position.x < 0) { 
             position.x = 0; 
             velocity.x = 0; 
@@ -127,6 +127,7 @@ MyGame.components.Player = function() {
             position.y = MyGame.components.Viewport.worldSize.height;
             velocity.y = 0; 
         }
+
       
         // if the ship is going to leave its viewport soon, adjust the
         // viewport

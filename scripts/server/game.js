@@ -29,10 +29,11 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 }); 
 
-const UPDATE_RATE_MS = 250;
+const UPDATE_RATE_MS = 500;
 let quit = false;
 let activeClients = {};
 let inputQueue = [];
+let lastUpdateTime = present();
 
 //------------------------------------------------------------------
 //
@@ -57,7 +58,12 @@ function processInput() {
         // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
-                client.player.move(input.message.elapsedTime);
+            console.log("elapsed Time : " + input.message.elapsedTime);
+            console.log("Input receive time : " + input.receiveTime);
+            console.log("last Update Time: " + lastUpdateTime)
+            //console.log("Math " + input.receiveTime - lastUpdateTime);
+                client.player.move(input.message.elapsedTime, input.receiveTime - lastUpdateTime);
+                    lastUpdateTime = input.receiveTime;
                 break;
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
@@ -91,7 +97,7 @@ function updateAsteroids(elapsedTime) {
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(elapsedTime);
+        activeClients[clientId].player.update(elapsedTime, false);
     }
     updateAsteroids(elapsedTime); 
 }
@@ -110,6 +116,7 @@ function updateClients(elapsedTime) {
         let update = {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
+            momentum: client.player.momentum,
             direction: client.player.direction,
             position: client.player.position,
             updateWindow: elapsedTime
@@ -132,6 +139,7 @@ function updateClients(elapsedTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.reportUpdate = false;
     }
+    lastUpdateTime = present();
 }
 
 //------------------------------------------------------------------
@@ -177,9 +185,10 @@ function initializeSocketIO(httpServer) {
                 client.socket.emit('connect-other', {
                     clientId: newPlayer.clientId,
                     direction: newPlayer.direction,
+                    momentum: newPlayer.momentum,
                     position: newPlayer.position,
                     rotateRate: newPlayer.rotateRate,
-                    speed: newPlayer.speed,
+                    thrustRate: newPlayer.thrustRate,
                     size: newPlayer.size
                 });
 
@@ -188,9 +197,10 @@ function initializeSocketIO(httpServer) {
                 socket.emit('connect-other', {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
+                    momentum: client.player.momentum,
                     position: client.player.position,
                     rotateRate: client.player.rotateRate,
-                    speed: client.player.speed,
+                    thrustRate: client.player.thrustRate,
                     size: client.player.size
                 });
             }
@@ -235,8 +245,10 @@ function initializeSocketIO(httpServer) {
             direction: newPlayer.direction,
             position: newPlayer.position,
             size: newPlayer.size,
+            momentum: newPlayer.momentum,
             rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed,
+
+            thrustRate: newPlayer.thrustRate,
             worldSize: WORLDSIZE,
         });
 
@@ -244,7 +256,8 @@ function initializeSocketIO(httpServer) {
         socket.on('input', data => {
             inputQueue.push({
                 clientId: socket.id,
-                message: data
+                message: data,
+                receiveTime: present(),
             });
         });
 
