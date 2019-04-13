@@ -7,7 +7,9 @@ MyGame.graphics = (function() {
     'use strict';
 
     let canvas = document.getElementById('canvas-main');
-    let context = canvas.getContext('2d')
+    let minimap = document.getElementById('canvas-minimap');
+    let context = canvas.getContext('2d');
+    let minimapContext = minimap.getContext('2d');
 
     //------------------------------------------------------------------
     //
@@ -19,6 +21,7 @@ MyGame.graphics = (function() {
         this.save();
         this.setTransform(1, 0, 0, 1, 0, 0);
         this.clearRect(0, 0, canvas.width, canvas.height);
+        this.clearRect(0, 0, minimap.width, minimap.height);
         this.restore();
     };
 
@@ -29,6 +32,7 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function clear() {
         context.clear();
+        minimapContext.clear(); 
     }
 
     //------------------------------------------------------------------
@@ -38,6 +42,7 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function saveContext() {
         context.save();
+        minimapContext.save(); 
     }
 
     //------------------------------------------------------------------
@@ -47,6 +52,7 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function restoreContext() {
         context.restore();
+        minimapContext.restore(); 
     }
 
     //------------------------------------------------------------------
@@ -55,9 +61,17 @@ MyGame.graphics = (function() {
     //
     //------------------------------------------------------------------
     function rotateCanvas(center, rotation) {
-        context.translate(center.x * canvas.width, center.y * canvas.width);
+        let viewportCenter = MyGame.components.Viewport.toViewport(center); 
+        context.translate(viewportCenter.x * canvas.width, viewportCenter.y * canvas.width);
         context.rotate(rotation);
-        context.translate(-center.x * canvas.width, -center.y * canvas.width);
+        context.translate(-viewportCenter.x * canvas.width, -viewportCenter.y * canvas.width);
+
+        let worldSize = MyGame.components.Viewport.worldSize; 
+        minimapContext.translate(center.x / worldSize.width * minimap.width, 
+            center.y / worldSize.height * minimap.height);
+        minimapContext.rotate(rotation);
+        minimapContext.translate(-center.x / worldSize.width * minimap.width, 
+            -center.y / worldSize.height * minimap.height);
     }
 
     //------------------------------------------------------------------
@@ -67,8 +81,8 @@ MyGame.graphics = (function() {
     //------------------------------------------------------------------
     function drawImage(texture, center, size) {
         let localCenter = {
-            x: center.x * canvas.width,
-            y: center.y * canvas.width
+            x: MyGame.components.Viewport.toViewportX(center.x) * canvas.width,
+            y: MyGame.components.Viewport.toViewportY(center.y) * canvas.height
         };
         let localSize = {
             width: size.width * canvas.width,
@@ -80,6 +94,22 @@ MyGame.graphics = (function() {
             localCenter.y - localSize.height / 2,
             localSize.width,
             localSize.height);
+
+        let worldSize = MyGame.components.Viewport.worldSize; 
+        let localCenterMini = {
+            x: center.x / worldSize.width * minimap.width,
+            y: center.y / worldSize.height * minimap.height
+        };
+        let localSizeMini = {
+            width: size.width / worldSize.width * minimap.width,
+            height: size.height / worldSize.height * minimap.height
+        };
+
+        minimapContext.drawImage(texture,
+            localCenterMini.x - localSizeMini.width / 2,
+            localCenterMini.y - localSizeMini.height / 2,
+            localSizeMini.width,
+            localSizeMini.height);
     }
 
     return {

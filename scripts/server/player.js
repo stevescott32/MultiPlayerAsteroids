@@ -14,7 +14,7 @@ let random = require ('./random');
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer() {
+function createPlayer(worldSize) {
     let player = {};
 
     let position = {
@@ -43,8 +43,10 @@ function createPlayer() {
     Object.defineProperty(player, 'thrustRate', {
         get: () => thrustRate
     });
+
     Object.defineProperty(player, 'momentum', {
         get: () => momentum,
+
     });
 
     Object.defineProperty(player, 'direction', {
@@ -82,6 +84,7 @@ function createPlayer() {
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
 
+
         momentum.x += (vectorX * thrustRate * elapsedTime);
         momentum.y += (vectorY * thrustRate * elapsedTime);
 
@@ -101,6 +104,7 @@ function createPlayer() {
         // {
         //     momentum.y = maxSpeed;
         // }
+
 
     };
 
@@ -132,6 +136,7 @@ function createPlayer() {
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
+
     player.update = function(elapsedTime, intraUpdate) {
         if (intraUpdate === false) {
             elapsedTime -= lastUpdateDiff;
@@ -140,10 +145,28 @@ function createPlayer() {
 
         position.x += (momentum.x * elapsedTime);
         position.y += (momentum.y * elapsedTime);
+
        
+        // if the ship would leave the edge of the world, don't let it
+        if(position.x < 0) { 
+            position.x = 0; 
+            velocity.x = 0; 
+        } 
+        if(position.y < 0) { 
+            position.y = 0;
+            velocity.y = 0; 
+        }
+        if(position.x > worldSize.width) {
+            position.x = worldSize.width;
+            velocity.x = 0; 
+        }
+        if(position.y > worldSize.height) {
+            position.y = worldSize.height;
+            velocity.y = 0; 
+        }
     };
 
     return player;
 }
 
-module.exports.create = () => createPlayer();
+module.exports.create = (worldSize) => createPlayer(worldSize);
