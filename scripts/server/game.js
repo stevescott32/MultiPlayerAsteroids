@@ -9,6 +9,7 @@ let present = require('present');
 // module for creating players
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager'); 
+let LaserManager = require('./laserManager')
 
 // the setting for how large the world is
 const WORLDSIZE = {
@@ -30,6 +31,14 @@ let asteroidManager = AsteroidManager.create({
 }); 
 
 const UPDATE_RATE_MS = 1000;
+
+let laserManager = LaserManager.create({
+    imageSrc: '',
+    //audioSrc: '', 
+    size: 10,
+    speed: 3,
+});
+
 let quit = false;
 let activeClients = {};
 let inputQueue = [];
@@ -75,6 +84,12 @@ function processInput() {
             case 'rotate-right':
                 client.player.rotateRight(input.message.elapsedTime);
                 break;
+            case 'fire':
+                if(laserManager.accumulatedTime > laserManager.fireRate)
+                {
+                    laserManager.generateNewLaser(client.player.position.x,client.player.position.y, client.player.direction);
+                }
+                break;
         }
     }
 }
@@ -94,6 +109,23 @@ function updateAsteroids(elapsedTime) {
     }
 }
 
+function updateLaser(elapsedTime)
+{
+    //console.log(laserManager.laserArray);
+    if(!laserManager.laserArray) {
+        console.log('No Lasers on the server'); 
+    }
+    else {
+        laserManager.update(elapsedTime); 
+        let update = {
+            lasers: laserManager.laserArray,
+        }
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('update-laser', update);
+        }
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -103,7 +135,9 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(elapsedTime, false);
     }
-    updateAsteroids(elapsedTime); 
+    updateAsteroids(elapsedTime);
+    updateLaser(elapsedTime);
+    //laserManager.update(elapsedTime);
 }
 
 //------------------------------------------------------------------

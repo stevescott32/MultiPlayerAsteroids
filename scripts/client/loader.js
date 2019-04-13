@@ -34,7 +34,17 @@ MyGame.loader = (function () {
             scripts: ['asteroidManager'],
             message: 'Asteroid models loaded',
             onComplete: null
-        }, {
+        }, 
+        {
+            scripts: ['laser'],
+            message: 'Laser models loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['laserManager'],
+            message: 'Laser models loaded',
+            onComplete: null
+        },{
             scripts: ['player', 'player-remote'],
             message: 'Player models loaded',
             onComplete: null
@@ -43,10 +53,14 @@ MyGame.loader = (function () {
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles'],
+
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles','rendering/laser'],
+
+
             message: 'Renderers loaded',
             onComplete: null
-        }, {
+        }, 
+        {
             scripts: ['game'],
             message: 'Gameplay model loaded',
             onComplete: null
@@ -63,6 +77,9 @@ MyGame.loader = (function () {
         }, {
             key: 'asteroid',
             source: 'assets/asteroid.png'
+        }, {
+            key: 'laser',
+            source:'assets/laser.png'
         }];
 
     function tilePathCreater(number) {

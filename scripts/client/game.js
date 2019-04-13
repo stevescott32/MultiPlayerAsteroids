@@ -5,7 +5,8 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
-    let localAsteroids = []; 
+    let localAsteroids = [];
+    let localLaser = []; 
 
     let asteroidManager = components.AsteroidManager({
         maxSize: 200,
@@ -16,6 +17,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
         maxAsteroids: 12,
         initialAsteroids: 8
     }); 
+    let laserManager = components.LaserManager({
+        size: 20,
+        speed: 4,
+    });
 
     components.TileUtils.tileSize = {
         width: 128,
@@ -37,7 +42,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         messageHistory = MyGame.utilities.Queue(),
         messageId = 1,
         socket = io(),
-        asteroidTexture = MyGame.assets['asteroid'];
+        asteroidTexture = MyGame.assets['asteroid'],
+        laserTexture = MyGame.assets['laser'];
 
     //------------------------------------------------------------------
     //
@@ -112,6 +118,20 @@ MyGame.main = (function(graphics, renderer, input, components) {
         } else { console.log('No asteroids'); }
     });
 
+    socket.on('update-laser', function(data) {
+        //console.log(data)
+        if(data.lasers) {
+            try {
+                localLaser = (data.lasers); 
+                laserManager.laserArray = localLaser;
+                //console.log(laserManager.laserArray) 
+            } catch {
+                console.log('Error'); 
+            }
+            //console.log("Laser count " + data.lasers.length); 
+        } else { console.log('No Lasers'); }
+    });
+
     //------------------------------------------------------------------
     //
     // Handler for receiving state updates about the self player.
@@ -154,6 +174,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     break;
                 case 'rotate-left':
                     playerSelf.model.rotateLeft(message.elapsedTime);
+                    break;
+                case 'fire':
+                    console.log("Time: " + laserManager.accumulatedTime);
+                    if(laserManager.accumulatedTime > laserManager.fireRate)
+                    {
+                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                            playerSelf.model.direction);
+                    }
                     break;
             }
             memory.enqueue(message);
@@ -200,6 +228,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
+       laserManager.update(elapsedTime);
     }
     //------------------------------------------------------------------
     //
@@ -222,6 +251,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
                 renderer.Asteroid.render(asteroid, asteroidTexture); 
+            }
+        }
+        for(let i in laserManager.laserArray){
+            let laser = laserManager.laserArray[i];
+            if(laser){
+                console.log("Render Laser: " + laser);
+                renderer.Laser.render(laser, laserTexture);
             }
         }
     }
@@ -287,6 +323,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.rotateLeft(elapsedTime);
             },
             'ArrowLeft', true);
+
         myKeyboard.registerHandler(elapsedTime => {
             let message = {
                 id: messageId++,
@@ -297,6 +334,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
             messageHistory.enqueue(message);
         }, 
         'z', true); 
+
+            myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: 'fire'
+                };
+                socket.emit('input', message);
+                messageHistory.enqueue(message);
+                laserManager.generateNewLaser(playerSelf.model.position.x, playerSelf.model.position.y, 
+                    playerSelf.model.direction)
+            },
+            ' ', true);
 
         //
         // Get the game loop started
