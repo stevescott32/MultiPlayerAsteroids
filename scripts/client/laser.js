@@ -4,7 +4,7 @@ let manager =  {
         imageSrc: "../assets/laser.png",
         //audioSrc: 'resources/audio/coin10.wav',
         size: 0.09,
-        speed: .0015,
+        speed: 0.002,
 }; 
 
 function createLaser(laserSpec) {
