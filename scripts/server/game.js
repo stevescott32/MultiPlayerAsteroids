@@ -58,13 +58,17 @@ function processInput() {
         // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
-            console.log("elapsed Time : " + input.message.elapsedTime);
-            console.log("Input receive time : " + input.receiveTime);
-            console.log("last Update Time: " + lastUpdateTime)
+            //console.log("elapsed Time : " + input.message.elapsedTime);
+            //console.log("Input receive time : " + input.receiveTime);
+            //console.log("last Update Time: " + lastUpdateTime)
             //console.log("Math " + input.receiveTime - lastUpdateTime);
                 client.player.move(input.message.elapsedTime, input.receiveTime - lastUpdateTime);
                     lastUpdateTime = input.receiveTime;
                 break;
+            case 'hyperspace':
+                let avoid = []; 
+                avoid.push(asteroidManager.asteroids); 
+                client.player.hyperspace(avoid, WORLDSIZE); 
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
                 break;

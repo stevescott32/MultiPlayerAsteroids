@@ -147,6 +147,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case 'move':
                     playerSelf.model.move(message.elapsedTime);
                     break;
+                case 'hyperspace':
+                    break; 
                 case 'rotate-right':
                     playerSelf.model.rotateRight(message.elapsedTime);
                     break;
@@ -285,6 +287,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.rotateLeft(elapsedTime);
             },
             'ArrowLeft', true);
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: 'hyperspace'
+            };
+            socket.emit('input', message);
+            messageHistory.enqueue(message);
+        }, 
+        'z', true); 
 
         //
         // Get the game loop started
