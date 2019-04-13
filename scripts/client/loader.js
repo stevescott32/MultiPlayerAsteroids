@@ -19,7 +19,7 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue'],
+            scripts: ['queue', 'tileUtils'],
             message: 'Utilities loaded',
             onComplete: null,
         }, {
@@ -87,11 +87,10 @@ MyGame.loader = (function () {
                 if((tileY * numberX + tileX ) > 255) break; 
                 let tileFile = tilePathCreater((tileY * numberX + tileX));
                 let tileSource = rootName + tileFile + '.jpg';
-                let tileKey = rootKey + tileFile; // tileKey = background/tilesXXXX.jpg
+                let tileKey = rootKey + tileFile; // tileKey = background/tilesXXXX
                 assetArray.push({ key: tileKey, source: tileSource });
             }
         }
-        console.log(assetArray); 
     }
 
     prepareTiledImage(assetOrder, '/assets/backgroundTiles', 'background', 2048, 2048, 128);

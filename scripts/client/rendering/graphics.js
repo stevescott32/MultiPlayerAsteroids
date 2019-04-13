@@ -119,30 +119,31 @@ MyGame.graphics = (function () {
                 localSizeMini.height);
         }
     }
+
     //------------------------------------------------------------------
     //
     // Draw an image into the local canvas coordinate system.
     //
     //------------------------------------------------------------------
-    function drawFromUpperLeft(texture, center, size, canvases) {
+    function drawTileImage(texture, center, size, canvases) {
         if (canvases.includes("viewport")) {
             let localCenter = {
-                x: (MyGame.components.Viewport.toViewportX(Math.floor(center.x))) * viewport.width,
-                y: (MyGame.components.Viewport.toViewportY(Math.floor(center.y))) * viewport.height
+                x: MyGame.components.Viewport.toViewportX(center.x) * viewport.width,
+                y: MyGame.components.Viewport.toViewportY(center.y) * viewport.height
             };
             let localSize = {
                 width: size.width * viewport.width,
                 height: size.height * viewport.height
             };
-//            console.log('Rendering with upper left at ' + center.x + ': ' + center.y); 
 
             viewportContext.drawImage(texture,
-                localCenter.x,
-                localCenter.y,
-                localSize.width,
-                localSize.height);
+                localCenter.x - localSize.width / 2,
+                localCenter.y - localSize.height / 2,
+                1 + localSize.width,
+                1 + localSize.height);
         }
     }
+
 
     return {
         clear: clear,
@@ -150,6 +151,6 @@ MyGame.graphics = (function () {
         restoreContext: restoreContext,
         rotateCanvas: rotateCanvas,
         drawImage: drawImage,
-        drawFromUpperLeft: drawFromUpperLeft
+        drawTileImage: drawTileImage
     };
 }());

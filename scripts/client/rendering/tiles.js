@@ -20,25 +20,12 @@ MyGame.renderer.Tiles = (function (graphics) {
     //
     // ------------------------------------------------------------------
     that.render = function () {
-        // render each of the tiles in the viewport
-        let vpx = MyGame.components.Viewport.viewport.x; 
-        let vpy = MyGame.components.Viewport.viewport.y; 
-        let wx1 = Math.floor(vpx); 
-        let wy1 = Math.floor(vpy); 
-        let wx2 = Math.ceil(vpx + 1); 
-        let wy2 = Math.ceil(vpy + 1); 
-        let tx1 = wx1 * 2560 / 128;  // (MyGame.components.Viewport.worldSize.width * 128); 
-        let ty1 = wy1 * 2560 / 128; // (MyGame.components.Viewport.worldSize.height * 128); 
-        let tx2 = wx2 * 2560 / 128; // (MyGame.components.Viewport.worldSize.width * 128); 
-        let ty2 = wy2 * 2560 / 128; // (MyGame.components.Viewport.worldSize.height * 128); 
-
-        // x is the row of the tile, which should iterate from the tile just
-        // before where the viewport starts to the tile just after the viewport ends
- //        for(let x = tx1; x < tx2; x++) {
-  //          for(let y = ty1; y < ty2; y++) {
+        let utils = MyGame.components.TileUtils; 
+        let rowNum = (utils.imageSize.height / utils.tileSize.height);
+        let colNum = (utils.imageSize.width / utils.tileSize.width);
         let tileNum = 0; 
-        for(let x = 0; x < 16; x+= 1) {
-        for(let y = 0; y < 16; y+= 1) {
+        for(let x = 0; x < colNum; x+= 1) {
+        for(let y = 0; y < rowNum; y+= 1) {
                 if(MyGame.assets["background" + tilePathCreater(y * x + x)]) {
                     that.renderOneTile(y, x, MyGame.assets["background" + tilePathCreater(tileNum)]); 
                     tileNum++; 
@@ -48,7 +35,6 @@ MyGame.renderer.Tiles = (function (graphics) {
                 }
             }
         }
-        //that.renderOneTile(1, 1, MyGame.assets["background/tiles0030"]);
     };
 
     // ------------------------------------------------------------------
@@ -57,17 +43,20 @@ MyGame.renderer.Tiles = (function (graphics) {
     //
     // ------------------------------------------------------------------
     that.renderOneTile = function (x, y, texture) {
-//        console.log('Tile: ' + x + ': ' + y); 
+        let viewport = MyGame.components.Viewport; 
+        let utils = MyGame.components.TileUtils; 
+        let numRows = (utils.imageSize.height / utils.tileSize.height);
+        let numCols = (utils.imageSize.width / utils.tileSize.width);
         let size = {
-            width: 5 / 16,
-            height:  5 / 16
+            width: viewport.worldSize.width / numCols,
+            height:  viewport.worldSize.height / numRows
         }
        let position = {
-            x: x * 128 * 5 / 2048 + (size.width / 2),
-            y: y * 128 * 5 / 2048 + (size.height / 2) 
+            x: x * utils.tileSize.width * viewport.worldSize.width / utils.imageSize.width + (size.width / 2),
+            y: y * utils.tileSize.height * viewport.worldSize.height / utils.imageSize.height + (size.height / 2) 
         }
         graphics.saveContext();
-        graphics.drawImage(texture, position, size, canvases);
+        graphics.drawTileImage(texture, position, size, canvases);
         graphics.restoreContext();
     };
 

@@ -17,6 +17,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
         initialAsteroids: 8
     }); 
 
+    components.TileUtils.tileSize = {
+        width: 128,
+        height: 128
+    }
+
+    components.TileUtils.imageSize = {
+        width: 2048,
+        height: 2048
+    }
+
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
         playerSelf = {
