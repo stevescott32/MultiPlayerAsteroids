@@ -47,6 +47,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.rotateRate = data.rotateRate;
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
+        console.log(MyGame.assets); 
     });
 
     //------------------------------------------------------------------
@@ -177,7 +178,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerOthers[id].model.update(elapsedTime);
         }
     }
-
     //------------------------------------------------------------------
     //
     // Render the current state of the game simulation
@@ -185,11 +185,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
-        // render each of the tiles in the viewport
-        for(let x = Math.floor(Viewport.getViewport.x); x < Math.ceil(Viewport.getViewport.x); x++) {
-            for(let x = Math.floor(Viewport.getViewport.x); x < Math.ceil(Viewport.getViewport.x); x++) {
-            }
-        }
+        // render all tiles in the viewport
+        renderer.Tiles.render(); 
+        // render main player
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         // render all other players
         for (let id in playerOthers) {

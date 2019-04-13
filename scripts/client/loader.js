@@ -43,7 +43,7 @@ MyGame.loader = (function () {
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles'],
             message: 'Renderers loaded',
             onComplete: null
         }, {
@@ -87,13 +87,14 @@ MyGame.loader = (function () {
                 if((tileY * numberX + tileX ) > 255) break; 
                 let tileFile = tilePathCreater((tileY * numberX + tileX));
                 let tileSource = rootName + tileFile + '.jpg';
-                let tileKey = rootKey + '-' + tileFile; 
+                let tileKey = rootKey + tileFile; // tileKey = background/tilesXXXX.jpg
                 assetArray.push({ key: tileKey, source: tileSource });
             }
         }
+        console.log(assetArray); 
     }
 
-    prepareTiledImage(assetOrder, '/assets/backgroundTiles', 'background', 4480, 2560, 128);
+    prepareTiledImage(assetOrder, '/assets/backgroundTiles', 'background', 2048, 2048, 128);
 
     //------------------------------------------------------------------
     //
@@ -243,4 +244,5 @@ MyGame.loader = (function () {
         }
     );
 
+    console.log(MyGame.asset); 
 }());
