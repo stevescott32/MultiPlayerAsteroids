@@ -2,7 +2,6 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     let effects = []; 
 
     function makeEffect(spec) {
-        console.log('Making effect at ' + spec.position.x + ': ' + spec.position.y); 
         let nextName = 1;
         let particles = {};
         
@@ -16,7 +15,6 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
         image.src = spec.imageSrc;
 
         function create() {
-            console.log('Creating effect at ' + spec.position.x + ': ' + spec.position.y); 
             let size = MyGame.utilities.Random.nextGaussian(spec.size.mean, spec.size.stdev);
             let nextDirection = MyGame.utilities.Random.nextCircleVector(1); 
             let p = {
@@ -31,20 +29,6 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
                 lifetime: MyGame.utilities.Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdev), // seconds
                 alive: 0
             };
-/*            if(isNaN(p.direction.x)) {
-                p.direction.x = 1; 
-            }
-            if(isNaN(p.direction.y)) {
-                p.direction.y = 1; 
-            }
-            if(isNaN(p.position.x)) {
-                p.position.x = 1; 
-            }
-            if(isNaN(p.position.y)) {
-                p.position.y = 1; 
-            }
-            */
-            
 
             if(spec.thrustEffect) {
                 p.direction.x = Math.cos(spec.spaceShipDirection); 
@@ -169,7 +153,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     function createShipExplosion(xPos, yPos) {
         effects.push(makeEffect({
             position: { x: xPos, y: yPos },
-            size: { mean: 20, stdev: 4 }, 
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 100, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
@@ -182,7 +166,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     function clearScreen() {
         effects.push(makeEffect({
             position: { x: Game.graphics.canvas.width / 2, y: Game.graphics.canvas.height / 2 },
-            size: { mean: 100, stdev: 4 }, 
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 500, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
@@ -195,7 +179,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     function createUFOExplosion(xPos, yPos) {
         effects.push(makeEffect({
             position: { x: xPos, y: yPos },
-            size: { mean: 30, stdev: 4 }, 
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 100, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
@@ -204,7 +188,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
         })); 
         effects.push(makeEffect({
             position: { x: xPos, y: yPos },
-            size: { mean: 30, stdev: 4 }, 
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 100, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 

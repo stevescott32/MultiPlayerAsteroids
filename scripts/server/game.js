@@ -98,21 +98,23 @@ function detectCollisions() {
         // detect if lasers have collided with asteroids
         for (let z = 0; z < laserManager.laserArray.length; z++) {
             let laser = laserManager.laserArray[z];
-            if (Collisions.sweptCircle(asteroid, asteroid.lastPosition, 
+            if (!laser.isDead && !asteroid.isDead &&
+                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, 
                 laser, laser.lastPosition)) {
                 laser.isDead = true;
-                asteroid.isDead = true;
-                //asteroidManager.explode(asteroid); 
-                console.log('Asteroid destroid');
+                //asteroid.isDead = true;
+                asteroidManager.explode(asteroid); 
+                // console.log('Asteroid destroid');
             }
         }
 
         // detect if player has collided with laser
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
-            if(Collisions.detectCircleCollision(asteroid, ship)) {
+            if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
                 asteroid.isDead = true; 
-                console.log('Player kill'); 
+                // console.log('Player kill'); 
+                asteroidManager.explode(asteroid); 
             }
         }
     }

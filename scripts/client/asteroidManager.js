@@ -1,6 +1,5 @@
 // ------------------------------------------------------------------
 //
-//
 // ------------------------------------------------------------------
 MyGame.components.AsteroidManager = function (managerSpec) {
   'use strict';
@@ -34,6 +33,13 @@ MyGame.components.AsteroidManager = function (managerSpec) {
     }
   }
 
+  function generateBrokenAsteroid(x, y, sizeCategory) {
+    return MyGame.components.Asteroid.create({
+      position: { x: x, y: y },
+      sizeCategory: sizeCategory,
+    });
+  }
+
   function explode(asteroid, particleSystemManager) {
     asteroid.isDead = true;
     //console.log('Asteroid to explode: ', asteroid); 
@@ -41,7 +47,7 @@ MyGame.components.AsteroidManager = function (managerSpec) {
     if (asteroid.size.sizeCategory > 1) {
       let numToGenerate = 3 + (3 % asteroid.size.sizeCategory);
       for (let a = 0; a < numToGenerate; a++) {
-       // asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
+        asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
       }
     }
   }
@@ -58,7 +64,7 @@ MyGame.components.AsteroidManager = function (managerSpec) {
     get imageReady() { return imageReady; },
     get image() { return image; },
     get asteroids() { return asteroids; },
-    set asteroids(inAsteroids) { asteroids = inAsteroids;  }
+    set asteroids(inAsteroids) { asteroids = inAsteroids; }
   };
 
   return api;

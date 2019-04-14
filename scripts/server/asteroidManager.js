@@ -63,20 +63,14 @@ function createAsteroidManager(managerSpec) {
 
   function explode(asteroid, particleSystemManager) {
     asteroid.isDead = true;
-    particleSystemManager.createAsteroidBreakup(asteroid)
+    //particleSystemManager.createAsteroidBreakup(asteroid)
     if (asteroid.size.sizeCategory > 1) {
       let numToGenerate = 3 + (3 % asteroid.size.sizeCategory);
       for (let a = 0; a < numToGenerate; a++) {
         asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
       }
     }
-    if(!disableAudio) {
-      let audio = new Audio(managerSpec.audioSrc);
-      audio.volume = 0.3;
-      audio.play(); 
-    }
   }
-
 
   /// move asteroids according to speed and the elapsed time 
   function update(elapsedTime) {

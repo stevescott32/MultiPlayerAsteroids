@@ -5,8 +5,6 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
-    let localAsteroids = [];
-    let localLaser = []; 
 
     let asteroidManager = components.AsteroidManager({
         maxSize: 200,
@@ -175,7 +173,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     playerSelf.model.rotateLeft(message.elapsedTime);
                     break;
                 case 'fire':
-                    console.log("Time: " + laserManager.accumulatedTime);
                     if(laserManager.accumulatedTime > laserManager.fireRate)
                     {
                         laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
@@ -216,29 +213,19 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard.update(elapsedTime);
     }
 
-    let logs = 0; 
     function detectCollisions() {
         for(let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a]; 
             for(let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z]; 
-                if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
+                if(!laser.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
-//                    asteroid.isDead = true; 
                     asteroidManager.explode(asteroid, particleSystemManager); 
-                    console.log('Asteroid destroyed'); 
                 }
             }
-            if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
+            if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
                 asteroid.isDead = true; 
-                console.log('Player kill'); 
-            } else if(logs < 100) {
-                if(asteroid.position.x < 1 && asteroid.position.y < 1) {
-                    //console.log(playerSelf.model.position.x + ': ' + playerSelf.model.position.y); 
-                    //console.log(asteroid.position.x + ': ' + asteroid.position.y); 
-                    logs++; 
-                }
-            }
+            }            
         }
     }
     

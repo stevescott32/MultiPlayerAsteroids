@@ -35,7 +35,3 @@ function createLaser(laserSpec) {
   }
   return api;
 }());
-
-  
-
-  // module.exports.create = (laserSpec) => createLaser(laserSpec);
