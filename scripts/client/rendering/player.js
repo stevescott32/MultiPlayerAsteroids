@@ -6,6 +6,7 @@
 MyGame.renderer.Player = (function(graphics) {
     'use strict';
     let that = {};
+    let canvases = ["viewport", "minimap"]; 
 
     // ------------------------------------------------------------------
     //
@@ -14,8 +15,8 @@ MyGame.renderer.Player = (function(graphics) {
     // ------------------------------------------------------------------
     that.render = function(model, texture) {
         graphics.saveContext();
-        graphics.rotateCanvas(model.position, model.direction);
-        graphics.drawImage(texture, model.position, model.size);
+        graphics.rotateCanvas(model.position, model.direction, canvases);
+        graphics.drawImage(texture, model.position, model.size, canvases);
         graphics.restoreContext();
     };
 

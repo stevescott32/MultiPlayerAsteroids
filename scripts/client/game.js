@@ -17,6 +17,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
         initialAsteroids: 8
     }); 
 
+    components.TileUtils.tileSize = {
+        width: 128,
+        height: 128
+    }
+
+    components.TileUtils.imageSize = {
+        width: 2048,
+        height: 2048
+    }
+
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
         playerSelf = {
@@ -50,6 +60,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.rotateRate = data.rotateRate;
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
+        console.log(MyGame.assets); 
     });
 
     //------------------------------------------------------------------
@@ -93,8 +104,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     socket.on('update-asteroid', function(data) {
         if(data.asteroids) {
             try {
-                localAsteroids = (data.asteroids); 
-                asteroidManager.asteroids = localAsteroids; 
+                asteroidManager.asteroids = (data.asteroids); 
             } catch {
                 console.log('Invalid asteroids received'); 
             }
@@ -189,7 +199,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerOthers[id].model.update(elapsedTime);
         }
     }
-
     //------------------------------------------------------------------
     //
     // Render the current state of the game simulation
@@ -197,11 +206,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
+        // render all tiles in the viewport
+        renderer.Tiles.render(); 
+        // render main player
         renderer.Player.render(playerSelf.model, playerSelf.texture);
+        // render all other players
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+        // render each of the asteroids
         for(let a in asteroidManager.asteroids) {
             let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
