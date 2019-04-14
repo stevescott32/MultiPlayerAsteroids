@@ -34,6 +34,18 @@ MyGame.components.AsteroidManager = function (managerSpec) {
     }
   }
 
+  function explode(asteroid, particleSystemManager) {
+    asteroid.isDead = true;
+    //console.log('Asteroid to explode: ', asteroid); 
+    particleSystemManager.createAsteroidBreakup(asteroid)
+    if (asteroid.size.sizeCategory > 1) {
+      let numToGenerate = 3 + (3 % asteroid.size.sizeCategory);
+      for (let a = 0; a < numToGenerate; a++) {
+       // asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
+      }
+    }
+  }
+
   function startGame() {
     asteroids = [];
     accumulatedTime = 0;
@@ -42,6 +54,7 @@ MyGame.components.AsteroidManager = function (managerSpec) {
   let api = {
     update: update,
     startGame: startGame,
+    explode: explode,
     get imageReady() { return imageReady; },
     get image() { return image; },
     get asteroids() { return asteroids; },

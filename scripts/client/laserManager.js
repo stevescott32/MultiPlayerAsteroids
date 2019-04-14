@@ -37,9 +37,9 @@ MyGame.components.LaserManager = function (managerSpec) {
 
     // create a new laser at the specified location
     function generateNewLaser(x,y,rotation) {
-        console.log(x);
-        console.log(y);
-        console.log(rotation);
+        //console.log(x);
+        //console.log(y);
+        //console.log(rotation);
         let position = {
           x:  x,
           y:  y,

@@ -51,6 +51,10 @@ MyGame.components.Player = function() {
         get: () => size
     });
 
+    Object.defineProperty(player, 'radius', {
+        get: () => (size.width / 2)
+    });
+
     //------------------------------------------------------------------
     //
     // Public function that moves the player in the current direction.

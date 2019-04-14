@@ -30,7 +30,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 });
 
-const UPDATE_RATE_MS = 20;
+const UPDATE_RATE_MS = 16.33;
 
 let laserManager = LaserManager.create({
     size: 10,
@@ -102,6 +102,7 @@ function detectCollisions() {
                 laser, laser.lastPosition)) {
                 laser.isDead = true;
                 asteroid.isDead = true;
+                //asteroidManager.explode(asteroid); 
                 console.log('Asteroid destroid');
             }
         }

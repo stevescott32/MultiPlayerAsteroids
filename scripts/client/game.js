@@ -17,6 +17,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         maxAsteroids: 12,
         initialAsteroids: 8
     }); 
+
+    let particleSystemManager = components.ParticleSystemManager({}); 
+
     let laserManager = components.LaserManager({
         size: 20,
         speed: 4,
@@ -221,7 +224,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 let laser = laserManager.laserArray[z]; 
                 if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
-                    asteroid.isDead = true; 
+//                    asteroid.isDead = true; 
+                    asteroidManager.explode(asteroid, particleSystemManager); 
                     console.log('Asteroid destroyed'); 
                 }
             }
@@ -244,6 +248,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particleSystemManager.update(elapsedTime); 
         playerSelf.model.update(elapsedTime);
         asteroidManager.update(elapsedTime); 
         for (let id in playerOthers) {
@@ -261,6 +266,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         // render all tiles in the viewport
         renderer.Tiles.render(); 
+        // render any ongoing particle effects
+        renderer.ParticleSystemManager.render(particleSystemManager); 
         // render main player
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         // render all other players
