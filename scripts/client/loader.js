@@ -19,7 +19,7 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue', 'tileUtils'],
+            scripts: ['queue', 'tileUtils', 'collisions'],
             message: 'Utilities loaded',
             onComplete: null,
         }, {
@@ -79,7 +79,7 @@ MyGame.loader = (function () {
             source: 'assets/asteroid.png'
         }, {
             key: 'laser',
-            source:'assets/laser.png'
+            source:'assets/lasers/purpleBlob.png'
         }];
 
     function tilePathCreater(number) {

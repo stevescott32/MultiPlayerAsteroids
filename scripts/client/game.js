@@ -66,7 +66,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.rotateRate = data.rotateRate;
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
-        console.log(MyGame.assets); 
     });
 
     //------------------------------------------------------------------
@@ -107,6 +106,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete playerOthers[data.clientId];
     });
 
+    // set local asteroids to be the server's asteroids
     socket.on('update-asteroid', function(data) {
         if(data.asteroids) {
             try {
@@ -114,21 +114,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
             } catch {
                 console.log('Invalid asteroids received'); 
             }
-            //console.log("Asteroids count " + data.asteroids.length); 
         } else { console.log('No asteroids'); }
     });
 
+    // set local lasers to be the server's lasers
     socket.on('update-laser', function(data) {
-        //console.log(data)
         if(data.lasers) {
             try {
-                localLaser = (data.lasers); 
-                laserManager.laserArray = localLaser;
-                //console.log(laserManager.laserArray) 
+                laserManager.laserArray = data.lasers;
             } catch {
-                console.log('Error'); 
+                console.log('Error invalid lasers received'); 
             }
-            //console.log("Laser count " + data.lasers.length); 
         } else { console.log('No Lasers'); }
     });
 
@@ -216,6 +212,24 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function processInput(elapsedTime) {
         myKeyboard.update(elapsedTime);
     }
+
+    function detectCollisions() {
+        for(let a = 0; a < asteroidManager.asteroids.length; a++) {
+            let asteroid = asteroidManager.asteroids[a]; 
+            for(let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z]; 
+                if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
+                    laser.isDead = true;
+                    asteroid.isDead = true; 
+                    console.log('Asteroid destroyed'); 
+                }
+            }
+            if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
+                asteroid.isDead = true; 
+                console.log('Player kill'); 
+            }
+        }
+    }
     
     //------------------------------------------------------------------
     //
@@ -229,6 +243,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             playerOthers[id].model.update(elapsedTime);
         }
        laserManager.update(elapsedTime);
+        detectCollisions(); 
     }
     //------------------------------------------------------------------
     //
@@ -256,7 +271,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for(let i in laserManager.laserArray){
             let laser = laserManager.laserArray[i];
             if(laser){
-                console.log("Render Laser: " + laser);
                 renderer.Laser.render(laser, laserTexture);
             }
         }

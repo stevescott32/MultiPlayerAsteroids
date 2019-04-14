@@ -51,6 +51,11 @@ function createLaserManager(managerSpec) {
       laser.position.x += laser.velocity.x * elapsedTime;
       laser.position.y += laser.velocity.y * elapsedTime;
 
+      if(laser.position.x < 0 || laser.position.y < 0 
+        || laser.position.x > managerSpec.worldSize.width
+        || laser.position.y > managerSpec.worldSize.height) {
+        laser.isDead = true; 
+      }
     }
   }
 

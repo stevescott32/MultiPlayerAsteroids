@@ -10,7 +10,7 @@ MyGame.components.LaserManager = function (managerSpec) {
     image.onload = function () {
       imageReady = true;
     };
-    image.src = "../assets/laser.png";
+    image.src = "../assets/lasers/purpleBlob.png";
   
 
     let laserArray = [];
@@ -25,8 +25,17 @@ MyGame.components.LaserManager = function (managerSpec) {
         let laser = laserArray[a];
         laser.position.x += laser.velocity.x * elapsedTime;
         laser.position.y += laser.velocity.y * elapsedTime;
+
+        let worldSize = MyGame.components.Viewport.worldSize; 
+        if(laser.position.x < 0 || laser.position.y < 0 
+          || laser.position.x > worldSize.width
+          || laser.position.y > worldSize.height) {
+          laser.isDead = true; 
+        }
       }
     }
+
+    // create a new laser at the specified location
     function generateNewLaser(x,y,rotation) {
         console.log(x);
         console.log(y);

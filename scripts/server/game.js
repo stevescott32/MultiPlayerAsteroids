@@ -5,10 +5,10 @@
 // ------------------------------------------------------------------
 'use strict';
 
+let Collisions = require('./collisions'); 
 let present = require('present');
-// module for creating players
 let Player = require('./player');
-let AsteroidManager = require('./asteroidManager'); 
+let AsteroidManager = require('./asteroidManager');
 let LaserManager = require('./laserManager')
 
 // the setting for how large the world is
@@ -19,24 +19,23 @@ const WORLDSIZE = {
 
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
-    audioSrc: '', 
+    audioSrc: '',
     maxSize: 180,
-    minSize: 60, 
+    minSize: 60,
     maxSpeed: 100,
     minSpeed: 50,
     interval: 1, // seconds
-    maxAsteroids: 25,
-    initialAsteroids: 8, 
+    maxAsteroids: 50,
+    initialAsteroids: 15,
     worldSize: WORLDSIZE
-}); 
+});
 
 const UPDATE_RATE_MS = 800;
 
 let laserManager = LaserManager.create({
-    imageSrc: '',
-    //audioSrc: '', 
     size: 10,
     speed: 3,
+    worldSize: WORLDSIZE
 });
 
 let quit = false;
@@ -67,17 +66,17 @@ function processInput() {
         // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
-            //console.log("elapsed Time : " + input.message.elapsedTime);
-            //console.log("Input receive time : " + input.receiveTime);
-            //console.log("last Update Time: " + lastUpdateTime)
-            //console.log("Math " + input.receiveTime - lastUpdateTime);
+                //console.log("elapsed Time : " + input.message.elapsedTime);
+                //console.log("Input receive time : " + input.receiveTime);
+                //console.log("last Update Time: " + lastUpdateTime)
+                //console.log("Math " + input.receiveTime - lastUpdateTime);
                 client.player.move(input.message.elapsedTime, input.receiveTime - lastUpdateTime);
-                    lastUpdateTime = input.receiveTime;
+                lastUpdateTime = input.receiveTime;
                 break;
             case 'hyperspace':
-                let avoid = []; 
-                avoid.push(asteroidManager.asteroids); 
-                client.player.hyperspace(avoid, WORLDSIZE); 
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                client.player.hyperspace(avoid, WORLDSIZE);
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
                 break;
@@ -85,21 +84,44 @@ function processInput() {
                 client.player.rotateRight(input.message.elapsedTime);
                 break;
             case 'fire':
-                if(laserManager.accumulatedTime > laserManager.fireRate)
-                {
-                    laserManager.generateNewLaser(client.player.position.x,client.player.position.y, client.player.direction);
+                if (laserManager.accumulatedTime > laserManager.fireRate) {
+                    laserManager.generateNewLaser(client.player.position.x, client.player.position.y, client.player.direction);
                 }
                 break;
         }
     }
 }
 
+function detectCollisions() {
+    for (let a = 0; a < asteroidManager.asteroids.length; a++) {
+        let asteroid = asteroidManager.asteroids[a];
+        // detect if lasers have collided with asteroids
+        for (let z = 0; z < laserManager.laserArray.length; z++) {
+            let laser = laserManager.laserArray[z];
+            if (Collisions.detectCircleCollision(asteroid, laser)) {
+                laser.isDead = true;
+                asteroid.isDead = true;
+                console.log('Asteroid destroid');
+            }
+        }
+
+        // detect if player has collided with laser
+        for(let id in activeClients) {
+            let ship = activeClients[id].player; 
+            if(Collisions.detectCircleCollision(asteroid, ship)) {
+                asteroid.isDead = true; 
+                console.log('Player kill'); 
+            }
+        }
+    }
+}
+
 function updateAsteroids(elapsedTime) {
-    if(!asteroidManager.asteroids) {
-        console.log('No asteroids on the server'); 
+    if (!asteroidManager.asteroids) {
+        console.log('No asteroids on the server');
     }
     else {
-        asteroidManager.update(elapsedTime); 
+        asteroidManager.update(elapsedTime);
         let update = {
             asteroids: asteroidManager.asteroids,
         }
@@ -109,14 +131,13 @@ function updateAsteroids(elapsedTime) {
     }
 }
 
-function updateLaser(elapsedTime)
-{
+function updateLaser(elapsedTime) {
     //console.log(laserManager.laserArray);
-    if(!laserManager.laserArray) {
-        console.log('No Lasers on the server'); 
+    if (!laserManager.laserArray) {
+        console.log('No Lasers on the server');
     }
     else {
-        laserManager.update(elapsedTime); 
+        laserManager.update(elapsedTime);
         let update = {
             lasers: laserManager.laserArray,
         }
@@ -137,6 +158,7 @@ function update(elapsedTime, currentTime) {
     }
     updateAsteroids(elapsedTime);
     updateLaser(elapsedTime);
+    detectCollisions(); 
     //laserManager.update(elapsedTime);
 }
 
@@ -261,13 +283,13 @@ function initializeSocketIO(httpServer) {
             }
         }
     }
-    
+
     //------------------------------------------------------------------
     //
     // Sends the data needed for a client to start the game
     //
     //------------------------------------------------------------------
-    io.on('connection', function(socket) {
+    io.on('connection', function (socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
@@ -301,7 +323,7 @@ function initializeSocketIO(httpServer) {
 
         // when a player disconnects, remove them from the list of
         // active clients 
-        socket.on('disconnect', function() {
+        socket.on('disconnect', function () {
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
@@ -318,7 +340,7 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
-    asteroidManager.startGame(); 
+    asteroidManager.startGame();
     gameLoop(present(), 0);
 }
 
