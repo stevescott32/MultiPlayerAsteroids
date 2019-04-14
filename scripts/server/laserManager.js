@@ -48,6 +48,11 @@ function createLaserManager(managerSpec) {
 
     for (let a = 0; a < laserArray.length; a++) {
       let laser = laserArray[a];
+      // update the lastPostion of the laser to the current position
+      laser.lastPosition.position.x = laser.position.x; 
+      laser.lastPosition.position.y = laser.position.y; 
+
+      // update the laser's current position using its velocity
       laser.position.x += laser.velocity.x * elapsedTime;
       laser.position.y += laser.velocity.y * elapsedTime;
 

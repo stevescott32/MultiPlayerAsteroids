@@ -20,8 +20,8 @@ const WORLDSIZE = {
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '',
-    maxSize: 180,
-    minSize: 60,
+    maxSize: 3000,
+    minSize: 1000,
     maxSpeed: 100,
     minSpeed: 50,
     interval: 1, // seconds
@@ -30,7 +30,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 });
 
-const UPDATE_RATE_MS = 800;
+const UPDATE_RATE_MS = 20;
 
 let laserManager = LaserManager.create({
     size: 10,
@@ -98,7 +98,8 @@ function detectCollisions() {
         // detect if lasers have collided with asteroids
         for (let z = 0; z < laserManager.laserArray.length; z++) {
             let laser = laserManager.laserArray[z];
-            if (Collisions.detectCircleCollision(asteroid, laser)) {
+            if (Collisions.sweptCircle(asteroid, asteroid.lastPosition, 
+                laser, laser.lastPosition)) {
                 laser.isDead = true;
                 asteroid.isDead = true;
                 console.log('Asteroid destroid');

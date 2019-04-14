@@ -19,6 +19,16 @@ function createLaser(laserSpec) {
         height: manager.size,
         width: manager.size,
       },
+      lastPosition: {
+        position: {
+          x: laserSpec.position.x,
+          y: laserSpec.position.y
+        },
+        size: {
+          height: manager.size,
+          width: manager.size,
+        },
+      },
       velocity: {
         x: Math.cos(laserSpec.rotation) * manager.speed,
         y: Math.sin(laserSpec.rotation) * manager.speed
