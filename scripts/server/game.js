@@ -5,18 +5,11 @@
 // ------------------------------------------------------------------
 'use strict';
 
-<<<<<<< HEAD
 let Collisions = require('./collisions'); 
 let present = require('present');
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager');
 let LaserManager = require('./laserManager')
-=======
-let present = require('present');
-// module for creating players
-let Player = require('./player');
-let AsteroidManager = require('./asteroidManager'); 
->>>>>>> team/dev
 
 // the setting for how large the world is
 const WORLDSIZE = {
@@ -26,7 +19,6 @@ const WORLDSIZE = {
 
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
-<<<<<<< HEAD
     audioSrc: '',
     maxSize: 3000,
     minSize: 1000,
@@ -46,20 +38,6 @@ let laserManager = LaserManager.create({
     worldSize: WORLDSIZE
 });
 
-=======
-    audioSrc: '', 
-    maxSize: 180,
-    minSize: 60, 
-    maxSpeed: 100,
-    minSpeed: 50,
-    interval: 1, // seconds
-    maxAsteroids: 25,
-    initialAsteroids: 8, 
-    worldSize: WORLDSIZE
-}); 
-
-const UPDATE_RATE_MS = 500;
->>>>>>> team/dev
 let quit = false;
 let activeClients = {};
 let inputQueue = [];
