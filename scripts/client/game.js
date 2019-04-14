@@ -213,6 +213,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         myKeyboard.update(elapsedTime);
     }
 
+    let logs = 0; 
     function detectCollisions() {
         for(let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a]; 
@@ -227,6 +228,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             if(MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
                 asteroid.isDead = true; 
                 console.log('Player kill'); 
+            } else if(logs < 100) {
+                if(asteroid.position.x < 1 && asteroid.position.y < 1) {
+                    //console.log(playerSelf.model.position.x + ': ' + playerSelf.model.position.y); 
+                    //console.log(asteroid.position.x + ': ' + asteroid.position.y); 
+                    logs++; 
+                }
             }
         }
     }
