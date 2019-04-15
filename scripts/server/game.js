@@ -104,13 +104,13 @@ function detectCollisions() {
             }
         }
 
-        // detect if player has collided with laser
+        // detect if player has collided with an asteroid
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
             if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
                 asteroid.isDead = true; 
                 // console.log('Player kill'); 
-                asteroidManager.explode(asteroid); 
+                // asteroidManager.explode(asteroid); 
             }
         }
     }

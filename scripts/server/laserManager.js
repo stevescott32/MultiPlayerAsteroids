@@ -29,6 +29,7 @@ function createLaserManager(managerSpec) {
       laserArray.push(Laser.create({
         position: position,
         rotation: rotation,
+        playerId: 1
       }));
     }
      

@@ -6,6 +6,8 @@
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
 
+    const BATTLE_MODE = true; 
+
     let asteroidManager = components.AsteroidManager({
         maxSize: 200,
         minSize: 65, 
@@ -218,13 +220,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let asteroid = asteroidManager.asteroids[a]; 
             for(let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z]; 
+                // check collisions between lasers and asteroids
                 if(!laser.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
                     asteroidManager.explode(asteroid, particleSystemManager); 
                 }
+                // detect collisions between lasers and player if in battle mode
+                if(BATTLE_MODE && !laser.isDead && laser.playerId != 1 
+                        && MyGame.utilities.Collisions.detectCircleCollision(laser, playerSelf.model)) {
+                    laser.isDead = true; 
+                    particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                }
             }
+            // detect collisions between asteroids and the player 
             if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
-                asteroid.isDead = true; 
+                particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
             }            
         }
     }

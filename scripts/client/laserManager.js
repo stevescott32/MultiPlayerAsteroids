@@ -52,6 +52,7 @@ MyGame.components.LaserManager = function (managerSpec) {
             laserArray.push(MyGame.components.Laser.createLaser({
               position: position,
               rotation: rotation,
+              playerId: 1
             }));
         }
        
