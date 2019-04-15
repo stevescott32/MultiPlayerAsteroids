@@ -14,16 +14,25 @@ MyGame = {
 // loaded.
 //
 //------------------------------------------------------------------
-MyGame.loader = (function() {
+MyGame.loader = (function () {
     'use strict';
+    // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue'],
+            scripts: ['queue', 'tileUtils'],
             message: 'Utilities loaded',
             onComplete: null,
         }, {
             scripts: ['input'],
             message: 'Input loaded',
+            onComplete: null
+        }, {
+            scripts: ['viewport'],
+            message: 'Viewport model loaded',
+            onComplete: null
+        }, {
+            scripts: ['asteroidManager'],
+            message: 'Asteroid models loaded',
             onComplete: null
         }, {
             scripts: ['player', 'player-remote'],
@@ -34,7 +43,7 @@ MyGame.loader = (function() {
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote'],
+            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles'],
             message: 'Renderers loaded',
             onComplete: null
         }, {
@@ -42,13 +51,49 @@ MyGame.loader = (function() {
             message: 'Gameplay model loaded',
             onComplete: null
         }],
+        // all assets are specified with a key and a source. 
+        // this allows the assets to be referenced using their key
+        // so that the source can be changed without changing any code outside of this
         assetOrder = [{
             key: 'player-self',
             source: 'assets/playerShip1_blue.png'
         }, {
             key: 'player-other',
             source: 'assets/playerShip1_red.png'
+        }, {
+            key: 'asteroid',
+            source: 'assets/asteroid.png'
         }];
+
+    function tilePathCreater(number) {
+        if (number<=9999) { number = ("000"+number).slice(-4); }
+        let path = '/tiles' + number; 
+        return path; 
+    }
+
+    //------------------------------------------------------------------
+    // function to get the background images ready - in tiles 
+    //------------------------------------------------------------------
+    function prepareTiledImage(assetArray, rootName, rootKey, sizeX, sizeY, tileSize) {
+        let numberX = sizeX / tileSize; let numberY = sizeY / tileSize;
+        //// Create an entry in the assets that holds the properties of the tiled image
+        MyGame.assets[rootKey] = {
+            width: sizeX,
+            height: sizeY,
+            tileSize: tileSize
+        };
+        for (let tileY = 0; tileY < numberY; tileY += 1) {
+            for (let tileX = 0; tileX < numberX; tileX += 1) {
+                if((tileY * numberX + tileX ) > 255) break; 
+                let tileFile = tilePathCreater((tileY * numberX + tileX));
+                let tileSource = rootName + tileFile + '.jpg';
+                let tileKey = rootKey + tileFile; // tileKey = background/tilesXXXX
+                assetArray.push({ key: tileKey, source: tileSource });
+            }
+        }
+    }
+
+    prepareTiledImage(assetOrder, '/assets/backgroundTiles', 'background', 2048, 2048, 128);
 
     //------------------------------------------------------------------
     //
@@ -67,12 +112,16 @@ MyGame.loader = (function() {
         // When we run out of things to load, that is when we call onComplete.
         if (scripts.length > 0) {
             let entry = scripts[0];
-            require(entry.scripts, function() {
+            require(entry.scripts, function () {
                 console.log(entry.message);
+                // if the entry has a non null onComplete function, call it 
                 if (entry.onComplete) {
                     entry.onComplete();
                 }
-                scripts.splice(0, 1);
+                // changed from scripts.splice(0, 1)
+                // remove the script we just finished, 
+                // load any remaining scripts recursively 
+                scripts.shift()
                 loadScripts(scripts, onComplete);
             });
         } else {
@@ -101,12 +150,12 @@ MyGame.loader = (function() {
         if (assets.length > 0) {
             let entry = assets[0];
             loadAsset(entry.source,
-                function(asset) {
+                function (asset) {
                     onSuccess(entry, asset);
                     assets.splice(0, 1);
                     loadAssets(assets, onSuccess, onError, onComplete);
                 },
-                function(error) {
+                function (error) {
                     onError(error);
                     assets.splice(0, 1);
                     loadAssets(assets, onSuccess, onError, onComplete);
@@ -116,6 +165,7 @@ MyGame.loader = (function() {
         }
     }
 
+
     //------------------------------------------------------------------
     //
     // This function is used to asynchronously load image and audio assets.
@@ -124,26 +174,35 @@ MyGame.loader = (function() {
     //
     //------------------------------------------------------------------
     function loadAsset(source, onSuccess, onError) {
-    	let xhr = new XMLHttpRequest(),
+        let xhr = new XMLHttpRequest(),
             asset = null,
-            fileExtension = source.substr(source.lastIndexOf('.') + 1);    // Source: http://stackoverflow.com/questions/680929/how-to-extract-extension-from-filename-string-in-javascript
+            // returns whatever comes after the final . in the file name. 
+            // if no dots exist, returns the whole string. 
+            // Source: http://stackoverflow.com/questions/680929/how-to-extract-extension-from-filename-string-in-javascript
+            fileExtension = source.substr(source.lastIndexOf('.') + 1);
 
         if (fileExtension) {
             xhr.open('GET', source, true);
             xhr.responseType = 'blob';
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
+            xhr.onload = function () {
+                if (xhr.status === 200) { // we have received back a valid response
+                    // image file extensions mean that the asset should be an Image()
                     if (fileExtension === 'png' || fileExtension === 'jpg') {
                         asset = new Image();
+                        // mp3 files should be an Audio() object
                     } else if (fileExtension === 'mp3') {
                         asset = new Audio();
                     } else {
                         if (onError) { onError('Unknown file extension: ' + fileExtension); }
                     }
-                    asset.onload = function() {
+                    asset.onload = function () {
+                        // revokeObjectUrl releases an object that was tied
+                        // to the document using createObjectUrl
+                        // once the object is loaded, we don't need to keep the reference 
                         window.URL.revokeObjectURL(asset.src);
                     };
+                    // until the object is loaded, tie the lifetime of the asset to the doc
                     asset.src = window.URL.createObjectURL(xhr.response);
                     if (onSuccess) { onSuccess(asset); }
                 } else {
@@ -171,17 +230,18 @@ MyGame.loader = (function() {
     // Start with loading the assets, then the scripts.
     console.log('Starting to dynamically load project assets');
     loadAssets(assetOrder,
-        function(source, asset) {    // Store it on success
+        function (source, asset) {    // Store it on success
             MyGame.assets[source.key] = asset;
         },
-        function(error) {
+        function (error) {
             console.log(error);
         },
-        function() {
+        function () {
             console.log('All assets loaded');
             console.log('Starting to dynamically load project scripts');
             loadScripts(scriptOrder, mainComplete);
         }
     );
 
+    console.log(MyGame.asset); 
 }());

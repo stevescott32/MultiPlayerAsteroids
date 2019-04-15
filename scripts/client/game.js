@@ -5,6 +5,27 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
+    let localAsteroids = []; 
+
+    let asteroidManager = components.AsteroidManager({
+        maxSize: 200,
+        minSize: 65, 
+        maxSpeed: 100,
+        minSpeed: 50,
+        interval: 1, // seconds
+        maxAsteroids: 12,
+        initialAsteroids: 8
+    }); 
+
+    components.TileUtils.tileSize = {
+        width: 128,
+        height: 128
+    }
+
+    components.TileUtils.imageSize = {
+        width: 2048,
+        height: 2048
+    }
 
     let lastTimeStamp = performance.now(),
         myKeyboard = input.Keyboard(),
@@ -15,7 +36,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerOthers = {},
         messageHistory = MyGame.utilities.Queue(),
         messageId = 1,
-        socket = io();
+        socket = io(),
+        asteroidTexture = MyGame.assets['asteroid'];
 
     //------------------------------------------------------------------
     //
@@ -30,9 +52,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.size.x = data.size.x;
         playerSelf.model.size.y = data.size.y;
 
+        playerSelf.model.momentum.x = data.momentum.x;
+        playerSelf.model.momentum.y = data.momentum.y;
+        
         playerSelf.model.direction = data.direction;
-        playerSelf.model.speed = data.speed;
+        playerSelf.model.thrustRate = data.thrustRate;
         playerSelf.model.rotateRate = data.rotateRate;
+        MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
+        MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
+        console.log(MyGame.assets); 
     });
 
     //------------------------------------------------------------------
@@ -45,6 +73,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         let model = components.PlayerRemote();
         model.state.position.x = data.position.x;
         model.state.position.y = data.position.y;
+        model.state.momentum.x = data.momentum.x;
+        model.state.momentum.y = data.momentum.y;
         model.state.direction = data.direction;
         model.state.lastUpdate = performance.now();
 
@@ -71,6 +101,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete playerOthers[data.clientId];
     });
 
+    socket.on('update-asteroid', function(data) {
+        if(data.asteroids) {
+            try {
+                asteroidManager.asteroids = (data.asteroids); 
+            } catch {
+                console.log('Invalid asteroids received'); 
+            }
+            //console.log("Asteroids count " + data.asteroids.length); 
+        } else { console.log('No asteroids'); }
+    });
+
     //------------------------------------------------------------------
     //
     // Handler for receiving state updates about the self player.
@@ -80,6 +121,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.position.x = data.position.x;
         playerSelf.model.position.y = data.position.y;
         playerSelf.model.direction = data.direction;
+        playerSelf.model.momentum.x = data.momentum.x;
+        playerSelf.model.momentum.y = data.momentum.y;
+
 
         //
         // Remove messages from the queue up through the last one identified
@@ -125,6 +169,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let model = playerOthers[data.clientId].model;
             model.goal.updateWindow = data.updateWindow;
 
+            model.state.momentum.x = data.momentum.x;
+            model.state.momentum.y = data.momentum.y
+            
             model.goal.position.x = data.position.x;
             model.goal.position.y = data.position.y
             model.goal.direction = data.direction;
@@ -147,11 +194,11 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function update(elapsedTime) {
         playerSelf.model.update(elapsedTime);
+        asteroidManager.update(elapsedTime); 
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
     }
-
     //------------------------------------------------------------------
     //
     // Render the current state of the game simulation
@@ -159,10 +206,21 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
+        // render all tiles in the viewport
+        renderer.Tiles.render(); 
+        // render main player
         renderer.Player.render(playerSelf.model, playerSelf.texture);
+        // render all other players
         for (let id in playerOthers) {
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
+        }
+        // render each of the asteroids
+        for(let a in asteroidManager.asteroids) {
+            let asteroid = asteroidManager.asteroids[a]; 
+            if(asteroid) {
+                renderer.Asteroid.render(asteroid, asteroidTexture); 
+            }
         }
     }
 
@@ -202,7 +260,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.move(elapsedTime);
             },
-            'w', true);
+            'ArrowUp', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -214,7 +272,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateRight(elapsedTime);
             },
-            'd', true);
+            'ArrowRight', true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -226,7 +284,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateLeft(elapsedTime);
             },
-            'a', true);
+            'ArrowLeft', true);
 
         //
         // Get the game loop started

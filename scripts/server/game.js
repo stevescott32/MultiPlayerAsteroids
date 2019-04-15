@@ -6,12 +6,34 @@
 'use strict';
 
 let present = require('present');
+// module for creating players
 let Player = require('./player');
+let AsteroidManager = require('./asteroidManager'); 
 
-const UPDATE_RATE_MS = 250;
+// the setting for how large the world is
+const WORLDSIZE = {
+    height: 5,
+    width: 5 // the world is 5 X times as big as the viewport size 
+}
+
+let asteroidManager = AsteroidManager.create({
+    imageSrc: '',
+    audioSrc: '', 
+    maxSize: 180,
+    minSize: 60, 
+    maxSpeed: 100,
+    minSpeed: 50,
+    interval: 1, // seconds
+    maxAsteroids: 25,
+    initialAsteroids: 8, 
+    worldSize: WORLDSIZE
+}); 
+
+const UPDATE_RATE_MS = 500;
 let quit = false;
 let activeClients = {};
 let inputQueue = [];
+let lastUpdateTime = present();
 
 //------------------------------------------------------------------
 //
@@ -26,13 +48,22 @@ function processInput() {
     let processMe = inputQueue;
     inputQueue = [];
 
+    // loop through all the inputs to be processed
     for (let inputIndex in processMe) {
         let input = processMe[inputIndex];
+        // get the client associated with this input 
         let client = activeClients[input.clientId];
+        // update the lastMessageId to be the message id we are currently processing
         client.lastMessageId = input.message.id;
+        // perform the action associated with the input type 
         switch (input.message.type) {
             case 'move':
-                client.player.move(input.message.elapsedTime);
+            console.log("elapsed Time : " + input.message.elapsedTime);
+            console.log("Input receive time : " + input.receiveTime);
+            console.log("last Update Time: " + lastUpdateTime)
+            //console.log("Math " + input.receiveTime - lastUpdateTime);
+                client.player.move(input.message.elapsedTime, input.receiveTime - lastUpdateTime);
+                    lastUpdateTime = input.receiveTime;
                 break;
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
@@ -44,6 +75,21 @@ function processInput() {
     }
 }
 
+function updateAsteroids(elapsedTime) {
+    if(!asteroidManager.asteroids) {
+        console.log('No asteroids on the server'); 
+    }
+    else {
+        asteroidManager.update(elapsedTime); 
+        let update = {
+            asteroids: asteroidManager.asteroids,
+        }
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('update-asteroid', update);
+        }
+    }
+}
+
 //------------------------------------------------------------------
 //
 // Update the simulation of the game.
@@ -51,8 +97,9 @@ function processInput() {
 //------------------------------------------------------------------
 function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
-        activeClients[clientId].player.update(currentTime);
+        activeClients[clientId].player.update(elapsedTime, false);
     }
+    updateAsteroids(elapsedTime); 
 }
 
 //------------------------------------------------------------------
@@ -61,11 +108,15 @@ function update(elapsedTime, currentTime) {
 //
 //------------------------------------------------------------------
 function updateClients(elapsedTime) {
+    // iterate through all active clients 
     for (let clientId in activeClients) {
         let client = activeClients[clientId];
+        // update object that will be sent to client, 
+        // containing the information needed for update
         let update = {
             clientId: clientId,
             lastMessageId: client.lastMessageId,
+            momentum: client.player.momentum,
             direction: client.player.direction,
             position: client.player.position,
             updateWindow: elapsedTime
@@ -84,9 +135,11 @@ function updateClients(elapsedTime) {
         }
     }
 
+    // all clients are updated, change reportUpdate to false
     for (let clientId in activeClients) {
         activeClients[clientId].player.reportUpdate = false;
     }
+    lastUpdateTime = present();
 }
 
 //------------------------------------------------------------------
@@ -132,9 +185,10 @@ function initializeSocketIO(httpServer) {
                 client.socket.emit('connect-other', {
                     clientId: newPlayer.clientId,
                     direction: newPlayer.direction,
+                    momentum: newPlayer.momentum,
                     position: newPlayer.position,
                     rotateRate: newPlayer.rotateRate,
-                    speed: newPlayer.speed,
+                    thrustRate: newPlayer.thrustRate,
                     size: newPlayer.size
                 });
 
@@ -143,9 +197,10 @@ function initializeSocketIO(httpServer) {
                 socket.emit('connect-other', {
                     clientId: client.player.clientId,
                     direction: client.player.direction,
+                    momentum: client.player.momentum,
                     position: client.player.position,
                     rotateRate: client.player.rotateRate,
-                    speed: client.player.speed,
+                    thrustRate: client.player.thrustRate,
                     size: client.player.size
                 });
             }
@@ -169,36 +224,51 @@ function initializeSocketIO(httpServer) {
         }
     }
     
+    //------------------------------------------------------------------
+    //
+    // Sends the data needed for a client to start the game
+    //
+    //------------------------------------------------------------------
     io.on('connection', function(socket) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create()
+        let newPlayer = Player.create(WORLDSIZE)
         newPlayer.clientId = socket.id;
         activeClients[socket.id] = {
             socket: socket,
             player: newPlayer
         };
+        // the third step (acknowledge) in the TCP 3-step handshake process
+        // (syn, syn-ack, ack)
         socket.emit('connect-ack', {
             direction: newPlayer.direction,
             position: newPlayer.position,
             size: newPlayer.size,
+            momentum: newPlayer.momentum,
             rotateRate: newPlayer.rotateRate,
-            speed: newPlayer.speed
+
+            thrustRate: newPlayer.thrustRate,
+            worldSize: WORLDSIZE,
         });
 
+        // push any new inputs into the input queue 
         socket.on('input', data => {
             inputQueue.push({
                 clientId: socket.id,
-                message: data
+                message: data,
+                receiveTime: present(),
             });
         });
 
+        // when a player disconnects, remove them from the list of
+        // active clients 
         socket.on('disconnect', function() {
             delete activeClients[socket.id];
             notifyDisconnect(socket.id);
         });
 
+        // tell the players that the newPlayer is connected 
         notifyConnect(socket, newPlayer);
     });
 }
@@ -210,6 +280,7 @@ function initializeSocketIO(httpServer) {
 //------------------------------------------------------------------
 function initialize(httpServer) {
     initializeSocketIO(httpServer);
+    asteroidManager.startGame(); 
     gameLoop(present(), 0);
 }
 
@@ -224,3 +295,4 @@ function terminate() {
 }
 
 module.exports.initialize = initialize;
+module.exports.terminate = terminate; 

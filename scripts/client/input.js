@@ -9,14 +9,14 @@ MyGame.input.Keyboard = function() {
         keyRepeat = {},
         handlers = {},
         nextHandlerId = 0,
-        that = {};
+        keyboard = {}; // object that will be returned
 
     // ------------------------------------------------------------------
     //
     // Allows the client code to register a keyboard handler.
     //
     // ------------------------------------------------------------------
-    that.registerHandler = function(handler, key, repeat, rate) {
+    keyboard.registerHandler = function(handler, key, repeat, rate) {
         //
         // If no repeat rate was passed in, use a value of 0 so that no delay between
         // repeated keydown events occurs.
@@ -51,7 +51,7 @@ MyGame.input.Keyboard = function() {
     // Allows the client code to unregister a keyboard handler.
     //
     // ------------------------------------------------------------------
-    that.unregisterHandler = function(key, id) {
+    keyboard.unregisterHandler = function(key, id) {
         if (handlers.hasOwnProperty(key)) {
             for (let entry = 0; entry < handlers[key].length; entry += 1) {
                 if (handlers[key][entry].id === id) {
@@ -96,7 +96,7 @@ MyGame.input.Keyboard = function() {
     // Allows the client to invoke all the handlers for the registered key/handlers.
     //
     // ------------------------------------------------------------------
-    that.update = function(elapsedTime) {
+    keyboard.update = function(elapsedTime) {
         for (let key in keys) {
             if (handlers.hasOwnProperty(key)) {
                 for (let entry = 0; entry < handlers[key].length; entry += 1) {
@@ -127,5 +127,5 @@ MyGame.input.Keyboard = function() {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyRelease);
 
-    return that;
+    return keyboard;
 };
