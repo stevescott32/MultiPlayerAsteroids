@@ -17,6 +17,8 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
+const BATTLE_MODE = true; 
+
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '',
@@ -81,7 +83,8 @@ function processInput() {
                 break;
             case 'fire':
                 if (laserManager.accumulatedTime > laserManager.fireRate) {
-                    laserManager.generateNewLaser(client.player.position.x, client.player.position.y, client.player.direction);
+                    laserManager.generateNewLaser(client.player.position.x, 
+                        client.player.position.y, client.player.direction, input.clientId);
                 }
                 break;
         }
@@ -308,7 +311,8 @@ function initializeSocketIO(httpServer) {
             rotateRate: newPlayer.rotateRate,
             speed: newPlayer.speed,
             worldSize: WORLDSIZE,
-            thrustRate: newPlayer.thrustRate
+            thrustRate: newPlayer.thrustRate,
+            playerId: newPlayer.clientId
         });
 
         // push any new inputs into the input queue 

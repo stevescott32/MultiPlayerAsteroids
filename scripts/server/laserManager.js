@@ -16,7 +16,7 @@ function createLaserManager(managerSpec) {
   let fire = true;
 
 
-  function generateNewLaser(x,y,rotation) {
+  function generateNewLaser(x,y,rotation, id) {
     let position = {
       x:  x,
       y:  y,
@@ -29,13 +29,10 @@ function createLaserManager(managerSpec) {
       laserArray.push(Laser.create({
         position: position,
         rotation: rotation,
-        playerId: 1
+        playerId: id 
       }));
     }
-     
   }
-
-
 
   /// move lasers according to speed and the elapsed time 
   function update(elapsedTime) {

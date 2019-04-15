@@ -67,6 +67,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.thrustRate = data.thrustRate;
         playerSelf.model.rotateRate = data.rotateRate;
+        playerSelf.model.playerId = data.playerId; 
+        console.log('Ack player id: ' + playerSelf.model.playerId); 
+
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
     });
@@ -177,8 +180,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case 'fire':
                     if(laserManager.accumulatedTime > laserManager.fireRate)
                     {
+                        console.log('Fire id: ' + playerSelf.model.playerId); 
                         laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                            playerSelf.model.direction);
+                            playerSelf.model.direction, playerSelf.model.playerId);
                     }
                     break;
             }
@@ -226,8 +230,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     asteroidManager.explode(asteroid, particleSystemManager); 
                 }
                 // detect collisions between lasers and player if in battle mode
-                if(BATTLE_MODE && !laser.isDead && laser.playerId != 1 
+                if(BATTLE_MODE && !laser.isDead && laser.playerId != playerSelf.model.playerId 
                         && MyGame.utilities.Collisions.detectCircleCollision(laser, playerSelf.model)) {
+                    console.log('PlayerId: ', playerSelf.model.playerId); 
+                    console.log('LaserId: ', laser.playerId); 
                     laser.isDead = true; 
                     particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
                 }
@@ -370,8 +376,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 if(laserManager.accumulatedTime > laserManager.fireRate)
                 {
-                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                        playerSelf.model.direction);
+                    console.log('Fire id: ' + playerSelf.model.playerId); 
+                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                            playerSelf.model.direction, playerSelf.model.playerId);
                 }
             },
             ' ', true);

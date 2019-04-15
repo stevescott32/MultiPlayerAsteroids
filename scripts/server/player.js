@@ -37,6 +37,9 @@ function createPlayer(worldSize) {
     let thrustRate = 0.0000004;         // unit acceleration per millisecond
     let reportUpdate = false;           // Indicates if this model was updated during the last update
     let lastUpdateDiff = 0;
+    let lastHyperspaceTime = 0; 
+    let lastLaserTime = 0; 
+    let score = 0; 
 
     // define the available methods on player object
 
@@ -70,6 +73,21 @@ function createPlayer(worldSize) {
     Object.defineProperty(player, 'reportUpdate', {
         get: () => reportUpdate,
         set: value => reportUpdate = value
+    });
+
+    Object.defineProperty(player, 'lastHyperspaceTime', {
+        get: () => lastHyperspaceTime,
+        set: value => lastHyperspaceTime = value
+    });
+
+    Object.defineProperty(player, 'lastLaserTime', {
+        get: () => lastLaserTime,
+        set: value => lastLaserTime = value
+    });
+
+    Object.defineProperty(player, 'score', {
+        get: () => score,
+        set: value => score = value
     });
 
     //------------------------------------------------------------------
@@ -151,8 +169,8 @@ function createPlayer(worldSize) {
     player.hyperspace = function (allObjectsToAvoid, worldSize) {
         let possibleLocations = [];
         // calculate the danger of each space ship location
-        for (let x = 2 * size.width; x < worldSize.width - (2 * size.width); x += 2 * size.width) {
-            for (let y = 2 * size.height; y < worldSize.height - (2 * size.height); y += 2 * size.height) {
+        for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
+            for (let y = 2 * size.height + 1; y < worldSize.height - (2 * size.height + 1); y += 2 * size.height) {
                 possibleLocations.push(calculateSafety(allObjectsToAvoid, x, y, safetyFactor));
             }
         }

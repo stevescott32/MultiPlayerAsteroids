@@ -36,7 +36,7 @@ MyGame.components.LaserManager = function (managerSpec) {
     }
 
     // create a new laser at the specified location
-    function generateNewLaser(x,y,rotation) {
+    function generateNewLaser(x,y,rotation, id) {
         //console.log(x);
         //console.log(y);
         //console.log(rotation);
@@ -52,7 +52,7 @@ MyGame.components.LaserManager = function (managerSpec) {
             laserArray.push(MyGame.components.Laser.createLaser({
               position: position,
               rotation: rotation,
-              playerId: 1
+              playerId: id
             }));
         }
        
