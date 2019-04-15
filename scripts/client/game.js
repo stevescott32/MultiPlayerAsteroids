@@ -180,7 +180,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case 'fire':
                     if(laserManager.accumulatedTime > laserManager.fireRate)
                     {
-                        console.log('Fire id: ' + playerSelf.model.playerId); 
                         laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
                             playerSelf.model.direction, playerSelf.model.playerId);
                     }

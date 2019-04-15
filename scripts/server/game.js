@@ -111,9 +111,12 @@ function detectCollisions() {
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
             if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
-                asteroid.isDead = true; 
+                // asteroid.isDead = true; 
                 // console.log('Player kill'); 
                 // asteroidManager.explode(asteroid); 
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                ship.hyperspace(avoid, WORLDSIZE);
             }
         }
     }
