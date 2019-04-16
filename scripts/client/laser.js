@@ -1,7 +1,7 @@
-let random = require ('./random');
+MyGame.components.Laser = (function () {
 
 let manager =  {
-        imageSrc: "../assets/lasers/greenLaser.png",
+        imageSrc: "../assets/lasers/purpleBlob.png",
         //audioSrc: 'resources/audio/coin10.wav',
         size: 0.09,
         speed: 0.002,
@@ -19,16 +19,6 @@ function createLaser(laserSpec) {
         height: manager.size,
         width: manager.size,
       },
-      lastPosition: {
-        position: {
-          x: laserSpec.position.x,
-          y: laserSpec.position.y
-        },
-        size: {
-          height: manager.size,
-          width: manager.size,
-        },
-      },
       velocity: {
         x: Math.cos(laserSpec.rotation) * manager.speed,
         y: Math.sin(laserSpec.rotation) * manager.speed
@@ -37,7 +27,11 @@ function createLaser(laserSpec) {
       isDead: false
     };
 
+
     return newlaser;
   }
-
-  module.exports.create = (laserSpec) => createLaser(laserSpec);
+  let api = {
+    createLaser: createLaser,
+  }
+  return api;
+}());

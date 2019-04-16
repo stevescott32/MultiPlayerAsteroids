@@ -19,7 +19,7 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue', 'tileUtils'],
+            scripts: ['queue', 'tileUtils', 'collisions', 'random'],
             message: 'Utilities loaded',
             onComplete: null,
         }, {
@@ -31,22 +31,40 @@ MyGame.loader = (function () {
             message: 'Viewport model loaded',
             onComplete: null
         }, {
-            scripts: ['asteroidManager'],
+            scripts: ['asteroidManager', 'asteroid'],
             message: 'Asteroid models loaded',
             onComplete: null
-        }, {
+        }, 
+        {
+            scripts: ['laser'],
+            message: 'Laser models loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['laserManager'],
+            message: 'Laser models loaded',
+            onComplete: null
+        },{
             scripts: ['player', 'player-remote'],
             message: 'Player models loaded',
+            onComplete: null
+         },{
+            scripts: ['particleSystem'],
+            message: 'Particle system loaded',
             onComplete: null
         }, {
             scripts: ['rendering/graphics'],
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles'],
+
+            scripts: ['rendering/player', 'rendering/player-remote', 
+                'rendering/asteroid', 'rendering/tiles','rendering/laser',
+            'rendering/particleSystem'],
             message: 'Renderers loaded',
             onComplete: null
-        }, {
+        }, 
+        {
             scripts: ['game'],
             message: 'Gameplay model loaded',
             onComplete: null
@@ -63,7 +81,19 @@ MyGame.loader = (function () {
         }, {
             key: 'asteroid',
             source: 'assets/asteroid.png'
-        }];
+        }, {
+            key: 'laser',
+            source:'assets/lasers/purpleBlob.png'
+        }, {
+            key: 'fire',
+            source: 'assets/textures/fire.png'
+         }, {
+            key: 'smoke',
+            source: 'assets/textures/smoke.png'
+          }, {
+            key: 'flare',
+            source: 'assets/textures/flare.png'
+     }];
 
     function tilePathCreater(number) {
         if (number<=9999) { number = ("000"+number).slice(-4); }

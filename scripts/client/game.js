@@ -5,7 +5,6 @@
 //------------------------------------------------------------------
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
-    let localAsteroids = []; 
 
     let asteroidManager = components.AsteroidManager({
         maxSize: 200,
@@ -16,6 +15,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
         maxAsteroids: 12,
         initialAsteroids: 8
     }); 
+
+    let particleSystemManager = components.ParticleSystemManager({}); 
+
+    let laserManager = components.LaserManager({
+        size: 20,
+        speed: 4,
+    });
 
     components.TileUtils.tileSize = {
         width: 128,
@@ -37,7 +43,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         messageHistory = MyGame.utilities.Queue(),
         messageId = 1,
         socket = io(),
-        asteroidTexture = MyGame.assets['asteroid'];
+        asteroidTexture = MyGame.assets['asteroid'],
+        laserTexture = MyGame.assets['laser'];
 
     //------------------------------------------------------------------
     //
@@ -60,7 +67,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.rotateRate = data.rotateRate;
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
-        console.log(MyGame.assets); 
     });
 
     //------------------------------------------------------------------
@@ -101,6 +107,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
         delete playerOthers[data.clientId];
     });
 
+    // set local asteroids to be the server's asteroids
     socket.on('update-asteroid', function(data) {
         if(data.asteroids) {
             try {
@@ -108,8 +115,18 @@ MyGame.main = (function(graphics, renderer, input, components) {
             } catch {
                 console.log('Invalid asteroids received'); 
             }
-            //console.log("Asteroids count " + data.asteroids.length); 
         } else { console.log('No asteroids'); }
+    });
+
+    // set local lasers to be the server's lasers
+    socket.on('update-laser', function(data) {
+        if(data.lasers) {
+            try {
+                laserManager.laserArray = data.lasers;
+            } catch {
+                console.log('Error invalid lasers received'); 
+            }
+        } else { console.log('No Lasers'); }
     });
 
     //------------------------------------------------------------------
@@ -147,11 +164,20 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 case 'move':
                     playerSelf.model.move(message.elapsedTime);
                     break;
+                case 'hyperspace':
+                    break; 
                 case 'rotate-right':
                     playerSelf.model.rotateRight(message.elapsedTime);
                     break;
                 case 'rotate-left':
                     playerSelf.model.rotateLeft(message.elapsedTime);
+                    break;
+                case 'fire':
+                    if(laserManager.accumulatedTime > laserManager.fireRate)
+                    {
+                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                            playerSelf.model.direction);
+                    }
                     break;
             }
             memory.enqueue(message);
@@ -186,6 +212,22 @@ MyGame.main = (function(graphics, renderer, input, components) {
     function processInput(elapsedTime) {
         myKeyboard.update(elapsedTime);
     }
+
+    function detectCollisions() {
+        for(let a = 0; a < asteroidManager.asteroids.length; a++) {
+            let asteroid = asteroidManager.asteroids[a]; 
+            for(let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z]; 
+                if(!laser.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
+                    laser.isDead = true;
+                    asteroidManager.explode(asteroid, particleSystemManager); 
+                }
+            }
+            if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
+                asteroid.isDead = true; 
+            }            
+        }
+    }
     
     //------------------------------------------------------------------
     //
@@ -193,11 +235,14 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        particleSystemManager.update(elapsedTime); 
         playerSelf.model.update(elapsedTime);
         asteroidManager.update(elapsedTime); 
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
+       laserManager.update(elapsedTime);
+        detectCollisions(); 
     }
     //------------------------------------------------------------------
     //
@@ -208,6 +253,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         // render all tiles in the viewport
         renderer.Tiles.render(); 
+        // render any ongoing particle effects
+        renderer.ParticleSystemManager.render(particleSystemManager); 
         // render main player
         renderer.Player.render(playerSelf.model, playerSelf.texture);
         // render all other players
@@ -220,6 +267,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
                 renderer.Asteroid.render(asteroid, asteroidTexture); 
+            }
+        }
+        for(let i in laserManager.laserArray){
+            let laser = laserManager.laserArray[i];
+            if(laser){
+                renderer.Laser.render(laser, laserTexture);
             }
         }
     }
@@ -285,6 +338,33 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.rotateLeft(elapsedTime);
             },
             'ArrowLeft', true);
+
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: 'hyperspace'
+            };
+            socket.emit('input', message);
+            messageHistory.enqueue(message);
+        }, 
+        'z', true); 
+
+            myKeyboard.registerHandler(elapsedTime => {
+                let message = {
+                    id: messageId++,
+                    elapsedTime: elapsedTime,
+                    type: 'fire'
+                };
+                socket.emit('input', message);
+                messageHistory.enqueue(message);
+                if(laserManager.accumulatedTime > laserManager.fireRate)
+                {
+                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                        playerSelf.model.direction);
+                }
+            },
+            ' ', true);
 
         //
         // Get the game loop started

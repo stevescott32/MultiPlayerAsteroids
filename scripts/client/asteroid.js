@@ -1,6 +1,4 @@
-
-let random = require ('./random');
-
+MyGame.components.Asteroid = (function () {
 let managerSpec =  {
     imageSrc: "resources/images/asteroid.png",
         audioSrc: 'resources/audio/coin10.wav',
@@ -15,7 +13,7 @@ let managerSpec =  {
 
 function createAsteroid(asteroidSpec) {
     // speed follows gaussian distribution divided by the size 
-    let speed = -1 * random.nextGaussian(
+    let speed = -1 * MyGame.utilities.Random.nextGaussian(
       ((managerSpec.maxSpeed - managerSpec.minSpeed) / 2) + managerSpec.minSpeed,
       (managerSpec.maxSpeed - managerSpec.minSpeed) / 4)
       / (asteroidSpec.sizeCategory);
@@ -59,5 +57,9 @@ function createAsteroid(asteroidSpec) {
 
     return asteroid;
   }
-  
-module.exports.create = (asteroidSpec) => createAsteroid(asteroidSpec);
+
+  let api = {
+    create: createAsteroid,
+  }
+  return api; 
+}());

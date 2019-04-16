@@ -63,20 +63,14 @@ function createAsteroidManager(managerSpec) {
 
   function explode(asteroid, particleSystemManager) {
     asteroid.isDead = true;
-    particleSystemManager.createAsteroidBreakup(asteroid)
+    //particleSystemManager.createAsteroidBreakup(asteroid)
     if (asteroid.size.sizeCategory > 1) {
       let numToGenerate = 3 + (3 % asteroid.size.sizeCategory);
       for (let a = 0; a < numToGenerate; a++) {
         asteroids.push(generateBrokenAsteroid(asteroid.position.x, asteroid.position.y, asteroid.size.sizeCategory - 1));
       }
     }
-    if(!disableAudio) {
-      let audio = new Audio(managerSpec.audioSrc);
-      audio.volume = 0.3;
-      audio.play(); 
-    }
   }
-
 
   /// move asteroids according to speed and the elapsed time 
   function update(elapsedTime) {
@@ -87,13 +81,16 @@ function createAsteroidManager(managerSpec) {
     populateAstroids(elapsedTime);
     for (let a = 0; a < asteroids.length; a++) {
       let asteroid = asteroids[a];
+      // update the last position to be the position before we update it
+      asteroid.lastPosition.position.x = asteroid.position.x;
+      asteroid.lastPosition.position.y = asteroid.position.y; 
+      
+      // update the asteroid's current position and rotation
       asteroid.position.x += asteroid.velocity.x * elapsedTime;
       asteroid.position.y += asteroid.velocity.y * elapsedTime;
       asteroid.rotation += asteroid.rotationSpeed * elapsedTime;
 
-      /*console.log('Updating asteroid at ' + asteroid.position.x + ': ' + asteroid.position.y + ': ' + 
-      ' size ' + asteroid.size.height + ': ' + asteroid.size.width);*/
-
+      // wrap asteroids when they try to leave the world
       let maxWidth = managerSpec.worldSize.width;
       let maxHeight = managerSpec.worldSize.height; 
       if(asteroid.position.x + asteroid.radius < 0) 
