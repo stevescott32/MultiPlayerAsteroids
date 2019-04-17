@@ -22,6 +22,10 @@ MyGame.components.Player = function() {
         y: 0
     }
     let maxSpeed = .1;
+    let lastHyperspaceTime = 0; 
+    let lastLaserTime = 0; 
+    let score = 0; 
+    let inGame = true; 
 
     Object.defineProperty(player, 'thrustRate', {
         get: () => thrustRate,
@@ -54,6 +58,27 @@ MyGame.components.Player = function() {
     Object.defineProperty(player, 'radius', {
         get: () => (size.width / 2)
     });
+
+    Object.defineProperty(player, 'lastHyperspaceTime', {
+        get: () => lastHyperspaceTime,
+        set: value => lastHyperspaceTime = value
+    });
+
+    Object.defineProperty(player, 'lastLaserTime', {
+        get: () => lastLaserTime,
+        set: value => lastLaserTime = value
+    });
+
+    Object.defineProperty(player, 'score', {
+        get: () => score,
+        set: value => score = value
+    });
+
+    Object.defineProperty(player, 'inGame', {
+        get: () => inGame,
+        set: value => inGame = value
+    });
+
 
     //------------------------------------------------------------------
     //
@@ -130,6 +155,8 @@ MyGame.components.Player = function() {
     player.hyperspace = function (allObjectsToAvoid, worldSize, particleSystemManager) {
         console.log('Player hyperspace'); 
         particleSystemManager.createHyperspaceEffect(position.x, position.y); 
+        player.inGame = false; 
+        /*score
         let possibleLocations = [];
         // calculate the danger of each space ship location
         for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
@@ -167,6 +194,7 @@ MyGame.components.Player = function() {
                 throw 'hyperspace error';
             }
         }
+        */
     }
 
     //------------------------------------------------------------------
@@ -212,17 +240,18 @@ MyGame.components.Player = function() {
         // if the ship is going to leave its viewport soon, adjust the
         // viewport
         let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
-        if(playerVectorViewport.x > 0.9 && position.x < MyGame.components.Viewport.worldSize.width - 0.1) {
-            MyGame.components.Viewport.shiftX(playerVectorViewport.x - 0.9); 
+        let boundary = MyGame.components.Viewport.boundary; 
+        if(playerVectorViewport.x > (1 - boundary) && position.x < MyGame.components.Viewport.worldSize.width - (boundary)) {
+            MyGame.components.Viewport.shiftX(playerVectorViewport.x - (1 - boundary)); 
         }
-        if(playerVectorViewport.y > 0.9 && position.y < MyGame.components.Viewport.worldSize.height - 0.1) {
-            MyGame.components.Viewport.shiftY(playerVectorViewport.y - 0.9); 
+        if(playerVectorViewport.y > (1 - boundary) && position.y < MyGame.components.Viewport.worldSize.height - boundary) {
+            MyGame.components.Viewport.shiftY(playerVectorViewport.y - (1 - boundary)); 
         }
-        if(playerVectorViewport.x < 0.1 && position.x > 0.1) {
-            MyGame.components.Viewport.shiftX(-1 * (0.1 - playerVectorViewport.x)); 
+        if(playerVectorViewport.x < boundary && position.x > boundary) {
+            MyGame.components.Viewport.shiftX(-1 * (boundary - playerVectorViewport.x)); 
         }
-        if(playerVectorViewport.y < 0.1 && position.y > 0.1) {
-            MyGame.components.Viewport.shiftY(-1 * (0.1 - playerVectorViewport.y)); 
+        if(playerVectorViewport.y < boundary && position.y > boundary) {
+            MyGame.components.Viewport.shiftY(-1 * (boundary - playerVectorViewport.y)); 
         }
     };
 

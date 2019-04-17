@@ -40,6 +40,7 @@ function createPlayer(worldSize) {
     let lastHyperspaceTime = 0; 
     let lastLaserTime = 0; 
     let score = 0; 
+    let inGame = true; 
 
     // define the available methods on player object
 
@@ -89,6 +90,12 @@ function createPlayer(worldSize) {
         get: () => score,
         set: value => score = value
     });
+
+    Object.defineProperty(player, 'inGame', {
+        get: () => inGame,
+        set: value => inGame = value
+    });
+
 
     //------------------------------------------------------------------
     //
@@ -167,6 +174,7 @@ function createPlayer(worldSize) {
     // ------------------------------------------------------------------ 
     let safetyFactor = 10;
     player.hyperspace = function (allObjectsToAvoid, worldSize) {
+        player.inGame = false; 
         let possibleLocations = [];
         // calculate the danger of each space ship location
         for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
@@ -190,6 +198,8 @@ function createPlayer(worldSize) {
             momentum.x = 0;
             momentum.y = 0;
             safetyFactor = 10;
+            player.inGame = true;
+            player.reportUpdate = true;  
         }
         else {
             safetyFactor--;

@@ -235,6 +235,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     console.log('LaserId: ', laser.playerId); 
                     laser.isDead = true; 
                     particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                    let avoid = []; 
+                    avoid.push(asteroidManager.asteroids);
+                    avoid.push(laserManager.laserArray); 
+                    playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
                 }
             }
             // detect collisions between asteroids and the player 

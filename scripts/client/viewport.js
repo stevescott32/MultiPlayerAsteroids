@@ -19,6 +19,8 @@ MyGame.components.Viewport = (function() {
         x: 0,
         y: 0
     }
+
+    let boundary = 0.25; 
     
     function toViewport(vector) {
         let viewportVector = {
@@ -56,6 +58,7 @@ MyGame.components.Viewport = (function() {
             worldSize = inWorldSize; 
         },
         get viewport() { return viewport; },
+        get boundary() { return boundary; }
     }
 
     return api; 
