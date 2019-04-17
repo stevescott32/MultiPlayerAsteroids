@@ -8,8 +8,8 @@ MyGame.components.Viewport = (function() {
     // default world size. The server should set these to different 
     // values once the game begins
     let worldSize = {
-        height: 1,
-        width: 1
+        height: 5,
+        width: 5
     }
 
     // the x and y coordinate of the upper left corner of the viewpoint 

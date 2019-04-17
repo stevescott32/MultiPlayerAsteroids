@@ -86,6 +86,89 @@ MyGame.components.Player = function() {
         
     };
 
+    function calculateSafety(objectsToAvoid, xPos, yPos, safetyFactor) {
+        let safetyScore = 0;
+
+        for (let o = 0; o < objectsToAvoid.length; o++) {
+            for (let i = 0; i < objectsToAvoid[0].length; i++) {
+                let avoid = objectsToAvoid[o][i];
+                if (!avoid) {
+                    break;
+                }
+                let additionalSafety = Math.pow(xPos - avoid.position.x, 2) + Math.pow(yPos - avoid.position.y, 2);
+                if (!isNaN(additionalSafety)) {
+                    safetyScore += additionalSafety;
+                }
+                let potentialLocation = {
+                    position: {
+                        x: xPos,
+                        y: yPos,
+                    },
+                    radius: player.radius * safetyFactor
+                }
+                // detect if there is an asteroid within 2 * radius of the ship and break 
+                if (MyGame.utilities.Collisions.detectCircleCollision(avoid, potentialLocation)) {
+                    return 0;
+                }
+            }
+        }
+
+        let api = {
+            get xPos() { return xPos; },
+            get yPos() { return yPos; },
+            get safetyScore() { return safetyScore; }
+        }
+
+        return api;
+    }
+
+    // ------------------------------------------------------------------
+    //
+    //
+    // ------------------------------------------------------------------ 
+    let safetyFactor = 10;
+    player.hyperspace = function (allObjectsToAvoid, worldSize, particleSystemManager) {
+        console.log('Player hyperspace'); 
+        particleSystemManager.createHyperspaceEffect(position.x, position.y); 
+        let possibleLocations = [];
+        // calculate the danger of each space ship location
+        for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
+            for (let y = 2 * size.height + 1; y < worldSize.height - (2 * size.height + 1); y += 2 * size.height) {
+                possibleLocations.push(calculateSafety(allObjectsToAvoid, x, y, safetyFactor));
+            }
+        }
+
+        // set the location to the least dangerous spot 
+        let mostSafe = { x: 1, y: 1, safetyScore: 0 };
+        for (let d = 0; d < possibleLocations.length; d++) {
+            if (possibleLocations[d].safetyScore > mostSafe.safetyScore) {
+                mostSafe = possibleLocations[d];
+            }
+        }
+        if (mostSafe.xPos && mostSafe.yPos) {
+            position.x = mostSafe.xPos;
+            position.y = mostSafe.yPos;
+            console.log('Successful hyperspace!');
+            console.log(position); 
+            momentum.x = 0;
+            momentum.y = 0;
+            safetyFactor = 10;
+            particleSystemManager.createHyperspaceEffect(position.x, position.y); 
+        }
+        else {
+            safetyFactor--;
+            if (safetyFactor > 2) {
+                player.hyperspace(allObjectsToAvoid, worldSize, particleSystemManager);
+            } else {
+                console.log('ERROR: No safe locations for hyperspace');
+                position.x = undefined;
+                position.y = undefined;
+
+                throw 'hyperspace error';
+            }
+        }
+    }
+
     //------------------------------------------------------------------
     //
     // Public function that rotates the player right.

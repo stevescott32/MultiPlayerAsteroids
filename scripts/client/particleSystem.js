@@ -110,11 +110,12 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     }
 
     // create an effect for when the spaceship lands after a hyperspace 
-    function createHyperspaceEffect(spaceship) {
+    function createHyperspaceEffect(spaceShipX, spaceShipY) {
+        console.log('Creating hyperspace effect', spaceShipX, spaceShipY); 
         effects.push(makeEffect({
-            position: { x: spaceship.position.x, y: spaceship.position.y },
-            size: { mean: 20, stdev: 4 }, 
-            speed: { mean: 400, stdev: 20 }, 
+            position: { x: spaceShipX, y: spaceShipY },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: (0.5), stdev: 0.1 }, 
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
@@ -126,12 +127,12 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
     function createNewLifeEffect(spaceship) {
         effects.push(makeEffect({
             position: { x: spaceship.position.x, y: spaceship.position.y },
-            size: { mean: 20, stdev: 4 }, 
-            speed: { mean: 400, stdev: 20 }, 
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: (0.5 * sc), stdev: 0.1 }, 
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
-            imageSrc: "assets/lasers/greenBlob.png"
+            imageSrc: "assets/lasers/redBlob.png"
         })); 
     }
 
@@ -155,8 +156,8 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
             position: { x: xPos, y: yPos },
             size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 0.5, stdev: 0.01 }, 
-            lifetime: { mean: 1, stdev: 0.5 }, 
-            explosionLifetime: 1, 
+            lifetime: { mean: 0.5, stdev: 0.3 }, 
+            explosionLifetime: 0.5, 
             density: 10, 
             imageSrc: "assets/textures/fire.png"
         })); 

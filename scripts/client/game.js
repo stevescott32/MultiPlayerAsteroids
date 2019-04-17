@@ -240,6 +240,10 @@ MyGame.main = (function(graphics, renderer, input, components) {
             // detect collisions between asteroids and the player 
             if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
                 particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                let avoid = []; 
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
             }            
         }
     }
@@ -268,15 +272,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         // render all tiles in the viewport
         renderer.Tiles.render(); 
-        // render any ongoing particle effects
-        renderer.ParticleSystemManager.render(particleSystemManager); 
-        // render main player
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
-        // render all other players
-        for (let id in playerOthers) {
-            let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
-        }
         // render each of the asteroids
         for(let a in asteroidManager.asteroids) {
             let asteroid = asteroidManager.asteroids[a]; 
@@ -290,6 +285,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 renderer.Laser.render(laser, laserTexture);
             }
         }
+        // render any ongoing particle effects
+        renderer.ParticleSystemManager.render(particleSystemManager); 
+        // render main player
+        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        // render all other players
+        for (let id in playerOthers) {
+            let player = playerOthers[id];
+            renderer.PlayerRemote.render(player.model, player.texture);
+        }
+
     }
 
     //------------------------------------------------------------------
@@ -362,6 +367,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
             };
             socket.emit('input', message);
             messageHistory.enqueue(message);
+            //particleSystemManager.createHyperspaceEffect(playerSelf.model.position.x, playerSelf.model.position.y, 7); 
+            if(performance.now() - playerSelf.model.lastHyperspaceTime > 5) {
+                let avoid = []; 
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
+            }
         }, 
         'z', true); 
 
