@@ -3,7 +3,7 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components) {
+MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
     'use strict';
 
     let asteroidManager = components.AsteroidManager({
@@ -364,15 +364,15 @@ MyGame.main = (function(graphics, renderer, input, components) {
                         playerSelf.model.direction);
                 }
             },
-            ' ', true);
-
-        //
-        // Get the game loop started
+            ' ', true); 
+    }
+    function run() {
         requestAnimationFrame(gameLoop);
     }
 
     return {
-        initialize: initialize
+        initialize: initialize,
+        run: run,
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
+}(MyGame.game, MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
