@@ -37,6 +37,7 @@ const UPDATE_RATE_MS = 16.33;
 let laserManager = LaserManager.create({
     size: 10,
     speed: 3,
+    interval: 100,
     worldSize: WORLDSIZE
 });
 
@@ -82,9 +83,10 @@ function processInput() {
                 client.player.rotateRight(input.message.elapsedTime);
                 break;
             case 'fire':
-                if (laserManager.accumulatedTime > laserManager.fireRate) {
+                if (present() - client.player.lastLaserTime > laserManager.fireRate) {
                     laserManager.generateNewLaser(client.player.position.x, 
                         client.player.position.y, client.player.direction, input.clientId);
+                    client.player.lastLaserTime = present(); 
                 }
                 break;
         }
@@ -119,8 +121,14 @@ function detectCollisions() {
                 avoid.push(laserManager.laserArray); 
                 ship.hyperspace(avoid, WORLDSIZE);
             }
-            if(BATTLE_MODE && !laser.isDead && laser.playerId != ship.playerId 
-                        && Collisions.detectCircleCollision(laser, playerSelf.model)) {
+        }
+    }
+    /*if(BATTLE_MODE) {
+        for(let id in activeClients) {
+        let ship = activeClients[id].player; 
+            for (let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z];
+                if(Collisions.detectCircleCollision(ship, laser)) {
                     console.log('PlayerId: ', ship.playerId); 
                     console.log('LaserId: ', laser.playerId); 
                     laser.isDead = true; 
@@ -129,8 +137,10 @@ function detectCollisions() {
                     avoid.push(laserManager.laserArray); 
                     ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
                 }
+            }
         }
     }
+    */
 }
 
 function updateAsteroids(elapsedTime) {

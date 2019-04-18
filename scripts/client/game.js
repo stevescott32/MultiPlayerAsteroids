@@ -23,6 +23,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     let laserManager = components.LaserManager({
         size: 20,
         speed: 4,
+        interval: 100
     });
 
     components.TileUtils.tileSize = {
@@ -229,17 +230,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     asteroidManager.explode(asteroid, particleSystemManager); 
                 }
                 // detect collisions between lasers and player if in battle mode
-                if(BATTLE_MODE && !laser.isDead && laser.playerId != playerSelf.model.playerId 
-                        && MyGame.utilities.Collisions.detectCircleCollision(laser, playerSelf.model)) {
-                    console.log('PlayerId: ', playerSelf.model.playerId); 
-                    console.log('LaserId: ', laser.playerId); 
-                    laser.isDead = true; 
-                    particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
-                    let avoid = []; 
-                    avoid.push(asteroidManager.asteroids);
-                    avoid.push(laserManager.laserArray); 
-                    playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
-                }
+                
             }
             // detect collisions between asteroids and the player 
             if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
@@ -250,6 +241,22 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
             }            
         }
+        /*if(BATTLE_MODE) {  
+            for(let id in activeClients) {
+                let ship = activeClients[id].player; 
+                    for (let z = 0; z < laserManager.laserArray.length; z++) {
+                        let laser = laserManager.laserArray[z];
+                            console.log('PlayerId: ', ship.playerId); 
+                            console.log('LaserId: ', laser.playerId); 
+                            laser.isDead = true; 
+                            let avoid = []; 
+                            avoid.push(asteroidManager.asteroids);
+                            avoid.push(laserManager.laserArray); 
+                            ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+                    }
+                }
+            }
+            */
     }
     
     //------------------------------------------------------------------

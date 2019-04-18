@@ -22,7 +22,6 @@ function createLaserManager(managerSpec) {
       y:  y,
     }
     
-    if(fire === true)
     {
       fire = false;
       accumulatedTime = 0;
@@ -38,7 +37,7 @@ function createLaserManager(managerSpec) {
   function update(elapsedTime) {
     // remove dead lasers
     accumulatedTime += elapsedTime;
-    if (accumulatedTime > fireRate)
+    if (accumulatedTime > managerSpec.interval)
     {
       fire = true;
     }
