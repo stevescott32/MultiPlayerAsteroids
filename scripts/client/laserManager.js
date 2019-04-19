@@ -21,6 +21,10 @@ MyGame.components.LaserManager = function (managerSpec) {
       // remove dead asteroids
       //let laser = laserArray.filter(laser => !laser.isDead);
       accumulatedTime += elapsedTime;
+      if (accumulatedTime > managerSpec.interval)
+      {
+        fire = true;
+      }
       for (let a = 0; a < laserArray.length; a++) {
         let laser = laserArray[a];
         laser.position.x += laser.velocity.x * elapsedTime;
@@ -36,7 +40,7 @@ MyGame.components.LaserManager = function (managerSpec) {
     }
 
     // create a new laser at the specified location
-    function generateNewLaser(x,y,rotation) {
+    function generateNewLaser(x,y,rotation, id) {
         //console.log(x);
         //console.log(y);
         //console.log(rotation);
@@ -45,17 +49,16 @@ MyGame.components.LaserManager = function (managerSpec) {
           y:  y,
         }
     
-//        if(fire === true)
+        if(fire === true)
         {
             fire = false;
             accumulatedTime = 0;
             laserArray.push(MyGame.components.Laser.createLaser({
               position: position,
               rotation: rotation,
+              playerId: id
             }));
         }
-       
-         
       }
   
     function startGame() {

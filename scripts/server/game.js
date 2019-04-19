@@ -17,6 +17,8 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
+const BATTLE_MODE = false; 
+
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '',
@@ -35,6 +37,7 @@ const UPDATE_RATE_MS = 16.33;
 let laserManager = LaserManager.create({
     size: 10,
     speed: 3,
+    interval: 100,
     worldSize: WORLDSIZE
 });
 
@@ -72,6 +75,7 @@ function processInput() {
             case 'hyperspace':
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
                 client.player.hyperspace(avoid, WORLDSIZE);
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
@@ -80,8 +84,10 @@ function processInput() {
                 client.player.rotateRight(input.message.elapsedTime);
                 break;
             case 'fire':
-                if (laserManager.accumulatedTime > laserManager.fireRate) {
-                    laserManager.generateNewLaser(client.player.position.x, client.player.position.y, client.player.direction);
+                if (present() - client.player.lastLaserTime > laserManager.fireRate) {
+                    laserManager.generateNewLaser(client.player.position.x, 
+                        client.player.position.y, client.player.direction, input.clientId);
+                    client.player.lastLaserTime = present(); 
                 }
                 break;
         }
@@ -104,16 +110,38 @@ function detectCollisions() {
             }
         }
 
-        // detect if player has collided with laser
+        // detect if player has collided with an asteroid
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
             if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
-                asteroid.isDead = true; 
+                // asteroid.isDead = true; 
                 // console.log('Player kill'); 
-                asteroidManager.explode(asteroid); 
+                // asteroidManager.explode(asteroid); 
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                ship.hyperspace(avoid, WORLDSIZE);
             }
         }
     }
+    /*if(BATTLE_MODE) {
+        for(let id in activeClients) {
+        let ship = activeClients[id].player; 
+            for (let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z];
+                if(Collisions.detectCircleCollision(ship, laser)) {
+                    console.log('PlayerId: ', ship.playerId); 
+                    console.log('LaserId: ', laser.playerId); 
+                    laser.isDead = true; 
+                    let avoid = []; 
+                    avoid.push(asteroidManager.asteroids);
+                    avoid.push(laserManager.laserArray); 
+                    ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+                }
+            }
+        }
+    }
+    */
 }
 
 function updateAsteroids(elapsedTime) {
@@ -158,7 +186,6 @@ function update(elapsedTime, currentTime) {
     updateAsteroids(elapsedTime);
     updateLaser(elapsedTime);
     detectCollisions(); 
-    //laserManager.update(elapsedTime);
 }
 
 //------------------------------------------------------------------
@@ -308,7 +335,8 @@ function initializeSocketIO(httpServer) {
             rotateRate: newPlayer.rotateRate,
             speed: newPlayer.speed,
             worldSize: WORLDSIZE,
-            thrustRate: newPlayer.thrustRate
+            thrustRate: newPlayer.thrustRate,
+            playerId: newPlayer.clientId
         });
 
         // push any new inputs into the input queue 
