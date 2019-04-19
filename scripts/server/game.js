@@ -155,6 +155,7 @@ function checkForHighScore(player) {
             nickname: 'tmp',
             clientId: player.clientId
         }
+        updateHighScores(); 
         console.log('highScores', highScores); 
     }
     if(player.score > highScores[player.clientId].score ) {
@@ -165,6 +166,7 @@ function checkForHighScore(player) {
             nickname: player.nickname,
             clientId: player.clientId
         }
+        updateHighScores(); 
         console.log('highScores', highScores); 
     }
 }
@@ -174,9 +176,10 @@ function checkForHighScore(player) {
 // objects/managers in the game 
 //------------------------------------------------------------------
 function updateHighScores() {
+    console.log('Updating high scores', highScores); 
     let update = highScores; 
     for (let clientId in activeClients) {
-        activeClients[clientId].socket.emit('update-asteroid', update);
+        activeClients[clientId].socket.emit('update-highScores', update);
     }
 }
 

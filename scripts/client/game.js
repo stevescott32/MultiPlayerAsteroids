@@ -76,10 +76,17 @@ MyGame.main = (function(graphics, renderer, input, components) {
     });
 
 
+    // whenever we receive a high scores update from the server,
+    // write the high scores to local storage so they can be retrieved
     socket.on('update-highScores', function(data) {
         let highScoresJSON = JSON.stringify(data);
-            console.log('Json', highScoresJSON); 
-            window.localStorage.setItem('highScores', settingsJson)
+        window.localStorage.setItem('highScores', highScoresJSON);
+        for(let id in data) {
+            if(data[id].score % 1000 == 0 && data[id].score != 0) {
+                let hs = data[id]; 
+                console.log('Player ' + hs.nickname + ' reached a score of ' + hs.score); 
+            }
+        }
     }); 
 
     //------------------------------------------------------------------
