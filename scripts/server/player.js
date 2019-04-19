@@ -6,7 +6,8 @@
 'use strict';
 
 let random = require('./random');
-let Collisions = require('./collisions'); 
+let present = require('present');
+let Collisions = require('./collisions');
 
 //------------------------------------------------------------------
 //
@@ -37,10 +38,10 @@ function createPlayer(worldSize) {
     let thrustRate = 0.0000004;         // unit acceleration per millisecond
     let reportUpdate = false;           // Indicates if this model was updated during the last update
     let lastUpdateDiff = 0;
-    let lastHyperspaceTime = 0; 
-    let lastLaserTime = 0; 
-    let score = 0; 
-    let inGame = true; 
+    let lastHyperspaceTime = present();
+    let lastLaserTime = 0;
+    let score = 0;
+    let inGame = true;
 
     // define the available methods on player object
 
@@ -174,43 +175,50 @@ function createPlayer(worldSize) {
     // ------------------------------------------------------------------ 
     let safetyFactor = 10;
     player.hyperspace = function (allObjectsToAvoid, worldSize) {
-        player.inGame = false; 
-        let possibleLocations = [];
-        // calculate the danger of each space ship location
-        for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
-            for (let y = 2 * size.height + 1; y < worldSize.height - (2 * size.height + 1); y += 2 * size.height) {
-                possibleLocations.push(calculateSafety(allObjectsToAvoid, x, y, safetyFactor));
+        if (!((present() - lastHyperspaceTime) > 5000)) {
+            console.log('Cant hyperspace yet'); 
+        } else {
+            console.log('Last hyperspace time: ', lastHyperspaceTime, ' Present: ', present(), 
+                ' diff: ' + present() - lastHyperspaceTime); 
+            lastHyperspaceTime = present(); 
+            player.inGame = false;
+            let possibleLocations = [];
+            // calculate the danger of each space ship location
+            for (let x = 2 * size.width + 1; x < worldSize.width - (2 * size.width + 1); x += 2 * size.width) {
+                for (let y = 2 * size.height + 1; y < worldSize.height - (2 * size.height + 1); y += 2 * size.height) {
+                    possibleLocations.push(calculateSafety(allObjectsToAvoid, x, y, safetyFactor));
+                }
             }
-        }
 
-        // set the location to the least dangerous spot 
-        let mostSafe = { x: 1, y: 1, safetyScore: 0 };
-        for (let d = 0; d < possibleLocations.length; d++) {
-            if (possibleLocations[d].safetyScore > mostSafe.safetyScore) {
-                mostSafe = possibleLocations[d];
+            // set the location to the least dangerous spot 
+            let mostSafe = { x: 1, y: 1, safetyScore: 0 };
+            for (let d = 0; d < possibleLocations.length; d++) {
+                if (possibleLocations[d].safetyScore > mostSafe.safetyScore) {
+                    mostSafe = possibleLocations[d];
+                }
             }
-        }
-        if (mostSafe.xPos && mostSafe.yPos) {
-            position.x = mostSafe.xPos;
-            position.y = mostSafe.yPos;
-            console.log('Successful hyperspace!');
-            console.log(position); 
-            momentum.x = 0;
-            momentum.y = 0;
-            safetyFactor = 10;
-            player.inGame = true;
-            player.reportUpdate = true;  
-        }
-        else {
-            safetyFactor--;
-            if (safetyFactor > 2) {
-                hyperspace(allObjectsToAvoid);
-            } else {
-                console.log('ERROR: No safe locations for hyperspace');
-                position.x = undefined;
-                position.y = undefined;
+            if (mostSafe.xPos && mostSafe.yPos) {
+                position.x = mostSafe.xPos;
+                position.y = mostSafe.yPos;
+                console.log('Successful hyperspace!');
+                console.log(position);
+                momentum.x = 0;
+                momentum.y = 0;
+                safetyFactor = 10;
+                player.inGame = true;
+                player.reportUpdate = true;
+            }
+            else {
+                safetyFactor--;
+                if (safetyFactor > 2) {
+                    hyperspace(allObjectsToAvoid);
+                } else {
+                    console.log('ERROR: No safe locations for hyperspace');
+                    position.x = undefined;
+                    position.y = undefined;
 
-                throw 'hyperspace error';
+                    throw 'hyperspace error';
+                }
             }
         }
     }

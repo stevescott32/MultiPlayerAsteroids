@@ -75,6 +75,7 @@ function processInput() {
             case 'hyperspace':
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
                 client.player.hyperspace(avoid, WORLDSIZE);
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
