@@ -332,6 +332,31 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
+        // default settings. If the user has any settings saved to the browser, 
+        // the defaults will be overridden 
+        let defaultSettings = {
+            move: 'ArrowUp',
+            rotateRight: 'ArrowRight',
+            rotateLeft: 'ArrowLeft', 
+            fire: ' ',
+            hyperspace: 'z'
+        }
+
+        let settings = defaultSettings; 
+        let settingsJson = window.localStorage.getItem('asteroidSettings');
+        if (settingsJson) {
+            settings = JSON.parse(settingsJson);
+            console.log('Player settings: ', settings); 
+        }
+        if(!settings.move || !settings.rotateRight || !settings.rotateLeft || !settings.fire || !settings.hyperspace) {
+            console.log('Error: invalid settings!', settings); 
+            console.log('Restoring default settings'); 
+            settings = defaultSettings; 
+            let settingsJson = JSON.stringify(settings);
+            console.log('Json', settingsJson); 
+            window.localStorage.setItem('asteroidSettings', settingsJson);
+        }
+
         //
         // Create the keyboard input handler and register the keyboard commands
         myKeyboard.registerHandler(elapsedTime => {
@@ -344,7 +369,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.move(elapsedTime);
             },
-            'ArrowUp', true);
+            settings.move, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -356,7 +381,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateRight(elapsedTime);
             },
-            'ArrowRight', true);
+            settings.rotateRight, true);
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -368,7 +393,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 playerSelf.model.rotateLeft(elapsedTime);
             },
-            'ArrowLeft', true);
+            settings.rotateLeft, true);
 
         myKeyboard.registerHandler(elapsedTime => {
             let message = {
@@ -379,31 +404,31 @@ MyGame.main = (function(graphics, renderer, input, components) {
             socket.emit('input', message);
             messageHistory.enqueue(message);
             //particleSystemManager.createHyperspaceEffect(playerSelf.model.position.x, playerSelf.model.position.y, 7); 
-            if(performance.now() - playerSelf.model.lastHyperspaceTime > 5) {
+            if(performance.now() - playerSelf.model.lastHyperspaceTime > 5000) {
                 let avoid = []; 
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
             }
         }, 
-        'z', true); 
+        settings.hyperspace, true); 
 
-            myKeyboard.registerHandler(elapsedTime => {
-                let message = {
-                    id: messageId++,
-                    elapsedTime: elapsedTime,
-                    type: 'fire'
-                };
-                socket.emit('input', message);
-                messageHistory.enqueue(message);
-                if(laserManager.accumulatedTime > laserManager.fireRate)
-                {
-                    console.log('Fire id: ' + playerSelf.model.playerId); 
-                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                            playerSelf.model.direction, playerSelf.model.playerId);
-                }
-            },
-            ' ', true);
+        myKeyboard.registerHandler(elapsedTime => {
+            let message = {
+                id: messageId++,
+                elapsedTime: elapsedTime,
+                type: 'fire'
+            };
+            socket.emit('input', message);
+            messageHistory.enqueue(message);
+            if(laserManager.accumulatedTime > laserManager.fireRate)
+            {
+                console.log('Fire id: ' + playerSelf.model.playerId); 
+                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                        playerSelf.model.direction, playerSelf.model.playerId);
+            }
+        },
+        settings.fire, true);
 
         //
         // Get the game loop started

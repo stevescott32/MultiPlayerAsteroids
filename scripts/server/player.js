@@ -176,7 +176,7 @@ function createPlayer(worldSize) {
     let safetyFactor = 10;
     player.hyperspace = function (allObjectsToAvoid, worldSize) {
         if (!((present() - lastHyperspaceTime) > 5000)) {
-            console.log('Cant hyperspace yet'); 
+            // console.log('Cant hyperspace yet'); 
         } else {
             console.log('Last hyperspace time: ', lastHyperspaceTime, ' Present: ', present(), 
                 ' diff: ' + present() - lastHyperspaceTime); 
