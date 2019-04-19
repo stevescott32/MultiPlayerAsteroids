@@ -24,7 +24,8 @@ function createLaser(laserSpec) {
         y: Math.sin(laserSpec.rotation) * manager.speed
       },
       radius: manager.size / 2,
-      isDead: false
+      isDead: false,
+      playerId: laserSpec.playerId
     };
 
 

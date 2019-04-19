@@ -8,8 +8,8 @@ MyGame.components.Viewport = (function() {
     // default world size. The server should set these to different 
     // values once the game begins
     let worldSize = {
-        height: 1,
-        width: 1
+        height: 5,
+        width: 5
     }
 
     // the x and y coordinate of the upper left corner of the viewpoint 
@@ -19,6 +19,8 @@ MyGame.components.Viewport = (function() {
         x: 0,
         y: 0
     }
+
+    let boundary = 0.25; 
     
     function toViewport(vector) {
         let viewportVector = {
@@ -56,6 +58,7 @@ MyGame.components.Viewport = (function() {
             worldSize = inWorldSize; 
         },
         get viewport() { return viewport; },
+        get boundary() { return boundary; }
     }
 
     return api; 

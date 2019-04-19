@@ -24,10 +24,10 @@ MyGame.renderer.Tiles = (function (graphics) {
         let rowNum = (utils.imageSize.height / utils.tileSize.height);
         let colNum = (utils.imageSize.width / utils.tileSize.width);
         let tileNum = 0; 
-        for(let x = 0; x < colNum; x+= 1) {
-        for(let y = 0; y < rowNum; y+= 1) {
-                if(MyGame.assets["background" + tilePathCreater(y * x + x)]) {
-                    that.renderOneTile(y, x, MyGame.assets["background" + tilePathCreater(tileNum)]); 
+        for(let col = 0; col < colNum; col+= 1) {
+            for(let row = 0; row < rowNum; row+= 1) {
+                if(MyGame.assets["background" + tilePathCreater(tileNum)]) {
+                    that.renderOneTile(row, col, MyGame.assets["background" + tilePathCreater(tileNum)]); 
                     tileNum++; 
                 }
                 else {
@@ -42,7 +42,7 @@ MyGame.renderer.Tiles = (function (graphics) {
     // Renders a Player model.
     //
     // ------------------------------------------------------------------
-    that.renderOneTile = function (x, y, texture) {
+    that.renderOneTile = function (row, col, texture) {
         let viewport = MyGame.components.Viewport; 
         let utils = MyGame.components.TileUtils; 
         let numRows = (utils.imageSize.height / utils.tileSize.height);
@@ -52,8 +52,8 @@ MyGame.renderer.Tiles = (function (graphics) {
             height:  viewport.worldSize.height / numRows
         }
        let position = {
-            x: x * utils.tileSize.width * viewport.worldSize.width / utils.imageSize.width + (size.width / 2),
-            y: y * utils.tileSize.height * viewport.worldSize.height / utils.imageSize.height + (size.height / 2) 
+            x: row * utils.tileSize.width * viewport.worldSize.width / utils.imageSize.width + (size.width / 2),
+            y: col * utils.tileSize.height * viewport.worldSize.height / utils.imageSize.height + (size.height / 2) 
         }
         graphics.saveContext();
         graphics.drawTileImage(texture, position, size, canvases);

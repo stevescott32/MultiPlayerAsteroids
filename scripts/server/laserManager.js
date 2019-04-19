@@ -16,31 +16,28 @@ function createLaserManager(managerSpec) {
   let fire = true;
 
 
-  function generateNewLaser(x,y,rotation) {
+  function generateNewLaser(x,y,rotation, id) {
     let position = {
       x:  x,
       y:  y,
     }
     
-    if(fire === true)
     {
       fire = false;
       accumulatedTime = 0;
       laserArray.push(Laser.create({
         position: position,
         rotation: rotation,
+        playerId: id 
       }));
     }
-     
   }
-
-
 
   /// move lasers according to speed and the elapsed time 
   function update(elapsedTime) {
     // remove dead lasers
     accumulatedTime += elapsedTime;
-    if (accumulatedTime > fireRate)
+    if (accumulatedTime > managerSpec.interval)
     {
       fire = true;
     }

@@ -6,6 +6,8 @@
 MyGame.main = (function(graphics, renderer, input, components) {
     'use strict';
 
+    const BATTLE_MODE = true; 
+
     let asteroidManager = components.AsteroidManager({
         maxSize: 200,
         minSize: 65, 
@@ -21,6 +23,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
     let laserManager = components.LaserManager({
         size: 20,
         speed: 4,
+        interval: 100
     });
 
     components.TileUtils.tileSize = {
@@ -65,6 +68,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
         playerSelf.model.direction = data.direction;
         playerSelf.model.thrustRate = data.thrustRate;
         playerSelf.model.rotateRate = data.rotateRate;
+        playerSelf.model.playerId = data.playerId; 
+        console.log('Ack player id: ' + playerSelf.model.playerId); 
+
         MyGame.components.Viewport.worldSize.height = data.worldSize.height; 
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
     });
@@ -176,7 +182,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     if(laserManager.accumulatedTime > laserManager.fireRate)
                     {
                         laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                            playerSelf.model.direction);
+                            playerSelf.model.direction, playerSelf.model.playerId);
                     }
                     break;
             }
@@ -218,15 +224,39 @@ MyGame.main = (function(graphics, renderer, input, components) {
             let asteroid = asteroidManager.asteroids[a]; 
             for(let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z]; 
+                // check collisions between lasers and asteroids
                 if(!laser.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
                     asteroidManager.explode(asteroid, particleSystemManager); 
                 }
+                // detect collisions between lasers and player if in battle mode
+                
             }
+            // detect collisions between asteroids and the player 
             if(!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
-                asteroid.isDead = true; 
+                particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                let avoid = []; 
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
             }            
         }
+        /*if(BATTLE_MODE) {  
+            for(let id in activeClients) {
+                let ship = activeClients[id].player; 
+                    for (let z = 0; z < laserManager.laserArray.length; z++) {
+                        let laser = laserManager.laserArray[z];
+                            console.log('PlayerId: ', ship.playerId); 
+                            console.log('LaserId: ', laser.playerId); 
+                            laser.isDead = true; 
+                            let avoid = []; 
+                            avoid.push(asteroidManager.asteroids);
+                            avoid.push(laserManager.laserArray); 
+                            ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+                    }
+                }
+            }
+            */
     }
     
     //------------------------------------------------------------------
@@ -253,15 +283,6 @@ MyGame.main = (function(graphics, renderer, input, components) {
         graphics.clear();
         // render all tiles in the viewport
         renderer.Tiles.render(); 
-        // render any ongoing particle effects
-        renderer.ParticleSystemManager.render(particleSystemManager); 
-        // render main player
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
-        // render all other players
-        for (let id in playerOthers) {
-            let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
-        }
         // render each of the asteroids
         for(let a in asteroidManager.asteroids) {
             let asteroid = asteroidManager.asteroids[a]; 
@@ -275,6 +296,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 renderer.Laser.render(laser, laserTexture);
             }
         }
+        // render any ongoing particle effects
+        renderer.ParticleSystemManager.render(particleSystemManager); 
+        // render main player
+        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        // render all other players
+        for (let id in playerOthers) {
+            let player = playerOthers[id];
+            renderer.PlayerRemote.render(player.model, player.texture);
+        }
+
     }
 
     //------------------------------------------------------------------
@@ -347,6 +378,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
             };
             socket.emit('input', message);
             messageHistory.enqueue(message);
+            //particleSystemManager.createHyperspaceEffect(playerSelf.model.position.x, playerSelf.model.position.y, 7); 
+            if(performance.now() - playerSelf.model.lastHyperspaceTime > 5) {
+                let avoid = []; 
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
+            }
         }, 
         'z', true); 
 
@@ -360,8 +398,9 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 messageHistory.enqueue(message);
                 if(laserManager.accumulatedTime > laserManager.fireRate)
                 {
-                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                        playerSelf.model.direction);
+                    console.log('Fire id: ' + playerSelf.model.playerId); 
+                        laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                            playerSelf.model.direction, playerSelf.model.playerId);
                 }
             },
             ' ', true);
