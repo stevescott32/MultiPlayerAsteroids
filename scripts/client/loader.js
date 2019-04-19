@@ -19,7 +19,7 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue', 'tileUtils', 'collisions', 'random'],
+            scripts: ['queue', 'tileUtils', 'collisions', 'random', 'logger'],
             message: 'Utilities loaded',
             onComplete: null,
         }, {

@@ -84,7 +84,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
         for(let id in data) {
             if(data[id].score % 1000 == 0 && data[id].score != 0) {
                 let hs = data[id]; 
-                console.log('Player ' + hs.nickname + ' reached a score of ' + hs.score); 
+                MyGame.utilities.Logger.log(
+                    'Player ' + hs.nickname + ' reached a score of ' + hs.score); 
             }
         }
     }); 
