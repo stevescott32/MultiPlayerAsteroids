@@ -25,11 +25,6 @@ MyGame.loader = (function () {
             onComplete: null,
         },
         {
-            scripts: ['mainmenu', 'help', 'highscores', 'about', 'game'],
-            message: 'Screens loaded',
-            onComplete: null,
-        },
-        {
             scripts: ['queue', 'tileUtils', 'collisions', 'random','gameScreens'],
             message: 'Utilities loaded',
             onComplete: null,
@@ -79,11 +74,11 @@ MyGame.loader = (function () {
             message: 'Renderers loaded',
             onComplete: null
         }, 
-        // {
-        //     scripts: ['game'],
-        //     message: 'Gameplay model loaded',
-        //     onComplete: null
-        // }
+        {
+            scripts: ['mainmenu', 'help', 'highscores', 'about', 'game'],
+            message: 'Screens loaded',
+            onComplete: null,
+        },
     ],
         // all assets are specified with a key and a source. 
         // this allows the assets to be referenced using their key
