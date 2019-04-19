@@ -1,5 +1,6 @@
 MyGame = {
     input: {},
+    game: {},
     components: {},
     renderer: {},
     utilities: {},
@@ -22,12 +23,18 @@ MyGame.loader = (function () {
         {
             scripts: ['gameScreens'],
             message: 'gameScreenManager loaded',
-            onComplete: null,
+            onComplete: null
         },
+        {
+            scripts: ['mainmenu', 'help', 'highscores', 'about'],
+            message: 'Screens loaded',
+            onComplete: showMainMenu
+        },
+        
         {
             scripts: ['queue', 'tileUtils', 'collisions', 'random','gameScreens'],
             message: 'Utilities loaded',
-            onComplete: null,
+            onComplete: null
         }, {
             scripts: ['input'],
             message: 'Input loaded',
@@ -75,8 +82,8 @@ MyGame.loader = (function () {
             onComplete: null
         }, 
         {
-            scripts: ['mainmenu', 'help', 'highscores', 'about', 'game'],
-            message: 'Screens loaded',
+            scripts: ['game'],
+            message: 'Game loaded',
             onComplete: null,
         },
     ],
@@ -204,6 +211,11 @@ MyGame.loader = (function () {
         } else {
             onComplete();
         }
+    }
+
+    function showMainMenu()
+    {
+        MyGame.game.showScreen('main-menu')
     }
 
 
