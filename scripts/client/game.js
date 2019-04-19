@@ -241,22 +241,23 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager); 
             }            
         }
-        /*if(BATTLE_MODE) {  
-            for(let id in activeClients) {
-                let ship = activeClients[id].player; 
-                    for (let z = 0; z < laserManager.laserArray.length; z++) {
-                        let laser = laserManager.laserArray[z];
-                            console.log('PlayerId: ', ship.playerId); 
-                            console.log('LaserId: ', laser.playerId); 
-                            laser.isDead = true; 
-                            let avoid = []; 
-                            avoid.push(asteroidManager.asteroids);
-                            avoid.push(laserManager.laserArray); 
-                            ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+        if(BATTLE_MODE) {  
+            for(let id in playerOthers) {
+                //let ship = playerOthers[id].model; 
+                let ship = {
+                    size: playerOthers[id].model.size,
+                    position: playerOthers[id].model.state.position
+                }; 
+                for (let z = 0; z < laserManager.laserArray.length; z++) {
+                    let laser = laserManager.laserArray[z];
+                    if(playerSelf.model.playerId != laser.playerId && 
+                    MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
+                        laser.isDead = true; 
+                        particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
                     }
                 }
             }
-            */
+        }
     }
     
     //------------------------------------------------------------------
@@ -423,9 +424,8 @@ MyGame.main = (function(graphics, renderer, input, components) {
             messageHistory.enqueue(message);
             if(laserManager.accumulatedTime > laserManager.fireRate)
             {
-                console.log('Fire id: ' + playerSelf.model.playerId); 
-                    laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
-                        playerSelf.model.direction, playerSelf.model.playerId);
+                laserManager.generateNewLaser(playerSelf.model.position.x,playerSelf.model.position.y, 
+                    playerSelf.model.direction, playerSelf.model.playerId);
             }
         },
         settings.fire, true);

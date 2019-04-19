@@ -17,7 +17,7 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
-const BATTLE_MODE = false; 
+const BATTLE_MODE = true; 
 
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
@@ -119,24 +119,21 @@ function detectCollisions() {
             }
         }
     }
-    /*if(BATTLE_MODE) {
+    if(BATTLE_MODE) {
         for(let id in activeClients) {
         let ship = activeClients[id].player; 
             for (let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z];
-                if(Collisions.detectCircleCollision(ship, laser)) {
-                    console.log('PlayerId: ', ship.playerId); 
-                    console.log('LaserId: ', laser.playerId); 
+                if(id != laser.playerId && Collisions.detectCircleCollision(ship, laser)) {
                     laser.isDead = true; 
                     let avoid = []; 
                     avoid.push(asteroidManager.asteroids);
                     avoid.push(laserManager.laserArray); 
-                    ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+                    ship.crash(avoid, WORLDSIZE); 
                 }
             }
         }
     }
-    */
 }
 
 function updateAsteroids(elapsedTime) {
