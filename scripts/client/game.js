@@ -75,6 +75,13 @@ MyGame.main = (function(graphics, renderer, input, components) {
         MyGame.components.Viewport.worldSize.width = data.worldSize.width; 
     });
 
+
+    socket.on('update-highScores', function(data) {
+        let highScoresJSON = JSON.stringify(data);
+            console.log('Json', highScoresJSON); 
+            window.localStorage.setItem('highScores', settingsJson)
+    }); 
+
     //------------------------------------------------------------------
     //
     // Handler for when a new player connects to the game.  We receive

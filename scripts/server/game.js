@@ -45,6 +45,14 @@ let quit = false;
 let activeClients = {};
 let inputQueue = [];
 let lastUpdateTime = present();
+let highScores = []; 
+for(let i = 0; i < 5; i++) {
+    highScores.push({
+        score: 0,
+        nickname: '',
+        clientId: ''
+    }); 
+}
 
 //------------------------------------------------------------------
 //
@@ -94,6 +102,11 @@ function processInput() {
     }
 }
 
+//------------------------------------------------------------------
+// function to see if asteroids have collided with anything, 
+// ships have collided with anything, or if lasers have collided 
+// with anything
+//------------------------------------------------------------------
 function detectCollisions() {
     for (let a = 0; a < asteroidManager.asteroids.length; a++) {
         let asteroid = asteroidManager.asteroids[a];
@@ -117,6 +130,7 @@ function detectCollisions() {
                 avoid.push(laserManager.laserArray); 
                 ship.crash(avoid, WORLDSIZE);
             }
+            checkForHighScore(ship); 
         }
     }
     if(BATTLE_MODE) {
@@ -133,6 +147,39 @@ function detectCollisions() {
                 }
             }
         }
+    }
+}
+
+
+//------------------------------------------------------------------
+// helper function to check for high scores and potentially 
+// notify clients
+//------------------------------------------------------------------
+function checkForHighScore(player) {
+    if(player.score > highScores[highScores.length - 1].score) {
+        console.log('New high score of ', player.score);
+        highScores.push({
+            clientId: '',
+            nickname: ' winner ',
+            score: player.score
+        }); 
+        highScores.sort(); 
+        console.log('Sorted high scores ', highScores)
+        highScores.shift(); 
+        updateHighScores(); 
+    } else {
+        console.log(highScores); 
+    }
+}
+
+//------------------------------------------------------------------
+// functions to send updates to the clients about various 
+// objects/managers in the game 
+//------------------------------------------------------------------
+function updateHighScores() {
+    let update = highScores; 
+    for (let clientId in activeClients) {
+        activeClients[clientId].socket.emit('update-asteroid', update);
     }
 }
 
@@ -331,6 +378,8 @@ function initializeSocketIO(httpServer) {
             thrustRate: newPlayer.thrustRate,
             playerId: newPlayer.clientId
         });
+
+        updateHighScores(); 
 
         // push any new inputs into the input queue 
         socket.on('input', data => {
