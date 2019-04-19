@@ -241,7 +241,7 @@ MyGame.components.Player = function() {
         // viewport
         let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
         let boundary = MyGame.components.Viewport.boundary; 
-        let inter = 10; 
+        let inter = 1; 
         if(playerVectorViewport.x > (1 - boundary) && position.x < MyGame.components.Viewport.worldSize.width - (boundary)) {
             MyGame.components.Viewport.shiftX((playerVectorViewport.x - (1 - boundary)) / inter); 
         }

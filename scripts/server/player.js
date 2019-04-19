@@ -42,6 +42,7 @@ function createPlayer(worldSize) {
     let lastLaserTime = 0;
     let score = 0;
     let inGame = true;
+    let nickname = 'Default';
 
     // define the available methods on player object
 
@@ -95,6 +96,11 @@ function createPlayer(worldSize) {
     Object.defineProperty(player, 'inGame', {
         get: () => inGame,
         set: value => inGame = value
+    });
+
+    Object.defineProperty(player, 'nickname', {
+        get: () => nickname,
+        set: value => nickname = value
     });
 
 

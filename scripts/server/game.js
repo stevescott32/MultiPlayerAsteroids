@@ -45,14 +45,7 @@ let quit = false;
 let activeClients = {};
 let inputQueue = [];
 let lastUpdateTime = present();
-let highScores = []; 
-for(let i = 0; i < 5; i++) {
-    highScores.push({
-        score: 0,
-        nickname: '',
-        clientId: ''
-    }); 
-}
+let highScores = {}; 
 
 //------------------------------------------------------------------
 //
@@ -156,19 +149,23 @@ function detectCollisions() {
 // notify clients
 //------------------------------------------------------------------
 function checkForHighScore(player) {
-    if(player.score > highScores[highScores.length - 1].score) {
-        console.log('New high score of ', player.score);
-        highScores.push({
-            clientId: '',
-            nickname: ' winner ',
-            score: player.score
-        }); 
-        highScores.sort(); 
-        console.log('Sorted high scores ', highScores)
-        highScores.shift(); 
-        updateHighScores(); 
-    } else {
-        console.log(highScores); 
+    if(!highScores[player.clientId] ) { // || !highScores[player.clientId].score) {
+        highScores[player.clientId] = {
+            score: player.score,
+            nickname: 'tmp',
+            clientId: player.clientId
+        }
+        console.log('highScores', highScores); 
+    }
+    if(player.score > highScores[player.clientId].score ) {
+        console.log('New high score, player score ', player.score,
+        ' previous', highScores[player.clientId].score); 
+        highScores[player.clientId] = {
+            score: player.score,
+            nickname: player.nickname,
+            clientId: player.clientId
+        }
+        console.log('highScores', highScores); 
     }
 }
 
@@ -359,8 +356,9 @@ function initializeSocketIO(httpServer) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create(WORLDSIZE)
+        let newPlayer = Player.create(WORLDSIZE); 
         newPlayer.clientId = socket.id;
+        console.log('Client id in new player create', newPlayer.clientId); 
         activeClients[socket.id] = {
             socket: socket,
             player: newPlayer
