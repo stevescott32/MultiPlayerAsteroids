@@ -42,7 +42,7 @@ function createPlayer(worldSize) {
     let lastLaserTime = 0;
     let score = 0;
     let inGame = true;
-    let nickname = 'Default';
+    let nickname = 'unknown';
 
     // define the available methods on player object
 

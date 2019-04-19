@@ -32,7 +32,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 });
 
-const UPDATE_RATE_MS = 16.33;
+const UPDATE_RATE_MS = 20;
 
 let laserManager = LaserManager.create({
     size: 10,
@@ -122,6 +122,7 @@ function detectCollisions() {
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
                 ship.crash(avoid, WORLDSIZE);
+                log(ship.nickname + ' was killed by an asteroid'); 
             }
             checkForHighScore(ship); 
         }
@@ -137,6 +138,8 @@ function detectCollisions() {
                     avoid.push(asteroidManager.asteroids);
                     avoid.push(laserManager.laserArray); 
                     ship.crash(avoid, WORLDSIZE); 
+                    activeClients[laser.playerId].player.score += 500; 
+                    log(ship.nickname + ' was killed by enemy lasers'); 
                 }
             }
         }
@@ -152,22 +155,18 @@ function checkForHighScore(player) {
     if(!highScores[player.clientId] ) { // || !highScores[player.clientId].score) {
         highScores[player.clientId] = {
             score: player.score,
-            nickname: 'tmp',
+            nickname: player.nickname,
             clientId: player.clientId
         }
         updateHighScores(); 
-        console.log('highScores', highScores); 
     }
     if(player.score > highScores[player.clientId].score ) {
-        console.log('New high score, player score ', player.score,
-        ' previous', highScores[player.clientId].score); 
         highScores[player.clientId] = {
             score: player.score,
             nickname: player.nickname,
             clientId: player.clientId
         }
         updateHighScores(); 
-        console.log('highScores', highScores); 
     }
 }
 
@@ -176,7 +175,6 @@ function checkForHighScore(player) {
 // objects/managers in the game 
 //------------------------------------------------------------------
 function updateHighScores() {
-    console.log('Updating high scores', highScores); 
     let update = highScores; 
     for (let clientId in activeClients) {
         activeClients[clientId].socket.emit('update-highScores', update);
@@ -210,6 +208,13 @@ function updateLaser(elapsedTime) {
         for (let clientId in activeClients) {
             activeClients[clientId].socket.emit('update-laser', update);
         }
+    }
+}
+
+// function to log messages to the client's message board
+function log(message) {
+    for(let clientId in activeClients) {
+        activeClients[clientId].socket.emit('log', message); 
     }
 }
 
@@ -381,6 +386,7 @@ function initializeSocketIO(httpServer) {
         });
 
         updateHighScores(); 
+        log('Player ' + socket.id + ' has joined the game'); 
 
         // push any new inputs into the input queue 
         socket.on('input', data => {

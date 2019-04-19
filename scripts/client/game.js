@@ -150,6 +150,12 @@ MyGame.main = (function(graphics, renderer, input, components) {
         } else { console.log('No Lasers'); }
     });
 
+    // if a log message has been received from the server,
+    // send it to the logger
+    socket.on('log', function(message) {
+        MyGame.utilities.Logger.log(message); 
+    }); 
+
     //------------------------------------------------------------------
     //
     // Handler for receiving state updates about the self player.
@@ -268,7 +274,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                     if(playerSelf.model.playerId != laser.playerId && 
                     MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true; 
-                        particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                        // particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
                     }
                 }
             }
