@@ -3,44 +3,22 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
+MyGame.screens['gamePlay'] = (function(graphics, renderer, components, input) {
     'use strict';
 
-    let asteroidManager = components.AsteroidManager({
-        maxSize: 200,
-        minSize: 65, 
-        maxSpeed: 100,
-        minSpeed: 50,
-        interval: 1, // seconds
-        maxAsteroids: 12,
-        initialAsteroids: 8
-    }); 
+    let asteroidManager = {};
 
-    let particleSystemManager = components.ParticleSystemManager({}); 
+    let particleSystemManager = {};
 
-    let laserManager = components.LaserManager({
-        size: 20,
-        speed: 4,
-    });
+    let laserManager = {};
 
-    components.TileUtils.tileSize = {
-        width: 128,
-        height: 128
-    }
-
-    components.TileUtils.imageSize = {
-        width: 2048,
-        height: 2048
-    }
+   
 
     let lastTimeStamp = performance.now(),
-        myKeyboard = input.Keyboard(),
-        playerSelf = {
-            model: components.Player(),
-            texture: MyGame.assets['player-self']
-        },
+        myKeyboard = null; 
+        let playerSelf = {},
         playerOthers = {},
-        messageHistory = MyGame.utilities.Queue(),
+        
         messageId = 1,
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
@@ -250,29 +228,29 @@ MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
     //
     //------------------------------------------------------------------
     function render() {
-        graphics.clear();
+        MyGame.graphics.clear();
         // render all tiles in the viewport
-        renderer.Tiles.render(); 
+        MyGame.renderer.Tiles.render(); 
         // render any ongoing particle effects
-        renderer.ParticleSystemManager.render(particleSystemManager); 
+        MyGame.renderer.ParticleSystemManager.render(particleSystemManager); 
         // render main player
-        renderer.Player.render(playerSelf.model, playerSelf.texture);
+        MyGame.renderer.Player.render(playerSelf.model, playerSelf.texture);
         // render all other players
         for (let id in playerOthers) {
             let player = playerOthers[id];
-            renderer.PlayerRemote.render(player.model, player.texture);
+            MyGame.renderer.PlayerRemote.render(player.model, player.texture);
         }
         // render each of the asteroids
         for(let a in asteroidManager.asteroids) {
             let asteroid = asteroidManager.asteroids[a]; 
             if(asteroid) {
-                renderer.Asteroid.render(asteroid, asteroidTexture); 
+                MyGame.renderer.Asteroid.render(asteroid, asteroidTexture); 
             }
         }
         for(let i in laserManager.laserArray){
             let laser = laserManager.laserArray[i];
             if(laser){
-                renderer.Laser.render(laser, laserTexture);
+                MyGame.renderer.Laser.render(laser, laserTexture);
             }
         }
     }
@@ -301,8 +279,52 @@ MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
+        console.log(components);
+        console.log(input);
+
+        myKeyboard = input.Keyboard();
+        console.log(myKeyboard);
+        
+
+        asteroidManager = MyGame.components.AsteroidManager({
+            maxSize: 200,
+            minSize: 65, 
+            maxSpeed: 100,
+            minSpeed: 50,
+            interval: 1, // seconds
+            maxAsteroids: 12,
+            initialAsteroids: 8
+        }); 
+
+        particleSystemManager = MyGame.components.ParticleSystemManager({}); 
+
+        laserManager = MyGame.components.LaserManager({
+            size: 20,
+            speed: 4,
+        });
+
+        MyGame.components.TileUtils.tileSize = {
+            width: 128,
+            height: 128
+        }
+    
+        MyGame.components.TileUtils.imageSize = {
+            width: 2048,
+            height: 2048
+        }
+
+       
+
+        playerSelf = {
+            model: MyGame.components.Player(),
+            texture: MyGame.assets['player-self']
+        };
+
+        let messageHistory = MyGame.utilities.Queue();
         //
         // Create the keyboard input handler and register the keyboard commands
+        
+
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -314,6 +336,7 @@ MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
                 playerSelf.model.move(elapsedTime);
             },
             'ArrowUp', true);
+            
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -326,6 +349,7 @@ MyGame.screens['gamePlay'] = (function(graphics, renderer, input, components) {
                 playerSelf.model.rotateRight(elapsedTime);
             },
             'ArrowRight', true);
+      
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {

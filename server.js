@@ -10,7 +10,8 @@ let mimeTypes = {
         '.css' : 'text/css',
         '.png' : 'image/png',
         '.jpg' : 'image/jpeg',
-        '.mp3' : 'audio/mpeg3'
+        '.mp3' : 'audio/mpeg3',
+        '.map' : 'application/json' // Socket.io is requesting its .map file
     };
 
 function handleRequest(request, response) {

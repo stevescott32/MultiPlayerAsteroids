@@ -68,4 +68,4 @@ MyGame.components.AsteroidManager = function (managerSpec) {
   };
 
   return api;
-}
+};

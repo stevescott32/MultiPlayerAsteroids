@@ -42,10 +42,14 @@ MyGame.loader = (function () {
             message: 'Viewport model loaded',
             onComplete: null
         }, {
-            scripts: ['asteroidManager', 'asteroid'],
+            scripts: [ 'asteroid'],
             message: 'Asteroid models loaded',
             onComplete: null
-        }, 
+        }, {
+            scripts: ['asteroidManager'],
+            message: 'Asteroid Manager Loaded',
+            onComplete: null
+        },
         {
             scripts: ['laser'],
             message: 'Laser models loaded',
