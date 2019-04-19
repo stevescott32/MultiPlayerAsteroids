@@ -185,9 +185,11 @@ function createPlayer(worldSize) {
         if ((present() - lastHyperspaceTime) > 5000) {
             hyperspaceHelper(allObjectsToAvoid, worldSize)
             lastHyperspaceTime = present();
+            return true; 
         } else {
-            console.log('Last hyperspace time: ', lastHyperspaceTime, ' Present: ', present(),
-            ' diff: ' + (present() - lastHyperspaceTime));
+//            console.log('Last hyperspace time: ', lastHyperspaceTime, ' Present: ', present(),
+//            ' diff: ' + (present() - lastHyperspaceTime));
+            return false; 
         }
     }
 

@@ -77,7 +77,9 @@ function processInput() {
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
-                client.player.hyperspace(avoid, WORLDSIZE);
+                if(client.player.hyperspace(avoid, WORLDSIZE)) {
+                    log(client.player.nickname + ' hyperspaced'); 
+                }
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
                 break;
@@ -386,7 +388,7 @@ function initializeSocketIO(httpServer) {
         });
 
         updateHighScores(); 
-        log('Player ' + socket.id + ' has joined the game'); 
+        log(socket.id + ' has joined the game'); 
 
         // push any new inputs into the input queue 
         socket.on('input', data => {
