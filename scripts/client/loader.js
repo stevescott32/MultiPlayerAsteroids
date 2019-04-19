@@ -1,9 +1,11 @@
 MyGame = {
     input: {},
+    game: {},
     components: {},
     renderer: {},
     utilities: {},
-    assets: {}
+    assets: {},
+    screens: {}
 };
 
 //------------------------------------------------------------------
@@ -19,9 +21,20 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue', 'tileUtils', 'collisions', 'random'],
+            scripts: ['gameScreens'],
+            message: 'gameScreenManager loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['mainmenu', 'help', 'highscores', 'about'],
+            message: 'Screens loaded',
+            onComplete: showMainMenu
+        },
+        
+        {
+            scripts: ['queue', 'tileUtils', 'collisions', 'random','gameScreens'],
             message: 'Utilities loaded',
-            onComplete: null,
+            onComplete: null
         }, {
             scripts: ['input'],
             message: 'Input loaded',
@@ -31,10 +44,14 @@ MyGame.loader = (function () {
             message: 'Viewport model loaded',
             onComplete: null
         }, {
-            scripts: ['asteroidManager', 'asteroid'],
+            scripts: [ 'asteroid'],
             message: 'Asteroid models loaded',
             onComplete: null
-        }, 
+        }, {
+            scripts: ['asteroidManager'],
+            message: 'Asteroid Manager Loaded',
+            onComplete: null
+        },
         {
             scripts: ['laser'],
             message: 'Laser models loaded',
@@ -66,9 +83,10 @@ MyGame.loader = (function () {
         }, 
         {
             scripts: ['game'],
-            message: 'Gameplay model loaded',
-            onComplete: null
-        }],
+            message: 'Game loaded',
+            onComplete: null,
+        },
+    ],
         // all assets are specified with a key and a source. 
         // this allows the assets to be referenced using their key
         // so that the source can be changed without changing any code outside of this
@@ -195,6 +213,11 @@ MyGame.loader = (function () {
         }
     }
 
+    function showMainMenu()
+    {
+        MyGame.game.showScreen('main-menu')
+    }
+
 
     //------------------------------------------------------------------
     //
@@ -253,7 +276,7 @@ MyGame.loader = (function () {
     //------------------------------------------------------------------
     function mainComplete() {
         console.log('it is all loaded up');
-        MyGame.main.initialize();
+        MyGame.game.initialize();
     }
 
     //

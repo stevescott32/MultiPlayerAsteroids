@@ -3,47 +3,24 @@
 // This function provides the "game" code.
 //
 //------------------------------------------------------------------
-MyGame.main = (function(graphics, renderer, input, components) {
+MyGame.screens['gamePlay'] = function(game, graphics, renderer, input, components,) {
     'use strict';
 
+    let asteroidManager = {};
     const BATTLE_MODE = true; 
 
-    let asteroidManager = components.AsteroidManager({
-        maxSize: 200,
-        minSize: 65, 
-        maxSpeed: 100,
-        minSpeed: 50,
-        interval: 1, // seconds
-        maxAsteroids: 12,
-        initialAsteroids: 8
-    }); 
+    let particleSystemManager = {};
 
-    let particleSystemManager = components.ParticleSystemManager({}); 
+    let laserManager = {};
 
-    let laserManager = components.LaserManager({
-        size: 20,
-        speed: 4,
-        interval: 100
-    });
-
-    components.TileUtils.tileSize = {
-        width: 128,
-        height: 128
-    }
-
-    components.TileUtils.imageSize = {
-        width: 2048,
-        height: 2048
-    }
+    let messageHistory = null;
+   
 
     let lastTimeStamp = performance.now(),
-        myKeyboard = input.Keyboard(),
-        playerSelf = {
-            model: components.Player(),
-            texture: MyGame.assets['player-self']
-        },
+        myKeyboard = null;
+        let playerSelf = {},
         playerOthers = {},
-        messageHistory = MyGame.utilities.Queue(),
+        
         messageId = 1,
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
@@ -332,8 +309,53 @@ MyGame.main = (function(graphics, renderer, input, components) {
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
+        console.log(components);
+        console.log(input);
+        console.log(graphics);
+
+        myKeyboard = input.Keyboard();
+        console.log(myKeyboard);
+        
+
+        asteroidManager = components.AsteroidManager({
+            maxSize: 200,
+            minSize: 65, 
+            maxSpeed: 100,
+            minSpeed: 50,
+            interval: 1, // seconds
+            maxAsteroids: 12,
+            initialAsteroids: 8
+        }); 
+
+        particleSystemManager = components.ParticleSystemManager({}); 
+
+        laserManager = components.LaserManager({
+            size: 20,
+            speed: 4,
+        });
+
+        components.TileUtils.tileSize = {
+            width: 128,
+            height: 128
+        }
+    
+        components.TileUtils.imageSize = {
+            width: 2048,
+            height: 2048
+        }
+
+       
+
+        playerSelf = {
+            model: components.Player(),
+            texture: MyGame.assets['player-self']
+        };
+
+         messageHistory = MyGame.utilities.Queue();
         //
         // Create the keyboard input handler and register the keyboard commands
+        
+
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -346,6 +368,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
             },
             'ArrowUp', true);
 
+
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
                     id: messageId++,
@@ -357,6 +380,7 @@ MyGame.main = (function(graphics, renderer, input, components) {
                 playerSelf.model.rotateRight(elapsedTime);
             },
             'ArrowRight', true);
+      
 
         myKeyboard.registerHandler(elapsedTime => {
                 let message = {
@@ -403,15 +427,16 @@ MyGame.main = (function(graphics, renderer, input, components) {
                             playerSelf.model.direction, playerSelf.model.playerId);
                 }
             },
-            ' ', true);
-
-        //
-        // Get the game loop started
+            ' ', true); 
+    }
+    function run() {
+        console.log("run called");
         requestAnimationFrame(gameLoop);
     }
 
     return {
-        initialize: initialize
+        initialize: initialize,
+        run: run,
     };
  
-}(MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components));
+}(MyGame.game, MyGame.graphics, MyGame.renderer, MyGame.input, MyGame.components,);
