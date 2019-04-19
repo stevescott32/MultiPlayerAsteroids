@@ -101,12 +101,10 @@ function detectCollisions() {
         for (let z = 0; z < laserManager.laserArray.length; z++) {
             let laser = laserManager.laserArray[z];
             if (!laser.isDead && !asteroid.isDead &&
-                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, 
-                laser, laser.lastPosition)) {
+                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, laser, laser.lastPosition)) {
                 laser.isDead = true;
-                //asteroid.isDead = true;
                 asteroidManager.explode(asteroid); 
-                // console.log('Asteroid destroid');
+                activeClients[laser.playerId].player.score += 100; 
             }
         }
 
@@ -114,13 +112,10 @@ function detectCollisions() {
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
             if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
-                // asteroid.isDead = true; 
-                // console.log('Player kill'); 
-                // asteroidManager.explode(asteroid); 
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
-                ship.hyperspace(avoid, WORLDSIZE);
+                ship.crash(avoid, WORLDSIZE);
             }
         }
     }
@@ -205,7 +200,8 @@ function updateClients(elapsedTime) {
             momentum: client.player.momentum,
             direction: client.player.direction,
             position: client.player.position,
-            updateWindow: elapsedTime
+            updateWindow: elapsedTime, 
+            score: client.player.score
         };
         if (client.player.reportUpdate) {
             client.socket.emit('update-self', update);
