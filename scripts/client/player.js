@@ -241,17 +241,18 @@ MyGame.components.Player = function() {
         // viewport
         let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
         let boundary = MyGame.components.Viewport.boundary; 
+        let inter = 10; 
         if(playerVectorViewport.x > (1 - boundary) && position.x < MyGame.components.Viewport.worldSize.width - (boundary)) {
-            MyGame.components.Viewport.shiftX(playerVectorViewport.x - (1 - boundary)); 
+            MyGame.components.Viewport.shiftX((playerVectorViewport.x - (1 - boundary)) / inter); 
         }
         if(playerVectorViewport.y > (1 - boundary) && position.y < MyGame.components.Viewport.worldSize.height - boundary) {
-            MyGame.components.Viewport.shiftY(playerVectorViewport.y - (1 - boundary)); 
+            MyGame.components.Viewport.shiftY((playerVectorViewport.y - (1 - boundary)) / inter); 
         }
         if(playerVectorViewport.x < boundary && position.x > boundary) {
-            MyGame.components.Viewport.shiftX(-1 * (boundary - playerVectorViewport.x)); 
+            MyGame.components.Viewport.shiftX((-1 * (boundary - playerVectorViewport.x)) / inter); 
         }
         if(playerVectorViewport.y < boundary && position.y > boundary) {
-            MyGame.components.Viewport.shiftY(-1 * (boundary - playerVectorViewport.y)); 
+            MyGame.components.Viewport.shiftY((-1 * (boundary - playerVectorViewport.y)) / inter); 
         }
     };
 
