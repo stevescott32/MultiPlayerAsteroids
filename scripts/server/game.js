@@ -18,7 +18,7 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
-const BATTLE_MODE = true; 
+const BATTLE_MODE = false; 
 
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
@@ -52,7 +52,7 @@ let alienLasers = LaserManager.create({
 let alien = Alien.create({
     worldSize: WORLDSIZE,
     alienLasers: laserManager,
-    interval: 300
+    interval: 1500
 }); 
 
 let quit = false;
@@ -117,6 +117,11 @@ function processInput() {
 // with anything
 //------------------------------------------------------------------
 function detectCollisions() {
+    let collisionAlien = {
+            position: alien.state.position,
+            size: alien.size
+    }
+
     // asteroid collisions
     for (let a = 0; a < asteroidManager.asteroids.length; a++) {
         let asteroid = asteroidManager.asteroids[a];
@@ -128,6 +133,9 @@ function detectCollisions() {
                 laser.isDead = true;
                 asteroidManager.explode(asteroid); 
                 activeClients[laser.playerId].player.score += 100; 
+            }
+            if(Collisions.detectCircleCollision(collisionAlien, laser)) {
+                log(activeClients[laser.playerId].player.nickname + ' collided with an alien'); 
             }
         }
 
@@ -141,10 +149,36 @@ function detectCollisions() {
                 ship.crash(avoid, WORLDSIZE);
                 log(ship.nickname + ' was killed by an asteroid'); 
             }
+            if(Collisions.detectCircleCollision(collisionAlien, ship)) {
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                ship.crash(avoid, WORLDSIZE);
+                log(ship.nickname + ' collided with an alien'); 
+            }
             checkForHighScore(ship); 
         }
     }
-    if(BATTLE_MODE) {
+
+    // detect collisions between asteroid lasers and players
+    if(!BATTLE_MODE) {
+        for(let id in activeClients) {
+        let ship = activeClients[id].player; 
+            for (let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z];
+                if(laser.playerId == 1 && Collisions.detectCircleCollision(ship, laser)) {
+                    laser.isDead = true; 
+                    let avoid = []; 
+                    avoid.push(asteroidManager.asteroids);
+                    avoid.push(laserManager.laserArray); 
+                    ship.crash(avoid, WORLDSIZE); 
+                    log(ship.nickname + ' was killed by alien lasers'); 
+                }
+            }
+        }
+    }
+    // detect collisions between lasers and all ships if n battle mode
+    else if(BATTLE_MODE) {
         for(let id in activeClients) {
         let ship = activeClients[id].player; 
             for (let z = 0; z < laserManager.laserArray.length; z++) {
@@ -410,6 +444,10 @@ function initializeSocketIO(httpServer) {
         //
         // Create an entry in our list of connected clients
         let newPlayer = Player.create(WORLDSIZE); 
+        let avoid = []; 
+        avoid.push(laserManager.laserArray); 
+        avoid.push(asteroidManager.asteroids); 
+        newPlayer.hyperspace(avoid, WORLDSIZE); 
         newPlayer.clientId = socket.id;
         console.log('Client id in new player create', newPlayer.clientId); 
         activeClients[socket.id] = {

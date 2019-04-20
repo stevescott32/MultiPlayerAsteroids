@@ -21,8 +21,8 @@ function createAlien(spec) {
             y: random.nextDouble() * spec.worldSize.height
         },
         momentum: {
-            x: 0.0003,
-            y: 0.0003
+            x: 0.00003,
+            y: 0.00003
         }
     };
     
@@ -67,8 +67,6 @@ function createAlien(spec) {
         }
 
         if(present() - lastLaserTime > spec.interval) {
-            // create a laser with id 1
-            // console.log('Alien state', state); 
             spec.alienLasers.generateNewLaser(state.position.x, state.position.y, state.direction, 1); 
             lastLaserTime = present(); 
         }

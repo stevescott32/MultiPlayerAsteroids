@@ -5,13 +5,13 @@
 //------------------------------------------------------------------
 MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, components, ) {
     'use strict';
-    const BATTLE_MODE = true;
+    const BATTLE_MODE = false;
 
     let asteroidManager = {};
     let particleSystemManager = {};
     let laserManager = {};
     let messageHistory = null;
-    let alien = {}; 
+    let alien = {};
 
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
@@ -21,8 +21,8 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
         laserTexture = MyGame.assets['laser'],
-        alienTexture = MyGame.assets['alien']; 
-        
+        alienTexture = MyGame.assets['alien'];
+
 
     //------------------------------------------------------------------
     //
@@ -114,22 +114,22 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     });
 
     // update alien to be the server's alien
-    socket.on('update-alien', function(data) {
-        if(data.alien) {
+    socket.on('update-alien', function (data) {
+        if (data.alien) {
             // console.log('Alien update on client', data.alien); 
-            alien.state.position.x = data.alien.position.x; 
-            alien.state.position.y = data.alien.position.y; 
-            alien.state.momentum.x = data.alien.velocity.x; 
-            alien.state.momentum.y = data.alien.velocity.y; 
+            alien.state.position.x = data.alien.position.x;
+            alien.state.position.y = data.alien.position.y;
+            alien.state.momentum.x = data.alien.velocity.x;
+            alien.state.momentum.y = data.alien.velocity.y;
         }
-    }); 
+    });
 
     // set local lasers to be the server's lasers
-    let log = 0; 
+    let log = 0;
     socket.on('update-laser', function (data) {
-        if(log < 30) {
-            console.log('Update lasers ', data); 
-            log++; 
+        if (log < 30) {
+            console.log('Update lasers ', data);
+            log++;
         }
         if (data.lasers) {
             try {
@@ -138,11 +138,11 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 console.log('Error invalid lasers received');
             }
         }
-        if(data.alienLasers) {
-            console.log(data.alienLasers); 
-            for(let a = 0; a < data.alienLasers.length; a++) {
-                laserManager.laserArray.push(data.alienLasers[a]); 
-                MyGame.utilities.Logger.log('Added an alien laser on client'); 
+        if (data.alienLasers) {
+            console.log(data.alienLasers);
+            for (let a = 0; a < data.alienLasers.length; a++) {
+                laserManager.laserArray.push(data.alienLasers[a]);
+                MyGame.utilities.Logger.log('Added an alien laser on client');
             }
         }
     });
@@ -237,14 +237,51 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     }
 
     function detectCollisions() {
+        let collisionAlien = {
+            position: alien.state.position,
+            size: alien.size
+        }
+       // lasers and alien ship
+        /*for (let lzr = 0; lzr < laserManager.laserArray.length; lzr++) {
+            let laser = laserManager.laserArray[lzr];
+            let collisionLaser = {
+                position: laser.position,
+                size: laser.size
+            }
+            if (//!laser.isDead && 
+                MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, collisionLaser)) {
+                particleSystemManager.createShipExplosion(alien.x, alien.y);
+            } else {
+                //console.log('Alien ', collisionAlien);
+                //console.log('Laser', collisionLaser);
+            }
+        }*/
+
+        // collisions between player and alien
+        /*if(MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, playerSelf.model)) {
+            particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
+            let avoid = [];
+            avoid.push(asteroidManager.asteroids);
+            avoid.push(laserManager.laserArray);
+            playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
+            MyGame.utilities.Logger.log('You ran into an alien'); 
+        }
+        */
+
+        // collisions with asteroids
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a];
             for (let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z];
                 // check collisions between lasers and asteroids
-                if (!laser.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
+                if (!laser.isDead && !asteroid.isDead && laser.playerId != 1
+                    && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
                     asteroidManager.explode(asteroid, particleSystemManager);
+                }
+                if(laser.playerId != 1 && MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, laser)) {
+                    particleSystemManager.createShipExplosion(alien.state.position.x, alien.state.position.y); 
+                    MyGame.utilities.Logger.log('You shot an alien'); 
                 }
                 // detect collisions between lasers and player if in battle mode
 
@@ -257,8 +294,35 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 avoid.push(laserManager.laserArray);
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
             }
+            if (MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, playerSelf.model)) {
+                particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray);
+                playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
+                MyGame.utilities.Logger.log('You ran into an alien'); 
+            }
+
         }
-        if (BATTLE_MODE) {
+        if (!BATTLE_MODE) {
+            for (let id in playerOthers) {
+                //let ship = playerOthers[id].model; 
+                let ship = {
+                    size: playerOthers[id].model.size,
+                    position: playerOthers[id].model.state.position
+                };
+                for (let z = 0; z < laserManager.laserArray.length; z++) {
+                    let laser = laserManager.laserArray[z];
+                    if (1 == laser.playerId &&
+                        MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
+                        laser.isDead = true;
+                        particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                    }
+                }
+            }
+        }
+        // detect collisions between lasers and all ships if in battle mode
+        else if (BATTLE_MODE) {
             for (let id in playerOthers) {
                 //let ship = playerOthers[id].model; 
                 let ship = {
@@ -270,7 +334,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                     if (playerSelf.model.playerId != laser.playerId &&
                         MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true;
-                        // particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                        particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
                     }
                 }
             }
@@ -284,7 +348,6 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     //------------------------------------------------------------------
     function update(elapsedTime) {
         particleSystemManager.update(elapsedTime);
-        alien.update(elapsedTime); 
         playerSelf.model.update(elapsedTime);
         asteroidManager.update(elapsedTime);
         for (let id in playerOthers) {
@@ -292,6 +355,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         }
         laserManager.update(elapsedTime);
         detectCollisions();
+        alien.update(elapsedTime);
     }
     //------------------------------------------------------------------
     //
@@ -351,7 +415,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
-       
+
         asteroidManager = components.AsteroidManager({
             maxSize: 200,
             minSize: 65,
@@ -362,7 +426,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             initialAsteroids: 8
         });
 
-        alien = components.AlienShips(); 
+        alien = components.AlienShips();
 
         particleSystemManager = components.ParticleSystemManager({});
 
@@ -396,7 +460,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         // clear the background so the rest of the screen is black
         let body = document.getElementById('id-body');
         body.style.background = 'none';
-        body.style.backgroundColor = 'rgb(0, 0, 0)'; 
+        body.style.backgroundColor = 'rgb(0, 0, 0)';
 
         // default settings. If the user has any settings saved to the browser, 
         // the defaults will be overridden 
@@ -496,14 +560,14 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             settings.fire, true);
 
         // send the player's nickname to the server
-        let storageNicknameJSON = window.localStorage.getItem('nickname'); 
-        let storageNickname = 'unknown'; 
-        if(storageNicknameJSON) {
-            storageNickname = JSON.parse(storageNicknameJSON); 
-            console.log('Nickname retrieved from storage', storageNickname); 
+        let storageNicknameJSON = window.localStorage.getItem('nickname');
+        let storageNickname = 'unknown';
+        if (storageNicknameJSON) {
+            storageNickname = JSON.parse(storageNicknameJSON);
+            console.log('Nickname retrieved from storage', storageNickname);
         } else { console.log('No nickname found in storage'); }
         socket.emit('nickname', storageNickname);
- 
+
         requestAnimationFrame(gameLoop);
     }
 
