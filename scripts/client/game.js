@@ -325,39 +325,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     //------------------------------------------------------------------
     function initialize() {
         console.log('game initializing...');
-        // default settings. If the user has any settings saved to the browser, 
-        // the defaults will be overridden 
-        let defaultSettings = {
-            move: 'ArrowUp',
-            rotateRight: 'ArrowRight',
-            rotateLeft: 'ArrowLeft',
-            fire: ' ',
-            hyperspace: 'z'
-        }
-
-        let settings = defaultSettings;
-        let settingsJson = window.localStorage.getItem('asteroidSettings');
-        if (settingsJson) {
-            settings = JSON.parse(settingsJson);
-            console.log('Player settings: ', settings);
-        }
-        if (!settings.move || !settings.rotateRight || !settings.rotateLeft || !settings.fire || !settings.hyperspace) {
-            console.log('Error: invalid settings!', settings);
-            console.log('Restoring default settings');
-            settings = defaultSettings;
-            let settingsJson = JSON.stringify(settings);
-            console.log('Json', settingsJson);
-            window.localStorage.setItem('asteroidSettings', settingsJson);
-        }
-
-        console.log(components);
-        console.log(input);
-        console.log(graphics);
-
-        myKeyboard = input.Keyboard();
-        console.log(myKeyboard);
-
-
+       
         asteroidManager = components.AsteroidManager({
             maxSize: 200,
             minSize: 65,
@@ -393,6 +361,44 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         messageHistory = MyGame.utilities.Queue();
         //
         // Create the keyboard input handler and register the keyboard commands
+                //
+        // Get the game loop started
+    }
+
+    function run() {
+        console.log("run called");
+        // clear the background so the rest of the screen is black
+        let body = document.getElementById('id-body');
+        body.style.background = 'none';
+        body.style.backgroundColor = 'rgb(0, 0, 0)'; 
+
+        // default settings. If the user has any settings saved to the browser, 
+        // the defaults will be overridden 
+        let defaultSettings = {
+            move: 'ArrowUp',
+            rotateRight: 'ArrowRight',
+            rotateLeft: 'ArrowLeft',
+            fire: ' ',
+            hyperspace: 'z'
+        }
+
+        let settings = defaultSettings;
+        let settingsJson = window.localStorage.getItem('asteroidSettings');
+        if (settingsJson) {
+            settings = JSON.parse(settingsJson);
+            console.log('Player settings: ', settings);
+        } else { console.log('Player settings: using defaults'); }
+        if (!settings.move || !settings.rotateRight || !settings.rotateLeft || !settings.fire || !settings.hyperspace) {
+            console.log('Error: invalid settings!', settings);
+            console.log('Restoring default settings');
+            settings = defaultSettings;
+            let settingsJson = JSON.stringify(settings);
+            console.log('Json', settingsJson);
+            window.localStorage.setItem('asteroidSettings', settingsJson);
+        }
+
+        myKeyboard = input.Keyboard();
+
         myKeyboard.registerHandler(elapsedTime => {
             let message = {
                 id: messageId++,
@@ -462,15 +468,6 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             }
         },
             settings.fire, true);
-        //
-        // Get the game loop started
-    }
-
-    function run() {
-        console.log("run called");
-        let body = document.getElementById('id-body');
-        body.style.background = 'none';
-        body.style.backgroundColor = 'rgb(0, 0, 0)'; 
 
         // send the player's nickname to the server
         let storageNicknameJSON = window.localStorage.getItem('nickname'); 

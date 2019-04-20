@@ -89,3 +89,7 @@ ul.menu li button:active {
 .message {
     font-size: 12pt; 
 }
+
+.control-menu {
+    color: rgb(0, 200, 0);
+}

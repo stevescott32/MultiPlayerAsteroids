@@ -14,7 +14,7 @@
             <ul class="menu">
                 <li><button id="id-new-game">New&nbsp;Game</button></li>
                 <li><button id="id-high-scores">High&nbsp;Scores</button></li>
-                <li><button id="id-help">Help</button></li>
+                <li><button id="id-help">Controls</button></li>
                 <li><button id="id-about">About</button></li>
             </ul>
         </div>
@@ -70,10 +70,17 @@
             </ul>
         </div>
         <div id="help" class="screen">
-            <h1 class="text">Help</h1>
-            <p class="text">Use the arrow keys to navigate. SpaceBar allows you to shoot the asteroids, don't get
-                shot by the UFO's and don't hit any asteroids. Good luck!
-            </p>
+            <h1 class="text">Controls</h1>
+            <ul class="menu">
+                <form id="id-controls-form" class="control-menu" onsubmit="event.preventDefault(); setControls();">
+                    Thrust <input id="id-controls-thrust" type="text" value="ArrowUp"><br/>
+                    Rotate Left <input id="id-controls-rotate-left" type="text" value="ArrowLeft"><br/>
+                    Rotate Right <input id="id-controls-rotate-right" type="text" value="ArrowRight"><br/>
+                    Fire <input id="id-controls-fire" type="text" value="(space)"><br/>
+                    Hyperspace <input id="id-controls-hyperspace" type="text" value="z">
+                </form>
+                <li><button id="id-controls-set">Set Controls and Start Game</button></li>
+            </ul>
             <ul class="menu">
                 <li><button id="id-help-back">Back</button></li>
             </ul>
