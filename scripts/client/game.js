@@ -12,6 +12,9 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     let laserManager = {};
     let messageHistory = null;
 
+    let powerUpRenderer = {};
+    let powerUpManager = {};
+
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
     let playerSelf = {},
@@ -20,8 +23,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         messageId = 1,
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
-        laserTexture = MyGame.assets['laser'];
+        laserTexture = MyGame.assets['laser'],
+        powerUpTexture = MyGame.assets['powerUp'];
 
+        console.log(powerUpTexture)
     //------------------------------------------------------------------
     //
     // Handler for when the server ack's the socket connection.  We receive
@@ -120,6 +125,18 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 console.log('Error invalid lasers received');
             }
         } else { console.log('No Lasers'); }
+    });
+
+    socket.on('powerUp', function (data) {
+        if (data.available) {
+            try {
+                powerUpManager.powerUpAvailable = data.available;
+                powerUpManager.currentPowerUp = data.powerUp;
+                console.log(powerUpManager.currentPowerUp);
+            } catch {
+                console.log('Error invalid Power Up received');
+            }
+        } else { console.log('No Power Up Available'); }
     });
 
     // if a log message has been received from the server,
@@ -264,6 +281,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
+        powerUpRenderer.update(elapsedTime);
         laserManager.update(elapsedTime);
         detectCollisions();
     }
@@ -288,6 +306,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             if (laser) {
                 renderer.Laser.render(laser, laserTexture);
             }
+        }
+        if(powerUpManager.powerUpAvailable)
+        {
+            powerUpRenderer.render(powerUpManager.currentPowerUp, powerUpTexture)
         }
         // render any ongoing particle effects
         renderer.ParticleSystemManager.render(particleSystemManager);
@@ -336,6 +358,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             initialAsteroids: 8
         });
 
+        powerUpManager = components.PowerUpManager({
+            size: .05,
+            interval: 20,
+            imageSrc: '../assets/wrench.png',
+        })
+
         particleSystemManager = components.ParticleSystemManager({});
 
         laserManager = components.LaserManager({
@@ -359,6 +387,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         };
 
         messageHistory = MyGame.utilities.Queue();
+
+        powerUpRenderer = renderer.PowerUp({
+            spriteSheet: '../assets/wrench.png',
+            spriteCount: 8,
+            spriteTime: [25, 25, 25, 25, 25, 25, 25, 25],   // ms per frame
+        }, graphics);
         //
         // Create the keyboard input handler and register the keyboard commands
                 //

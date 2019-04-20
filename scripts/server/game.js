@@ -9,7 +9,8 @@ let Collisions = require('./collisions');
 let present = require('present');
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager');
-let LaserManager = require('./laserManager')
+let LaserManager = require('./laserManager');
+let PowerUpManager = require('./powerUpManager');
 
 // the setting for how large the world is
 const WORLDSIZE = {
@@ -18,7 +19,10 @@ const WORLDSIZE = {
 }
 
 const BATTLE_MODE = true; 
-
+let powerUpManager = PowerUpManager.create({
+    size: .05,
+    interval: 20000, // seconds
+})
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '',
@@ -212,6 +216,32 @@ function updateLaser(elapsedTime) {
         }
     }
 }
+function updatePowerUpManager(elapsedTime){
+    if(!powerUpManager.powerUpAvailable)
+    {
+        //console.log("No Power Ups Available")
+        powerUpManager.update(elapsedTime);
+    }
+    else{
+        let x = 0.5
+        let y = 0.5
+        let type = powerUpManager.powerUpArray[0];
+        powerUpManager.accumulatedTime = 0;
+        
+        powerUpManager.createPowerUp(x, y,type)
+        //console.log(powerUpManager);
+        let update = {
+            available: powerUpManager.powerUpAvailable,
+            powerUp: powerUpManager.currentPowerUp
+        }
+        log("Power Up Available" + "X: " + powerUpManager.currentPowerUp.position.x + " Y: " + powerUpManager.currentPowerUp.position.y); 
+        console.log(powerUpManager.currentPowerUp);
+        for (let clientId in activeClients) {
+            activeClients[clientId].socket.emit('powerUp', update);
+        }
+        powerUpManager.powerUpAvailable = false;
+    }
+}
 
 // function to log messages to the client's message board
 function log(message) {
@@ -229,6 +259,7 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(elapsedTime, false);
     }
+    updatePowerUpManager(elapsedTime);
     updateAsteroids(elapsedTime);
     updateLaser(elapsedTime);
     detectCollisions(); 
