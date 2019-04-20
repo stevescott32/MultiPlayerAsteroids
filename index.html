@@ -8,7 +8,8 @@
     <script src="/node_modules/socket.io-client/dist/socket.io.slim.js"></script>
 </head>
 
-<body id="id-body" style="background-color: rgb(0, 0, 0); background: url('./assets/evening.jpg'); background-size: cover;">
+<body id="id-body"
+    style="background-color: rgb(0, 0, 0); background: url('./assets/evening.jpg'); background-size: cover;">
     <div id="game">
         <div id="main-menu" class="screen">
             <ul class="menu">
@@ -64,6 +65,10 @@
                 <li class="text">
                     <h4 id="four"></h4>
                 </li>
+                <li class="text">
+                    <h4 id="five"></h4>
+                </li>
+
             </ol>
             <ul class="menu">
                 <li><button id="id-high-scores-back">Back</button></li>
@@ -73,13 +78,13 @@
             <h1 class="text">Controls</h1>
             <ul class="menu">
                 <form id="id-controls-form" class="control-menu" onsubmit="event.preventDefault(); setControls();">
-                    Thrust <input id="id-controls-thrust" type="text" value="ArrowUp"><br/>
-                    Rotate Left <input id="id-controls-rotate-left" type="text" value="ArrowLeft"><br/>
-                    Rotate Right <input id="id-controls-rotate-right" type="text" value="ArrowRight"><br/>
-                    Fire <input id="id-controls-fire" type="text" value="(space)"><br/>
+                    Thrust <input id="id-controls-thrust" type="text" value="ArrowUp"><br />
+                    Rotate Left <input id="id-controls-rotate-left" type="text" value="ArrowLeft"><br />
+                    Rotate Right <input id="id-controls-rotate-right" type="text" value="ArrowRight"><br />
+                    Fire <input id="id-controls-fire" type="text" value="(space)"><br />
                     Hyperspace <input id="id-controls-hyperspace" type="text" value="z">
                 </form>
-                <li><button id="id-controls-set">Set Controls and Start Game</button></li>
+                <li><button id="id-controls-set">Set Controls</button></li>
             </ul>
             <ul class="menu">
                 <li><button id="id-help-back">Back</button></li>
@@ -88,7 +93,8 @@
         <div id="about" class="screen">
             <h1 class="text">About</h1>
             <p class="text">Developed by</p>
-            <p class="text">KJ Patterson & Steven Scott for CS 5410 Final Project</p>
+            <p class="text">KJ Patterson & Steven Scott </p>
+            <p class="text">CS 5410 Final Project</p>
             <ul class="menu">
                 <li><button id="id-about-back">Back</button></li>
             </ul>
