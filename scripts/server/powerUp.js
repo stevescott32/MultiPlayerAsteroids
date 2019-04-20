@@ -3,7 +3,7 @@ let random = require ('./random');
 let manager =  {
         //imageSrc: "../assets/lasers/greenLaser.png",
         //audioSrc: 'resources/audio/coin10.wav',
-        size: .05,
+        size: .15,
 }; 
 
 function createPowerUp(powerUpSpec) {

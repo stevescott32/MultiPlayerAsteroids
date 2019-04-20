@@ -391,7 +391,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         powerUpRenderer = renderer.PowerUp({
             spriteSheet: '../assets/wrench.png',
             spriteCount: 8,
-            spriteTime: [25, 25, 25, 25, 25, 25, 25, 25],   // ms per frame
+            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],   // ms per frame
         }, graphics);
         //
         // Create the keyboard input handler and register the keyboard commands

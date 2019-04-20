@@ -12,6 +12,7 @@ let PowerUp = require('./powerUp');
 function createPowerUpManager(managerSpec) {
 
 
+  let timeOnScreen = 0;
   let accumulatedTime = 0;  
   let currentPowerUp = {};
   let powerUpAvailable = false;
@@ -55,6 +56,8 @@ function createPowerUpManager(managerSpec) {
     get powerUpAvailable(){return powerUpAvailable},
     set powerUpAvailable(value){return powerUpAvailable = value},
     get powerUpArray(){return powerUpArray},
+    get timeOnScreen(){return timeOnScreen},
+    set timeOnScreen(value){return timeOnScreen = value}
   };
 
   return api;
