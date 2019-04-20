@@ -11,16 +11,18 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     let particleSystemManager = {};
     let laserManager = {};
     let messageHistory = null;
+    let alien = {}; 
 
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
     let playerSelf = {},
         playerOthers = {},
-
         messageId = 1,
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
-        laserTexture = MyGame.assets['laser'];
+        laserTexture = MyGame.assets['laser'],
+        alienTexture = MyGame.assets['alien']; 
+        
 
     //------------------------------------------------------------------
     //
@@ -111,15 +113,38 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         } else { console.log('No asteroids'); }
     });
 
+    // update alien to be the server's alien
+    socket.on('update-alien', function(data) {
+        if(data.alien) {
+            // console.log('Alien update on client', data.alien); 
+            alien.state.position.x = data.alien.position.x; 
+            alien.state.position.y = data.alien.position.y; 
+            alien.state.momentum.x = data.alien.velocity.x; 
+            alien.state.momentum.y = data.alien.velocity.y; 
+        }
+    }); 
+
     // set local lasers to be the server's lasers
+    let log = 0; 
     socket.on('update-laser', function (data) {
+        if(log < 30) {
+            console.log('Update lasers ', data); 
+            log++; 
+        }
         if (data.lasers) {
             try {
                 laserManager.laserArray = data.lasers;
             } catch {
                 console.log('Error invalid lasers received');
             }
-        } else { console.log('No Lasers'); }
+        }
+        if(data.alienLasers) {
+            console.log(data.alienLasers); 
+            for(let a = 0; a < data.alienLasers.length; a++) {
+                laserManager.laserArray.push(data.alienLasers[a]); 
+                MyGame.utilities.Logger.log('Added an alien laser on client'); 
+            }
+        }
     });
 
     // if a log message has been received from the server,
@@ -259,6 +284,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     //------------------------------------------------------------------
     function update(elapsedTime) {
         particleSystemManager.update(elapsedTime);
+        alien.update(elapsedTime); 
         playerSelf.model.update(elapsedTime);
         asteroidManager.update(elapsedTime);
         for (let id in playerOthers) {
@@ -298,7 +324,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
-
+        renderer.PlayerRemote.render(alien, alienTexture);
     }
 
     //------------------------------------------------------------------
@@ -336,6 +362,8 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             initialAsteroids: 8
         });
 
+        alien = components.AlienShips(); 
+
         particleSystemManager = components.ParticleSystemManager({});
 
         laserManager = components.LaserManager({
@@ -359,9 +387,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         };
 
         messageHistory = MyGame.utilities.Queue();
-        //
         // Create the keyboard input handler and register the keyboard commands
-                //
         // Get the game loop started
     }
 

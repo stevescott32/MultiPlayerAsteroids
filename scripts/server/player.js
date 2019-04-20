@@ -119,25 +119,7 @@ function createPlayer(worldSize) {
 
         momentum.x += (vectorX * thrustRate * elapsedTime);
         momentum.y += (vectorY * thrustRate * elapsedTime);
-
-        // if(momentum.x > maxSpeed)
-        // {
-        //     momentum.x = maxSpeed;
-        // }
-        // if(momentum.x < 0-maxSpeed)
-        // {
-        //     momentum.x = maxSpeed;
-        // }
-        // if(momentum.y > maxSpeed)
-        // {
-        //     momentum.y = maxSpeed;
-        // }
-        // if(momentum.y < 0-maxSpeed)
-        // {
-        //     momentum.y = maxSpeed;
-        // }
-
-    };
+      };
 
     function calculateSafety(objectsToAvoid, xPos, yPos, safetyFactor) {
         let safetyScore = 0;

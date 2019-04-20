@@ -111,7 +111,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
 
     // create an effect for when the spaceship lands after a hyperspace 
     function createHyperspaceEffect(spaceShipX, spaceShipY) {
-        console.log('Creating hyperspace effect', spaceShipX, spaceShipY); 
+        // console.log('Creating hyperspace effect', spaceShipX, spaceShipY); 
         effects.push(makeEffect({
             position: { x: spaceShipX, y: spaceShipY },
             size: { mean: 0.03, stdev: 0.01 }, 

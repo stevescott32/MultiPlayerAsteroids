@@ -20,7 +20,7 @@ function handleRequest(request, response) {
     let file = lookup.substring(1, lookup.length);
 
     fs.exists(file, function(exists) {
-        console.log(file); 
+        // console.log(file); 
         if (exists) {
             fs.readFile(file, function(err, data) {
                 if (err) {
