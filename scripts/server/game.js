@@ -17,7 +17,7 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
-const BATTLE_MODE = false; 
+const BATTLE_MODE = true; 
 
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
@@ -32,7 +32,7 @@ let asteroidManager = AsteroidManager.create({
     worldSize: WORLDSIZE
 });
 
-const UPDATE_RATE_MS = 16.33;
+const UPDATE_RATE_MS = 20;
 
 let laserManager = LaserManager.create({
     size: 10,
@@ -45,6 +45,7 @@ let quit = false;
 let activeClients = {};
 let inputQueue = [];
 let lastUpdateTime = present();
+let highScores = {}; 
 
 //------------------------------------------------------------------
 //
@@ -76,7 +77,9 @@ function processInput() {
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
-                client.player.hyperspace(avoid, WORLDSIZE);
+                if(client.player.hyperspace(avoid, WORLDSIZE)) {
+                    log(client.player.nickname + ' hyperspaced'); 
+                }
             case 'rotate-left':
                 client.player.rotateLeft(input.message.elapsedTime);
                 break;
@@ -94,6 +97,11 @@ function processInput() {
     }
 }
 
+//------------------------------------------------------------------
+// function to see if asteroids have collided with anything, 
+// ships have collided with anything, or if lasers have collided 
+// with anything
+//------------------------------------------------------------------
 function detectCollisions() {
     for (let a = 0; a < asteroidManager.asteroids.length; a++) {
         let asteroid = asteroidManager.asteroids[a];
@@ -101,12 +109,10 @@ function detectCollisions() {
         for (let z = 0; z < laserManager.laserArray.length; z++) {
             let laser = laserManager.laserArray[z];
             if (!laser.isDead && !asteroid.isDead &&
-                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, 
-                laser, laser.lastPosition)) {
+                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, laser, laser.lastPosition)) {
                 laser.isDead = true;
-                //asteroid.isDead = true;
                 asteroidManager.explode(asteroid); 
-                // console.log('Asteroid destroid');
+                activeClients[laser.playerId].player.score += 100; 
             }
         }
 
@@ -114,34 +120,67 @@ function detectCollisions() {
         for(let id in activeClients) {
             let ship = activeClients[id].player; 
             if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
-                // asteroid.isDead = true; 
-                // console.log('Player kill'); 
-                // asteroidManager.explode(asteroid); 
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
-                ship.hyperspace(avoid, WORLDSIZE);
+                ship.crash(avoid, WORLDSIZE);
+                log(ship.nickname + ' was killed by an asteroid'); 
             }
+            checkForHighScore(ship); 
         }
     }
-    /*if(BATTLE_MODE) {
+    if(BATTLE_MODE) {
         for(let id in activeClients) {
         let ship = activeClients[id].player; 
             for (let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z];
-                if(Collisions.detectCircleCollision(ship, laser)) {
-                    console.log('PlayerId: ', ship.playerId); 
-                    console.log('LaserId: ', laser.playerId); 
+                if(id != laser.playerId && Collisions.detectCircleCollision(ship, laser)) {
                     laser.isDead = true; 
                     let avoid = []; 
                     avoid.push(asteroidManager.asteroids);
                     avoid.push(laserManager.laserArray); 
-                    ship.hyperspace(avoid, MyGame.components.Viewport.worldSize); 
+                    ship.crash(avoid, WORLDSIZE); 
+                    activeClients[laser.playerId].player.score += 500; 
+                    log(ship.nickname + ' was killed by enemy lasers'); 
                 }
             }
         }
     }
-    */
+}
+
+
+//------------------------------------------------------------------
+// helper function to check for high scores and potentially 
+// notify clients
+//------------------------------------------------------------------
+function checkForHighScore(player) {
+    if(!highScores[player.clientId] ) { // || !highScores[player.clientId].score) {
+        highScores[player.clientId] = {
+            score: player.score,
+            nickname: player.nickname,
+            clientId: player.clientId
+        }
+        updateHighScores(); 
+    }
+    if(player.score > highScores[player.clientId].score ) {
+        highScores[player.clientId] = {
+            score: player.score,
+            nickname: player.nickname,
+            clientId: player.clientId
+        }
+        updateHighScores(); 
+    }
+}
+
+//------------------------------------------------------------------
+// functions to send updates to the clients about various 
+// objects/managers in the game 
+//------------------------------------------------------------------
+function updateHighScores() {
+    let update = highScores; 
+    for (let clientId in activeClients) {
+        activeClients[clientId].socket.emit('update-highScores', update);
+    }
 }
 
 function updateAsteroids(elapsedTime) {
@@ -171,6 +210,13 @@ function updateLaser(elapsedTime) {
         for (let clientId in activeClients) {
             activeClients[clientId].socket.emit('update-laser', update);
         }
+    }
+}
+
+// function to log messages to the client's message board
+function log(message) {
+    for(let clientId in activeClients) {
+        activeClients[clientId].socket.emit('log', message); 
     }
 }
 
@@ -205,7 +251,8 @@ function updateClients(elapsedTime) {
             momentum: client.player.momentum,
             direction: client.player.direction,
             position: client.player.position,
-            updateWindow: elapsedTime
+            updateWindow: elapsedTime, 
+            score: client.player.score
         };
         if (client.player.reportUpdate) {
             client.socket.emit('update-self', update);
@@ -319,8 +366,9 @@ function initializeSocketIO(httpServer) {
         console.log('Connection established: ', socket.id);
         //
         // Create an entry in our list of connected clients
-        let newPlayer = Player.create(WORLDSIZE)
+        let newPlayer = Player.create(WORLDSIZE); 
         newPlayer.clientId = socket.id;
+        console.log('Client id in new player create', newPlayer.clientId); 
         activeClients[socket.id] = {
             socket: socket,
             player: newPlayer
@@ -347,6 +395,12 @@ function initializeSocketIO(httpServer) {
                 receiveTime: present(),
             });
         });
+        socket.on('nickname', data=> {
+            activeClients[socket.id].player.nickname = data; 
+            log(activeClients[socket.id].player.nickname + ' has joined the game'); 
+        }); 
+
+        updateHighScores(); 
 
         // when a player disconnects, remove them from the list of
         // active clients 

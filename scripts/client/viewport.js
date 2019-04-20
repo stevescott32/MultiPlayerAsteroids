@@ -20,7 +20,8 @@ MyGame.components.Viewport = (function() {
         y: 0
     }
 
-    let boundary = 0.25; 
+    let boundary = 0.33; 
+    let slideFactor = 1; 
     
     function toViewport(vector) {
         let viewportVector = {
@@ -46,12 +47,49 @@ MyGame.components.Viewport = (function() {
         viewport.y += value; 
     }
 
+    // check if the given position is within the viewport 
+    function inViewport(position) {
+        if(position.x > viewport.x && position.y > viewport.y &&
+            position.x < viewport.x + 1 && position.y < viewport.y + 1) {
+                return true; 
+        } else { return false; }
+    }
+
+    function inBoundary(position) {
+        if(position.x > viewport.x + boundary && position.y > viewport.y + boundary &&
+            position.x < viewport.x + 1 - boundary && position.y < viewport.y + 1 - boundary) {
+                return true; 
+        } else { return false; }
+    }
+
+    function adjustViewport(position) {
+        let playerVectorViewport = toViewport(position); 
+        let boundary = MyGame.components.Viewport.boundary; 
+        if(slideFactor > 1 && inBoundary(position)) { slideFactor = 1; }
+        if(!inViewport(position)) { slideFactor = 18; }
+
+        if(playerVectorViewport.x > (1 - boundary) && position.x < worldSize.width - (0 * boundary)) {
+            shiftX((playerVectorViewport.x - (1 - boundary)) / slideFactor); 
+        }
+        if(playerVectorViewport.y > (1 - boundary) && position.y < worldSize.height - 0 * boundary) {
+            shiftY((playerVectorViewport.y - (1 - boundary)) / slideFactor); 
+        }
+        if(playerVectorViewport.x < boundary && position.x > 0 * boundary) {
+            shiftX((-1 * (boundary - playerVectorViewport.x)) / slideFactor); 
+        }
+        if(playerVectorViewport.y < boundary && position.y > 0 * boundary) {
+            shiftY((-1 * (boundary - playerVectorViewport.y)) / slideFactor); 
+        }
+    }
+
     let api = {
         toViewport: toViewport,
         toViewportX: toViewportX,
         toViewportY: toViewportY,
         shiftX: shiftX,
         shiftY: shiftY,
+        inViewport: inViewport, 
+        adjustViewport: adjustViewport, 
         get worldSize() { return worldSize; },
         set worldSize(inWorldSize) { 
             console.log('Worldsize set to ' + worldSize.x + ': ' + worldSize.y);  

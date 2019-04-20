@@ -1,3 +1,8 @@
+#body {
+    background-color: rgb(0, 0, 0); 
+    background: url('assets/spacefield.png'); 
+}
+
 #game {
     margin: auto;
     display: block;
@@ -46,8 +51,8 @@ ul.menu li button {
     color: #CECEF6;
     width: 10em;
     height: 1.5em;
-    background: #0404B4;
-    border: 0.1em solid rgb(255, 0, 0);
+    background: rgb(0, 0, 200);
+    border: 0.1em solid rgb(0, 0, 200);
     border-radius: 0.5em;
     box-shadow: 0.2em 0.2em 0.3em rgb(0, 0, 0);
 }
@@ -79,4 +84,12 @@ ul.menu li button:active {
 
 #about p {
     text-align: center;
+}
+
+.message {
+    font-size: 12pt; 
+}
+
+.control-menu {
+    color: rgb(0, 200, 0);
 }
