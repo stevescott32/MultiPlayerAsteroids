@@ -218,8 +218,8 @@ function createPlayer(worldSize) {
         if (mostSafe.xPos && mostSafe.yPos) {
             position.x = mostSafe.xPos;
             position.y = mostSafe.yPos;
-            console.log('Successful hyperspace!');
-            console.log(position);
+            // console.log('Successful hyperspace!');
+            // console.log(position);
             momentum.x = 0;
             momentum.y = 0;
             safetyFactor = 10;

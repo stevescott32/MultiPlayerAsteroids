@@ -25,7 +25,7 @@ MyGame.loader = (function () {
             message: 'gameScreenManager loaded',
             onComplete: null
         }, {
-            scripts: ['mainmenu', 'help', 'highscores', 'about'],
+            scripts: ['mainmenu', 'help', 'highscores', 'about', 'nickname'],
             message: 'Screens loaded',
             onComplete: showMainMenu
         }, {
@@ -108,7 +108,10 @@ MyGame.loader = (function () {
           }, {
             key: 'flare',
             source: 'assets/textures/flare.png'
-     }];
+           }, {
+            key: 'spacefield',
+            source: 'assets/evening.jpg'
+    }];
 
     function tilePathCreater(number) {
         if (number<=9999) { number = ("000"+number).slice(-4); }

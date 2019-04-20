@@ -239,21 +239,7 @@ MyGame.components.Player = function() {
       
         // if the ship is going to leave its viewport soon, adjust the
         // viewport
-        let playerVectorViewport = MyGame.components.Viewport.toViewport(position); 
-        let boundary = MyGame.components.Viewport.boundary; 
-        let inter = 18; 
-        if(playerVectorViewport.x > (1 - boundary) && position.x < MyGame.components.Viewport.worldSize.width - (0 * boundary)) {
-            MyGame.components.Viewport.shiftX((playerVectorViewport.x - (1 - boundary)) / inter); 
-        }
-        if(playerVectorViewport.y > (1 - boundary) && position.y < MyGame.components.Viewport.worldSize.height - 0 * boundary) {
-            MyGame.components.Viewport.shiftY((playerVectorViewport.y - (1 - boundary)) / inter); 
-        }
-        if(playerVectorViewport.x < boundary && position.x > 0 * boundary) {
-            MyGame.components.Viewport.shiftX((-1 * (boundary - playerVectorViewport.x)) / inter); 
-        }
-        if(playerVectorViewport.y < boundary && position.y > 0 * boundary) {
-            MyGame.components.Viewport.shiftY((-1 * (boundary - playerVectorViewport.y)) / inter); 
-        }
+        MyGame.components.Viewport.adjustViewport(position);  
     };
 
     return player;

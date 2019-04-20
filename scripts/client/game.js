@@ -462,13 +462,25 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             }
         },
             settings.fire, true);
-
         //
         // Get the game loop started
     }
 
     function run() {
         console.log("run called");
+        let body = document.getElementById('id-body');
+        body.style.background = 'none';
+        body.style.backgroundColor = 'rgb(0, 0, 0)'; 
+
+        // send the player's nickname to the server
+        let storageNicknameJSON = window.localStorage.getItem('nickname'); 
+        let storageNickname = 'unknown'; 
+        if(storageNicknameJSON) {
+            storageNickname = JSON.parse(storageNicknameJSON); 
+            console.log('Nickname retrieved from storage', storageNickname); 
+        } else { console.log('No nickname found in storage'); }
+        socket.emit('nickname', storageNickname);
+ 
         requestAnimationFrame(gameLoop);
     }
 

@@ -8,7 +8,7 @@
     <script src="/node_modules/socket.io-client/dist/socket.io.slim.js"></script>
 </head>
 
-<body style="background-color: rgb(0, 0, 0)">
+<body id="id-body" style="background-color: rgb(0, 0, 0); background: url('./assets/evening.jpg'); background-size: cover;">
     <div id="game">
         <div id="main-menu" class="screen">
             <ul class="menu">
@@ -37,6 +37,17 @@
                 <div class="message"></div>
                 <div class="message"></div>
             </div>
+        </div>
+        <div id="nickname" class="screen">
+            <h1 class="text">Nickname</h1>
+            <ul class="menu">
+                <form id="id-nickname-form" onsubmit="event.preventDefault(); setNickname();">
+                    First name:<br>
+                    <input id="id-nickname-text" type="text" value="unknown" autofocus="autofocus">
+                </form>
+                <li><button id="id-nickname-start">Start Game</button></li>
+                <li><button id="id-nickname-back">Back</button></li>
+            </ul>
         </div>
         <div id="high-scores" class="screen">
             <h1 class=text>High Scores</h1>

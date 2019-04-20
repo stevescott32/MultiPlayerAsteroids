@@ -387,9 +387,6 @@ function initializeSocketIO(httpServer) {
             playerId: newPlayer.clientId
         });
 
-        updateHighScores(); 
-        log(socket.id + ' has joined the game'); 
-
         // push any new inputs into the input queue 
         socket.on('input', data => {
             inputQueue.push({
@@ -398,6 +395,12 @@ function initializeSocketIO(httpServer) {
                 receiveTime: present(),
             });
         });
+        socket.on('nickname', data=> {
+            activeClients[socket.id].player.nickname = data; 
+            log(activeClients[socket.id].player.nickname + ' has joined the game'); 
+        }); 
+
+        updateHighScores(); 
 
         // when a player disconnects, remove them from the list of
         // active clients 
