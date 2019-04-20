@@ -80,3 +80,7 @@ ul.menu li button:active {
 #about p {
     text-align: center;
 }
+
+.message {
+    font-size: 12pt; 
+}

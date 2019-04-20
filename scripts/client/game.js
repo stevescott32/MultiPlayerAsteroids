@@ -5,16 +5,12 @@
 //------------------------------------------------------------------
 MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, components, ) {
     'use strict';
-
-    let asteroidManager = {};
     const BATTLE_MODE = true;
 
+    let asteroidManager = {};
     let particleSystemManager = {};
-
     let laserManager = {};
-
     let messageHistory = null;
-
 
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
