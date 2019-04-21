@@ -237,36 +237,11 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     }
 
     function detectCollisions() {
+        // make an alien that can be used in collision detection
         let collisionAlien = {
             position: alien.state.position,
             size: alien.size
         }
-       // lasers and alien ship
-        /*for (let lzr = 0; lzr < laserManager.laserArray.length; lzr++) {
-            let laser = laserManager.laserArray[lzr];
-            let collisionLaser = {
-                position: laser.position,
-                size: laser.size
-            }
-            if (//!laser.isDead && 
-                MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, collisionLaser)) {
-                particleSystemManager.createShipExplosion(alien.x, alien.y);
-            } else {
-                //console.log('Alien ', collisionAlien);
-                //console.log('Laser', collisionLaser);
-            }
-        }*/
-
-        // collisions between player and alien
-        /*if(MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, playerSelf.model)) {
-            particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
-            let avoid = [];
-            avoid.push(asteroidManager.asteroids);
-            avoid.push(laserManager.laserArray);
-            playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
-            MyGame.utilities.Logger.log('You ran into an alien'); 
-        }
-        */
 
         // collisions with asteroids
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
@@ -317,6 +292,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                         MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true;
                         particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
+                        MyGame.utilities.Logger.log('Should have just created an explosion for you'); 
                     }
                 }
             }
