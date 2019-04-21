@@ -146,7 +146,7 @@ function detectCollisions() {
         // detect if player has collided with an asteroid
         for(let id in activeClients) {
             let ship = activeClients[id].player;
-            if(Collisions.detectCircleCollision(ship, powerUpManager.currentPowerUp))
+            if(powerUpManager.currentPowerUp.position && Collisions.detectCircleCollision(ship, powerUpManager.currentPowerUp))
                 {
                     log(ship.nickname + ' got a shield');
                     ship.hasShield = true;
@@ -318,7 +318,7 @@ function updatePowerUpManager(elapsedTime){
                 powerUp: powerUpManager.currentPowerUp
             }
             log("Power Up Available" + "X: " + powerUpManager.currentPowerUp.position.x + " Y: " + powerUpManager.currentPowerUp.position.y); 
-            console.log(powerUpManager.currentPowerUp);
+            // console.log(powerUpManager.currentPowerUp);
             for (let clientId in activeClients) {
                 activeClients[clientId].socket.emit('powerUp', update);
             }

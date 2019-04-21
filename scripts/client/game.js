@@ -24,8 +24,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
         laserTexture = MyGame.assets['laser'],
-        alienTexture = MyGame.assets['alien'];
-
+        alienTexture = MyGame.assets['alien'],
         powerUpTexture = MyGame.assets['powerUp'];
 
         console.log(powerUpTexture)
