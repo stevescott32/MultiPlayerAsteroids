@@ -16,6 +16,13 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     let powerUpRenderer = {};
     let powerUpManager = {};
 
+    // sounds
+    let laserSound = null;  
+    let powerUpSound = null; 
+    let explosionSound = null; 
+    let backgroundMusic = null;
+    let asteroidExplosion = null; 
+
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
     let playerSelf = {},
@@ -24,8 +31,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
         laserTexture = MyGame.assets['laser'],
-        alienTexture = MyGame.assets['alien'];
-
+        alienTexture = MyGame.assets['alien'],
         powerUpTexture = MyGame.assets['powerUp'];
 
         console.log(powerUpTexture)
@@ -147,7 +153,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             console.log(data.alienLasers);
             for (let a = 0; a < data.alienLasers.length; a++) {
                 laserManager.laserArray.push(data.alienLasers[a]);
-                MyGame.utilities.Logger.log('Added an alien laser on client');
+                //MyGame.utilities.Logger.log('Added an alien laser on client');
             }
         }
     });
@@ -218,6 +224,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                     if (laserManager.accumulatedTime > laserManager.fireRate) {
                         laserManager.generateNewLaser(playerSelf.model.position.x, playerSelf.model.position.y,
                             playerSelf.model.direction, playerSelf.model.playerId);
+                        laserSound.play(); 
                     }
                     break;
             }
@@ -266,6 +273,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         {
             playerSelf.model.hasShield = true;
             particleSystemManager.gotPowerUp(playerSelf.model.position.x, playerSelf.model.position.y);
+            powerUpSound.play(); 
         }
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a];
@@ -276,12 +284,13 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                     && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
                     asteroidManager.explode(asteroid, particleSystemManager);
+                    asteroidExplosion.play(); 
                 }
                 if(laser.playerId != 1 && MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, laser)) {
                     particleSystemManager.createShipExplosion(alien.state.position.x, alien.state.position.y); 
                     MyGame.utilities.Logger.log('You shot an alien'); 
+                    explosionSound.play(); 
                 }
-                // detect collisions between lasers and player if in battle mode
 
             }
             // detect collisions between asteroids and the player 
@@ -291,6 +300,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray);
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
+                explosionSound.play(); 
             }
             if (MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, playerSelf.model)) {
                 particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
@@ -299,8 +309,8 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 avoid.push(laserManager.laserArray);
                 playerSelf.model.hyperspace(avoid, MyGame.components.Viewport.worldSize, particleSystemManager);
                 MyGame.utilities.Logger.log('You ran into an alien'); 
+                explosionSound.play(); 
             }
-
         }
         if (!BATTLE_MODE) {
             for (let id in playerOthers) {
@@ -315,7 +325,6 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                         MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true;
                         particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
-                        MyGame.utilities.Logger.log('Should have just created an explosion for you'); 
                     }
                 }
             }
@@ -420,6 +429,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     function initialize() {
         console.log('game initializing...');
 
+        laserSound = MyGame.assets['laserNine']; 
+        powerUpSound = MyGame.assets['powerUpSound']; 
+        explosionSound = MyGame.assets['explosionSound']; 
+        backgroundMusic = MyGame.assets['background']; 
+        asteroidExplosion = MyGame.assets['asteroidExplosion']; 
+
         asteroidManager = components.AsteroidManager({
             maxSize: 200,
             minSize: 65,
@@ -473,6 +488,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
 
     function run() {
         console.log("run called");
+        backgroundMusic.play(); 
         // clear the background so the rest of the screen is black
         let body = document.getElementById('id-body');
         body.style.background = 'none';
@@ -568,9 +584,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             };
             socket.emit('input', message);
             messageHistory.enqueue(message);
-            if (laserManager.accumulatedTime > laserManager.fireRate) {
+            if (performance.now() - laserManager.lastLaserTime > laserManager.fireRate) {
                 laserManager.generateNewLaser(playerSelf.model.position.x, playerSelf.model.position.y,
                     playerSelf.model.direction, playerSelf.model.playerId);
+                let laserSound = new Audio("assets/audio/laser9.mp3");
+                laserSound.play(); 
+                laserManager.lastLaserTime = performance.now(); 
             }
         },
             settings.fire, true);
