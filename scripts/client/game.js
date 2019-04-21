@@ -156,6 +156,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         playerSelf.model.direction = data.direction;
         playerSelf.model.momentum.x = data.momentum.x;
         playerSelf.model.momentum.y = data.momentum.y;
+        playerSelf.model.hasShield = data.hasShield;
 
 
         //
@@ -229,6 +230,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     }
 
     function detectCollisions() {
+        if(MyGame.utilities.Collisions.detectCircleCollision(playerSelf.model,powerUpManager.currentPowerUp))
+        {
+            playerSelf.model.hasShield = true;
+        }
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a];
             for (let z = 0; z < laserManager.laserArray.length; z++) {
@@ -242,7 +247,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
 
             }
             // detect collisions between asteroids and the player 
-            if (!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
+            if (!asteroid.isDead && !playerSelf.model.hasShield && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
                 particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
@@ -259,7 +264,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 };
                 for (let z = 0; z < laserManager.laserArray.length; z++) {
                     let laser = laserManager.laserArray[z];
-                    if (playerSelf.model.playerId != laser.playerId &&
+                    if (playerSelf.model.playerId != laser.playerId && playerSelf.model.hasShield &&
                         MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true;
                         // particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
@@ -320,6 +325,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+        // var c = document.getElementById("id-canvas");
+        // var ctx = c.getContext("2d");
+
+        
 
     }
 

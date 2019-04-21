@@ -120,7 +120,38 @@ MyGame.graphics = (function () {
         }
     }
 
-    
+    function drawCircle(model, canvases)
+    {
+        if (canvases.includes("viewport")) {
+            let localCenter = {
+                x: MyGame.components.Viewport.toViewportX(model.position.x) * viewport.width,
+                y: MyGame.components.Viewport.toViewportY(model.position.y) * viewport.height
+            };
+            let localSize = {
+                width: model.size.width * viewport.width,
+                height: model.size.height * viewport.height
+            };
+            viewportContext.beginPath();
+            viewportContext.arc(localCenter.x,localCenter.y,localSize.width,0, 2 * Math.PI);
+            viewportContext.strokeStyle = 'green'            
+            viewportContext.stroke();
+        }
+        if(canvases.includes("minimap")){
+            let localCenter = {
+                x: MyGame.components.Viewport.toViewportX(model.position.x) * viewport.width,
+                y: MyGame.components.Viewport.toViewportY(model.position.y) * viewport.height
+            };
+            let localSize = {
+                width: model.size.width * viewport.width,
+                height: model.size.height * viewport.height
+            };
+            minimapContext.beginPath();
+            minimapContext.arc(localCenter.x,model.localCenter,localSize.width,0, 2 * Math.PI);
+            minimapContext.strokeStyle = 'green'            
+            minimapContext.stroke();
+        }
+       
+    }
 
     function drawSubTexture(texture, index, subTextureWidth, center, size, canvases) {
 
@@ -208,5 +239,7 @@ MyGame.graphics = (function () {
         drawImage: drawImage,
         drawTileImage: drawTileImage,
         drawSubTexture: drawSubTexture,
+        drawCircle: drawCircle,
+
     };
 }());

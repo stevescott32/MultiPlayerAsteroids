@@ -43,6 +43,9 @@ function createPlayer(worldSize) {
     let score = 0;
     let inGame = true;
     let nickname = 'unknown';
+    let hasShield = true;
+    let gotShield = present();
+    // let currentPowerUp = "";
 
     // define the available methods on player object
 
@@ -103,6 +106,19 @@ function createPlayer(worldSize) {
         set: value => nickname = value
     });
 
+    Object.defineProperty(player, 'hasShield', {
+        get: () => hasShield,
+        set: value => hasShield = value
+    });
+    Object.defineProperty(player, 'gotShield', {
+        get: () => gotShield,
+        set: value => gotShield = value
+    });
+
+    // Object.defineProperty(currentPowerUp, 'currentPowerUp', {
+    //     get: () => currentPowerUp,
+    //     set: value => currentPowerUp = value
+    // });
 
     //------------------------------------------------------------------
     //
@@ -268,6 +284,11 @@ function createPlayer(worldSize) {
     //
     //------------------------------------------------------------------
     player.update = function (elapsedTime, intraUpdate) {
+        if(present()-gotShield > 10000)
+        {
+            gotShield = 0;
+            hasShield = false;
+        }
         if (intraUpdate === false) {
             elapsedTime -= lastUpdateDiff;
             lastUpdateDiff = 0;
