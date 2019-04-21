@@ -10,7 +10,8 @@ let mimeTypes = {
         '.css' : 'text/css',
         '.png' : 'image/png',
         '.jpg' : 'image/jpeg',
-        '.mp3' : 'audio/mpeg3'
+        '.mp3' : 'audio/mpeg3',
+        '.map' : 'application/json' // Socket.io is requesting its .map file
     };
 
 function handleRequest(request, response) {
@@ -19,7 +20,7 @@ function handleRequest(request, response) {
     let file = lookup.substring(1, lookup.length);
 
     fs.exists(file, function(exists) {
-        console.log(file); 
+         console.log(file); 
         if (exists) {
             fs.readFile(file, function(err, data) {
                 if (err) {

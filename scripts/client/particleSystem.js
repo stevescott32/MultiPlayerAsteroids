@@ -1,4 +1,4 @@
-Game.objects.ParticleSystemManager = function (managerSpec) {
+MyGame.components.ParticleSystemManager = function (managerSpec) {
     let effects = []; 
 
     function makeEffect(spec) {
@@ -15,14 +15,18 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
         image.src = spec.imageSrc;
 
         function create() {
-            let size = Random.nextGaussian(spec.size.mean, spec.size.stdev);
+            let size = MyGame.utilities.Random.nextGaussian(spec.size.mean, spec.size.stdev);
+            let nextDirection = MyGame.utilities.Random.nextCircleVector(1); 
             let p = {
-                center: { x: spec.center.x, y: spec.center.y },
+                position: { x: spec.position.x / 1, y: spec.position.y / 1 },
                 size: { height: size, width: size },
-                direction: Random.nextCircleVector(),
-                speed: Random.nextGaussian(spec.speed.mean, spec.speed.stdev), // pixels per second
+                direction: {
+                    x: nextDirection.x,
+                    y: nextDirection.y
+                },
+                speed: MyGame.utilities.Random.nextGaussian(spec.speed.mean, spec.speed.stdev), // pixels per second
                 rotation: 0,
-                lifetime: Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdev), // seconds
+                lifetime: MyGame.utilities.Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdev), // seconds
                 alive: 0
             };
 
@@ -62,8 +66,8 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
                 let particle = particles[value];
 
                 particle.alive += elapsedTime;
-                particle.center.x += (elapsedTime * particle.speed * particle.direction.x);
-                particle.center.y += (elapsedTime * particle.speed * particle.direction.y);
+                particle.position.x += (elapsedTime * particle.speed * particle.direction.x);
+                particle.position.y += (elapsedTime * particle.speed * particle.direction.y);
 
                 particle.rotation += particle.speed / 500;
 
@@ -90,10 +94,10 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     
     // create a stream of fire particles in the direction of a spaceship's rotation + pi/2 
     function createThrustEffect(spaceship) {
-        let x = spaceship.center.x + Math.cos(spaceship.rotation) * spaceship.radius; 
-        let y = spaceship.center.y + Math.sin(spaceship.rotation) * spaceship.radius; 
+        let x = spaceship.position.x + Math.cos(spaceship.rotation) * spaceship.radius; 
+        let y = spaceship.position.y + Math.sin(spaceship.rotation) * spaceship.radius; 
         effects.push(makeEffect({
-            center: { x: x, y: y },
+            position: { x: x, y: y },
             size: { mean: 15, stdev: 6 }, 
             speed: { mean: 400, stdev: 30 }, 
             lifetime: { mean: 0.1, stdev: 0.1 }, 
@@ -106,11 +110,12 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     }
 
     // create an effect for when the spaceship lands after a hyperspace 
-    function createHyperspaceEffect(spaceship) {
+    function createHyperspaceEffect(spaceShipX, spaceShipY) {
+        // console.log('Creating hyperspace effect', spaceShipX, spaceShipY); 
         effects.push(makeEffect({
-            center: { x: spaceship.center.x, y: spaceship.center.y },
-            size: { mean: 20, stdev: 4 }, 
-            speed: { mean: 400, stdev: 20 }, 
+            position: { x: spaceShipX, y: spaceShipY },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: (0.5), stdev: 0.1 }, 
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
@@ -121,13 +126,13 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     // create an effect for when the spaceship starts a new life
     function createNewLifeEffect(spaceship) {
         effects.push(makeEffect({
-            center: { x: spaceship.center.x, y: spaceship.center.y },
-            size: { mean: 20, stdev: 4 }, 
-            speed: { mean: 400, stdev: 20 }, 
+            position: { x: spaceship.position.x, y: spaceship.position.y },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: (0.5 * sc), stdev: 0.1 }, 
             lifetime: { mean: 0.3, stdev: 0.1 }, 
             explosionLifetime: 0.3, 
             density: 8, 
-            imageSrc: "assets/lasers/greenBlob.png"
+            imageSrc: "assets/lasers/redBlob.png"
         })); 
     }
 
@@ -135,9 +140,9 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     function createAsteroidBreakup(asteroid) {
         let sc = asteroid.size.sizeCategory; 
         effects.push(makeEffect({
-            center: { x: asteroid.center.x, y: asteroid.center.y },
-            size: { mean: 10, stdev: 2 }, 
-            speed: { mean: (150 * sc), stdev: 20 }, 
+            position: { x: asteroid.position.x, y: asteroid.position.y },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: (0.5 * sc), stdev: 0.1 }, 
             lifetime: { mean: (0.18 + sc * 0.05), stdev: 0.1 }, 
             explosionLifetime: 0.18 + sc * 0.03, 
             density: sc * sc * 5, 
@@ -148,12 +153,12 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     // explode the ship at xPos and yPos
     function createShipExplosion(xPos, yPos) {
         effects.push(makeEffect({
-            center: { x: xPos, y: yPos },
-            size: { mean: 20, stdev: 4 }, 
-            speed: { mean: 100, stdev: 20 }, 
-            lifetime: { mean: 1, stdev: 0.5 }, 
-            explosionLifetime: 1, 
-            density: 10, 
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: 0.5, stdev: 0.01 }, 
+            lifetime: { mean: 0.3, stdev: 0.2 }, 
+            explosionLifetime: 0.3, 
+            density: 5, 
             imageSrc: "assets/textures/fire.png"
         })); 
     }
@@ -161,8 +166,8 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     // massive effect to clear all object from the screen 
     function clearScreen() {
         effects.push(makeEffect({
-            center: { x: Game.graphics.canvas.width / 2, y: Game.graphics.canvas.height / 2 },
-            size: { mean: 100, stdev: 4 }, 
+            position: { x: Game.graphics.canvas.width / 2, y: Game.graphics.canvas.height / 2 },
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 500, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
@@ -174,8 +179,8 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
     // explode a UFO. A rather long effect
     function createUFOExplosion(xPos, yPos) {
         effects.push(makeEffect({
-            center: { x: xPos, y: yPos },
-            size: { mean: 30, stdev: 4 }, 
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 100, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
@@ -183,13 +188,34 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
             imageSrc: "assets/textures/smoke.png"
         })); 
         effects.push(makeEffect({
-            center: { x: xPos, y: yPos },
-            size: { mean: 30, stdev: 4 }, 
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
             speed: { mean: 100, stdev: 20 }, 
             lifetime: { mean: 1, stdev: 0.5 }, 
             explosionLifetime: 1, 
             density: 8, 
             imageSrc: "assets/textures/fire.png"
+        })); 
+
+    }
+    function gotPowerUp(xPos, yPos) {
+        effects.push(makeEffect({
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: 0.5, stdev: 20 }, 
+            lifetime: { mean: 1, stdev: 0.5 }, 
+            explosionLifetime: 1, 
+            density: 5, 
+            imageSrc: "assets/lasers/redBlob.png"
+        })); 
+        effects.push(makeEffect({
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: 0.5, stdev: 20 }, 
+            lifetime: { mean: 1, stdev: 0.5 }, 
+            explosionLifetime: 1, 
+            density: 8, 
+            imageSrc: "assets/laser.png"
         })); 
 
     }
@@ -217,6 +243,7 @@ Game.objects.ParticleSystemManager = function (managerSpec) {
         clearScreen: clearScreen, 
         startGame: startGame,
         update: update,
+        gotPowerUp: gotPowerUp,
         get effects() { return effects; },
     }
 

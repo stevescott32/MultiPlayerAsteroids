@@ -1,0 +1,95 @@
+#body {
+    background-color: rgb(0, 0, 0); 
+    background: url('assets/spacefield.png'); 
+}
+
+#game {
+    margin: auto;
+    display: block;
+    width: 90%;
+    height: 10%;
+    /* border-style: solid;
+    border-color:white; */
+    border-width: 4px;
+    font-size: 40px;
+}
+#game .screen.active {
+    display: block;
+}
+.text{
+    color: white;
+    text-align: center;
+}
+#game .screen {
+    width: 100%;
+    height: 100%;
+    display: none;
+     /* border-style: solid;
+    border-color:white; */
+}
+
+#main-menu {
+    padding-top: 1em;
+    cursor: pointer;
+    font-size: 0.75em;
+}
+
+ul.menu {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+ul.menu li {
+    margin: 0.8em 0;
+}
+
+ul.menu li button {
+    font-family: Arial, sans-serif;
+    font-size: 0.6em;
+    color: #CECEF6;
+    width: 10em;
+    height: 1.5em;
+    background: rgb(0, 0, 200);
+    border: 0.1em solid rgb(0, 0, 200);
+    border-radius: 0.5em;
+    box-shadow: 0.2em 0.2em 0.3em rgb(0, 0, 0);
+}
+
+ul.menu li button:hover {
+    background: #2E2EFE;
+}
+
+ul.menu li button:active {
+    color: #CECEF6;
+    background: rgb(0, 0, 0);
+}
+
+#game div h1 {
+    font-size: 1em;
+    text-align: center;
+}
+
+#high-scores ol {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#game div p {
+    font-size: 0.5em;
+}
+
+#about p {
+    text-align: center;
+}
+
+.message {
+    font-size: 12pt; 
+}
+
+.control-menu {
+    color: rgb(0, 200, 0);
+}

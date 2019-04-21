@@ -17,6 +17,10 @@ MyGame.renderer.Player = (function(graphics) {
         graphics.saveContext();
         graphics.rotateCanvas(model.position, model.direction, canvases);
         graphics.drawImage(texture, model.position, model.size, canvases);
+        if(model.hasShield)
+        {
+            graphics.drawCircle(model, canvases)
+        }
         graphics.restoreContext();
     };
 

@@ -4,8 +4,8 @@ let random = require ('./random');
 let managerSpec =  {
     imageSrc: "resources/images/asteroid.png",
         audioSrc: 'resources/audio/coin10.wav',
-        maxSize: 0.9,
-        minSize: 0.03, 
+        maxSize: 0.2,
+        minSize: 0.05, 
         maxSpeed: 0.00015,
         minSpeed: 0.00005,
         interval: 1, // seconds
@@ -35,6 +35,16 @@ function createAsteroid(asteroidSpec) {
         height: managerSpec.minSize * asteroidSpec.sizeCategory,
         width: managerSpec.minSize * asteroidSpec.sizeCategory,
         sizeCategory: asteroidSpec.sizeCategory
+      },
+      lastPosition: { // for collision detections
+        position: {
+          x: asteroidSpec.position.x,
+          y: asteroidSpec.position.y
+        },
+        size: {
+          height: managerSpec.minSize * asteroidSpec.sizeCategory, 
+          width:  managerSpec.minSize * asteroidSpec.sizeCategory
+        },
       },
       velocity: {
         x: Math.cos(rotation) * speed,

@@ -1,9 +1,11 @@
 MyGame = {
     input: {},
+    game: {},
     components: {},
     renderer: {},
     utilities: {},
-    assets: {}
+    assets: {},
+    screens: {}
 };
 
 //------------------------------------------------------------------
@@ -19,9 +21,17 @@ MyGame.loader = (function () {
     // scripts are guaranteed to be loaded in this order 
     let scriptOrder = [
         {
-            scripts: ['queue', 'tileUtils'],
+            scripts: ['gameScreens'],
+            message: 'gameScreenManager loaded',
+            onComplete: null
+        }, {
+            scripts: ['mainmenu', 'help', 'highscores', 'about', 'nickname'],
+            message: 'Screens loaded',
+            onComplete: showMainMenu
+        }, {
+            scripts: ['queue', 'tileUtils', 'collisions', 'random', 'gameScreens', 'logger'],
             message: 'Utilities loaded',
-            onComplete: null,
+            onComplete: null
         }, {
             scripts: ['input'],
             message: 'Input loaded',
@@ -31,26 +41,59 @@ MyGame.loader = (function () {
             message: 'Viewport model loaded',
             onComplete: null
         }, {
-            scripts: ['asteroidManager'],
+            scripts: ['asteroid'],
             message: 'Asteroid models loaded',
+            onComplete: null
+        }, {
+            scripts: ['asteroidManager'],
+            message: 'Asteroid Manager Loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['laser'],
+            message: 'Laser models loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['alien'],
+            message: 'Alien models loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['powerUpManager', 'powerUp'],
+            message: 'Power Up models loaded',
+            onComplete: null
+        },
+        {
+            scripts: ['laserManager'],
+            message: 'Laser models loaded',
             onComplete: null
         }, {
             scripts: ['player', 'player-remote'],
             message: 'Player models loaded',
             onComplete: null
         }, {
+            scripts: ['particleSystem'],
+            message: 'Particle system loaded',
+            onComplete: null
+        }, {
             scripts: ['rendering/graphics'],
             message: 'Graphics loaded',
             onComplete: null
         }, {
-            scripts: ['rendering/player', 'rendering/player-remote', 'rendering/asteroid', 'rendering/tiles'],
+
+            scripts: ['rendering/player', 'rendering/player-remote',
+                'rendering/asteroid', 'rendering/tiles', 'rendering/laser',
+                'rendering/particleSystem', 'rendering/powerUp'],
             message: 'Renderers loaded',
             onComplete: null
-        }, {
+        },
+        {
             scripts: ['game'],
-            message: 'Gameplay model loaded',
-            onComplete: null
-        }],
+            message: 'Game loaded',
+            onComplete: null,
+        },
+    ],
         // all assets are specified with a key and a source. 
         // this allows the assets to be referenced using their key
         // so that the source can be changed without changing any code outside of this
@@ -63,12 +106,55 @@ MyGame.loader = (function () {
         }, {
             key: 'asteroid',
             source: 'assets/asteroid.png'
+        }, {
+            key: 'laser',
+            source: 'assets/lasers/purpleBlob.png'
+        }, {
+            key: 'fire',
+            source: 'assets/textures/fire.png'
+        }, {
+            key: 'smoke',
+            source: 'assets/textures/smoke.png'
+        }, {
+            key: 'flare',
+            source: 'assets/textures/flare.png'
+        }, {
+            key: 'spacefield',
+            source: 'assets/evening.jpg'
+        }, {
+            key: 'alien',
+            source: 'assets/ships/greenShip.png'
+        },
+        {
+            key: 'powerUpSound', 
+            source: 'assets/audio/powerUp.mp3'
+        },
+        {
+            key: 'laserNine', 
+            source: 'assets/audio/laser9.mp3'
+        },
+        {
+            key: 'explosionSound', 
+            source: 'assets/audio/explosion.mp3'
+        },
+        {
+            key: 'background', 
+            source: 'assets/audio/backgroundMusic.mp3'
+        },
+        {
+            key: 'asteroidExplosion', 
+            source: 'assets/audio/asteroidExplosion.mp3'
+        },
+
+        {
+            key: 'powerUp',
+            source: 'assets/wrench.png'
         }];
 
     function tilePathCreater(number) {
-        if (number<=9999) { number = ("000"+number).slice(-4); }
-        let path = '/tiles' + number; 
-        return path; 
+        if (number <= 9999) { number = ("000" + number).slice(-4); }
+        let path = '/tiles' + number;
+        return path;
     }
 
     //------------------------------------------------------------------
@@ -84,7 +170,7 @@ MyGame.loader = (function () {
         };
         for (let tileY = 0; tileY < numberY; tileY += 1) {
             for (let tileX = 0; tileX < numberX; tileX += 1) {
-                if((tileY * numberX + tileX ) > 255) break; 
+                if ((tileY * numberX + tileX) > 255) break;
                 let tileFile = tilePathCreater((tileY * numberX + tileX));
                 let tileSource = rootName + tileFile + '.jpg';
                 let tileKey = rootKey + tileFile; // tileKey = background/tilesXXXX
@@ -165,6 +251,10 @@ MyGame.loader = (function () {
         }
     }
 
+    function showMainMenu() {
+        MyGame.game.showScreen('main-menu')
+    }
+
 
     //------------------------------------------------------------------
     //
@@ -191,7 +281,7 @@ MyGame.loader = (function () {
                     if (fileExtension === 'png' || fileExtension === 'jpg') {
                         asset = new Image();
                         // mp3 files should be an Audio() object
-                    } else if (fileExtension === 'mp3') {
+                    } else if (fileExtension === 'mp3' || fileExtension === 'flac') {
                         asset = new Audio();
                     } else {
                         if (onError) { onError('Unknown file extension: ' + fileExtension); }
@@ -223,7 +313,7 @@ MyGame.loader = (function () {
     //------------------------------------------------------------------
     function mainComplete() {
         console.log('it is all loaded up');
-        MyGame.main.initialize();
+        MyGame.game.initialize();
     }
 
     //
@@ -243,5 +333,5 @@ MyGame.loader = (function () {
         }
     );
 
-    console.log(MyGame.asset); 
+    console.log(MyGame.asset);
 }());
