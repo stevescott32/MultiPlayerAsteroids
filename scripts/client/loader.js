@@ -60,6 +60,11 @@ MyGame.loader = (function () {
             onComplete: null
         },
         {
+            scripts: ['powerUpManager', 'powerUp'],
+            message: 'Power Up models loaded',
+            onComplete: null
+        },
+        {
             scripts: ['laserManager'],
             message: 'Laser models loaded',
             onComplete: null
@@ -79,7 +84,7 @@ MyGame.loader = (function () {
 
             scripts: ['rendering/player', 'rendering/player-remote', 
                 'rendering/asteroid', 'rendering/tiles','rendering/laser',
-            'rendering/particleSystem'],
+            'rendering/particleSystem', 'rendering/powerUp'],
             message: 'Renderers loaded',
             onComplete: null
         }, 
@@ -119,7 +124,11 @@ MyGame.loader = (function () {
             }, {
             key: 'alien',
             source: 'assets/ships/greenShip.png'
-   }];
+        },
+        {
+        key: 'powerUp',
+        source: 'assets/wrench.png'
+       }];
 
     function tilePathCreater(number) {
         if (number<=9999) { number = ("000"+number).slice(-4); }

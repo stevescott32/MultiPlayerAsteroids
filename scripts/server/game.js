@@ -9,8 +9,9 @@ let Collisions = require('./collisions');
 let present = require('present');
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager');
-let LaserManager = require('./laserManager'); 
 let Alien = require('./alien'); 
+let LaserManager = require('./laserManager');
+let PowerUpManager = require('./powerUpManager');
 
 // the setting for how large the world is
 const WORLDSIZE = {
@@ -19,7 +20,10 @@ const WORLDSIZE = {
 }
 
 const BATTLE_MODE = false; 
-
+let powerUpManager = PowerUpManager.create({
+    size: .15,
+    interval: 20000, // seconds
+})
 let asteroidManager = AsteroidManager.create({
     imageSrc: '',
     audioSrc: '',
@@ -141,8 +145,14 @@ function detectCollisions() {
 
         // detect if player has collided with an asteroid
         for(let id in activeClients) {
-            let ship = activeClients[id].player; 
-            if(!asteroid.isDead && Collisions.detectCircleCollision(asteroid, ship)) {
+            let ship = activeClients[id].player;
+            if(Collisions.detectCircleCollision(ship, powerUpManager.currentPowerUp))
+                {
+                    log(ship.nickname + ' got a shield');
+                    ship.hasShield = true;
+                    ship.gotShield = present();
+                } 
+            if(!asteroid.isDead && !ship.hasShield &&Collisions.detectCircleCollision(asteroid, ship)) {
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
                 avoid.push(laserManager.laserArray); 
@@ -183,7 +193,7 @@ function detectCollisions() {
         let ship = activeClients[id].player; 
             for (let z = 0; z < laserManager.laserArray.length; z++) {
                 let laser = laserManager.laserArray[z];
-                if(id != laser.playerId && Collisions.detectCircleCollision(ship, laser)) {
+                if(id != laser.playerId && !ship.hasShield && Collisions.detectCircleCollision(ship, laser)) {
                     laser.isDead = true; 
                     let avoid = []; 
                     avoid.push(asteroidManager.asteroids);
@@ -288,6 +298,33 @@ function updateLaser(elapsedTime) {
         }
     }
 }
+function updatePowerUpManager(elapsedTime){
+    if(!powerUpManager.powerUpAvailable)
+    {
+        //console.log("No Power Ups Available")
+        powerUpManager.update(elapsedTime);
+    }
+    else{
+            powerUpManager.timeOnScreen += elapsedTime;
+            let x = Math.random() * 5;
+            let y = Math.random() * 5;
+            let type = powerUpManager.powerUpArray[0];
+            powerUpManager.accumulatedTime = 0;
+            
+            powerUpManager.createPowerUp(x, y,type)
+            //console.log(powerUpManager);
+            let update = {
+                available: powerUpManager.powerUpAvailable,
+                powerUp: powerUpManager.currentPowerUp
+            }
+            log("Power Up Available" + "X: " + powerUpManager.currentPowerUp.position.x + " Y: " + powerUpManager.currentPowerUp.position.y); 
+            console.log(powerUpManager.currentPowerUp);
+            for (let clientId in activeClients) {
+                activeClients[clientId].socket.emit('powerUp', update);
+            }
+            powerUpManager.powerUpAvailable = false;
+    }
+}
 
 // function to log messages to the client's message board
 function log(message) {
@@ -306,6 +343,7 @@ function update(elapsedTime, currentTime) {
         activeClients[clientId].player.update(elapsedTime, false);
     }
     updateAlien(elapsedTime); 
+    updatePowerUpManager(elapsedTime);
     updateAsteroids(elapsedTime);
     updateLaser(elapsedTime);
     detectCollisions(); 
@@ -329,7 +367,8 @@ function updateClients(elapsedTime) {
             direction: client.player.direction,
             position: client.player.position,
             updateWindow: elapsedTime, 
-            score: client.player.score
+            score: client.player.score,
+            hasShield: client.player.hasShield,
         };
         if (client.player.reportUpdate) {
             client.socket.emit('update-self', update);
@@ -399,7 +438,8 @@ function initializeSocketIO(httpServer) {
                     position: newPlayer.position,
                     rotateRate: newPlayer.rotateRate,
                     thrustRate: newPlayer.thrustRate,
-                    size: newPlayer.size
+                    size: newPlayer.size,
+                    hasShield: newPlayer.hasShield,
                 });
 
                 //
@@ -411,7 +451,8 @@ function initializeSocketIO(httpServer) {
                     position: client.player.position,
                     rotateRate: client.player.rotateRate,
                     thrustRate: client.player.thrustRate,
-                    size: client.player.size
+                    size: client.player.size,
+                    hasShield: newPlayer.hasShield,
                 });
             }
         }
