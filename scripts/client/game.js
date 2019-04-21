@@ -21,6 +21,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     let powerUpSound = null; 
     let explosionSound = null; 
     let backgroundMusic = null;
+    let asteroidExplosion = null; 
 
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
@@ -283,6 +284,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                     && MyGame.utilities.Collisions.detectCircleCollision(asteroid, laser)) {
                     laser.isDead = true;
                     asteroidManager.explode(asteroid, particleSystemManager);
+                    asteroidExplosion.play(); 
                 }
                 if(laser.playerId != 1 && MyGame.utilities.Collisions.detectCircleCollision(collisionAlien, laser)) {
                     particleSystemManager.createShipExplosion(alien.state.position.x, alien.state.position.y); 
@@ -431,6 +433,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         powerUpSound = MyGame.assets['powerUpSound']; 
         explosionSound = MyGame.assets['explosionSound']; 
         backgroundMusic = MyGame.assets['background']; 
+        asteroidExplosion = MyGame.assets['asteroidExplosion']; 
 
         asteroidManager = components.AsteroidManager({
             maxSize: 200,

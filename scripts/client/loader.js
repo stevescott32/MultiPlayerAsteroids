@@ -141,6 +141,10 @@ MyGame.loader = (function () {
             key: 'background', 
             source: 'assets/audio/backgroundMusic.mp3'
         },
+        {
+            key: 'asteroidExplosion', 
+            source: 'assets/audio/asteroidExplosion.mp3'
+        },
 
         {
             key: 'powerUp',
