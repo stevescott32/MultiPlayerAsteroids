@@ -11,24 +11,27 @@ let Laser = require('./laser');
 
 function createLaserManager(managerSpec) {
   let laserArray = [];
-  let accumulatedTime = 0; 
+  let accumulatedTime = 0;
   let fireRate = 500;
   let fire = true;
 
 
-  function generateNewLaser(x,y,rotation, id) {
+  function generateNewLaser(x, y, rotation, id) {
     let position = {
-      x:  x,
-      y:  y,
+      x: x,
+      y: y,
     }
-    
+    if (position.x == null || position.y == null) {
+      console.log('Invalid position for laser generation!');
+    }
+
     {
       fire = false;
       accumulatedTime = 0;
       laserArray.push(Laser.create({
         position: position,
         rotation: rotation,
-        playerId: id 
+        playerId: id
       }));
     }
   }
@@ -37,26 +40,25 @@ function createLaserManager(managerSpec) {
   function update(elapsedTime) {
     // remove dead lasers
     accumulatedTime += elapsedTime;
-    if (accumulatedTime > managerSpec.interval)
-    {
+    if (accumulatedTime > managerSpec.interval) {
       fire = true;
     }
-    laserArray = laserArray.filter( laser => !laser.isDead); 
+    laserArray = laserArray.filter(laser => !laser.isDead);
 
     for (let a = 0; a < laserArray.length; a++) {
       let laser = laserArray[a];
       // update the lastPostion of the laser to the current position
-      laser.lastPosition.position.x = laser.position.x; 
-      laser.lastPosition.position.y = laser.position.y; 
+      laser.lastPosition.position.x = laser.position.x;
+      laser.lastPosition.position.y = laser.position.y;
 
       // update the laser's current position using its velocity
       laser.position.x += laser.velocity.x * elapsedTime;
       laser.position.y += laser.velocity.y * elapsedTime;
 
-      if(laser.position.x < 0 || laser.position.y < 0 
+      if (laser.position.x < 0 || laser.position.y < 0
         || laser.position.x > managerSpec.worldSize.width
         || laser.position.y > managerSpec.worldSize.height) {
-        laser.isDead = true; 
+        laser.isDead = true;
       }
     }
   }
@@ -71,8 +73,8 @@ function createLaserManager(managerSpec) {
     startGame: startGame,
     generateNewLaser: generateNewLaser,
     get image() { return image; },
-    get accumulatedTime(){return accumulatedTime},
-    get fireRate(){return fireRate},
+    get accumulatedTime() { return accumulatedTime },
+    get fireRate() { return fireRate },
     get laserArray() { return laserArray; },
   };
 

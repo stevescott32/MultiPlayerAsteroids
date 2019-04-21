@@ -9,6 +9,7 @@ let Collisions = require('./collisions');
 let present = require('present');
 let Player = require('./player');
 let AsteroidManager = require('./asteroidManager');
+let Alien = require('./alien'); 
 let LaserManager = require('./laserManager');
 let PowerUpManager = require('./powerUpManager');
 
@@ -18,7 +19,7 @@ const WORLDSIZE = {
     width: 5 // the world is 5 X times as big as the viewport size 
 }
 
-const BATTLE_MODE = true; 
+const BATTLE_MODE = false; 
 let powerUpManager = PowerUpManager.create({
     size: .15,
     interval: 20000, // seconds
@@ -44,6 +45,19 @@ let laserManager = LaserManager.create({
     interval: 100,
     worldSize: WORLDSIZE
 });
+
+let alienLasers = LaserManager.create({
+    size: 10,
+    speed: 3,
+    interval: 300,
+    worldSize: WORLDSIZE
+});
+
+let alien = Alien.create({
+    worldSize: WORLDSIZE,
+    alienLasers: laserManager,
+    interval: 1500
+}); 
 
 let quit = false;
 let activeClients = {};
@@ -107,16 +121,25 @@ function processInput() {
 // with anything
 //------------------------------------------------------------------
 function detectCollisions() {
+    let collisionAlien = {
+            position: alien.state.position,
+            size: alien.size
+    }
+
+    // asteroid collisions
     for (let a = 0; a < asteroidManager.asteroids.length; a++) {
         let asteroid = asteroidManager.asteroids[a];
         // detect if lasers have collided with asteroids
         for (let z = 0; z < laserManager.laserArray.length; z++) {
             let laser = laserManager.laserArray[z];
-            if (!laser.isDead && !asteroid.isDead &&
-                    Collisions.sweptCircle(asteroid, asteroid.lastPosition, laser, laser.lastPosition)) {
+            if (!laser.isDead && !asteroid.isDead && laser.playerId != 1 // player id of 1 is the alien
+                    && Collisions.sweptCircle(asteroid, asteroid.lastPosition, laser, laser.lastPosition)) {
                 laser.isDead = true;
                 asteroidManager.explode(asteroid); 
                 activeClients[laser.playerId].player.score += 100; 
+            }
+            if(Collisions.detectCircleCollision(collisionAlien, laser)) {
+                log(activeClients[laser.playerId].player.nickname + ' collided with an alien'); 
             }
         }
 
@@ -136,10 +159,36 @@ function detectCollisions() {
                 ship.crash(avoid, WORLDSIZE);
                 log(ship.nickname + ' was killed by an asteroid'); 
             }
+            if(Collisions.detectCircleCollision(collisionAlien, ship)) {
+                let avoid = [];
+                avoid.push(asteroidManager.asteroids);
+                avoid.push(laserManager.laserArray); 
+                ship.crash(avoid, WORLDSIZE);
+                log(ship.nickname + ' collided with an alien'); 
+            }
             checkForHighScore(ship); 
         }
     }
-    if(BATTLE_MODE) {
+
+    // detect collisions between asteroid lasers and players
+    if(!BATTLE_MODE) {
+        for(let id in activeClients) {
+        let ship = activeClients[id].player; 
+            for (let z = 0; z < laserManager.laserArray.length; z++) {
+                let laser = laserManager.laserArray[z];
+                if(laser.playerId == 1 && Collisions.detectCircleCollision(ship, laser)) {
+                    laser.isDead = true; 
+                    let avoid = []; 
+                    avoid.push(asteroidManager.asteroids);
+                    avoid.push(laserManager.laserArray); 
+                    ship.crash(avoid, WORLDSIZE); 
+                    log(ship.nickname + ' was killed by alien lasers'); 
+                }
+            }
+        }
+    }
+    // detect collisions between lasers and all ships if n battle mode
+    else if(BATTLE_MODE) {
         for(let id in activeClients) {
         let ship = activeClients[id].player; 
             for (let z = 0; z < laserManager.laserArray.length; z++) {
@@ -150,7 +199,9 @@ function detectCollisions() {
                     avoid.push(asteroidManager.asteroids);
                     avoid.push(laserManager.laserArray); 
                     ship.crash(avoid, WORLDSIZE); 
-                    activeClients[laser.playerId].player.score += 500; 
+                    if(laser.playerId != 1) { // the alien doesn't get points
+                        activeClients[laser.playerId].player.score += 500; 
+                    }
                     log(ship.nickname + ' was killed by enemy lasers'); 
                 }
             }
@@ -208,14 +259,39 @@ function updateAsteroids(elapsedTime) {
     }
 }
 
+function updateAlien(elapsedTime) {
+    if(!alien || !alien.state || !alien.state.position) {return; }
+    alien.update(elapsedTime); 
+    let alienUpdate = {
+        position: {
+            x: alien.state.position.x,
+            y: alien.state.position.y
+        }, 
+        velocity: {
+            x: alien.state.momentum.x,
+            y: alien.state.momentum.y
+        }
+    }
+    let update = {
+        alien: alienUpdate
+    }
+    for (let clientId in activeClients) {
+        activeClients[clientId].socket.emit('update-alien', update);
+        //console.log('Emiting', update); 
+    }
+}
+
+
 function updateLaser(elapsedTime) {
-    if (!laserManager.laserArray) {
+    if (!laserManager.laserArray && !alienLasers.laserArray) {
         console.log('No Lasers on the server');
     }
     else {
         laserManager.update(elapsedTime);
+        alienLasers.update(elapsedTime); 
         let update = {
             lasers: laserManager.laserArray,
+            alienlasers: laserManager.laserArray
         }
         for (let clientId in activeClients) {
             activeClients[clientId].socket.emit('update-laser', update);
@@ -266,6 +342,7 @@ function update(elapsedTime, currentTime) {
     for (let clientId in activeClients) {
         activeClients[clientId].player.update(elapsedTime, false);
     }
+    updateAlien(elapsedTime); 
     updatePowerUpManager(elapsedTime);
     updateAsteroids(elapsedTime);
     updateLaser(elapsedTime);
@@ -408,6 +485,10 @@ function initializeSocketIO(httpServer) {
         //
         // Create an entry in our list of connected clients
         let newPlayer = Player.create(WORLDSIZE); 
+        let avoid = []; 
+        avoid.push(laserManager.laserArray); 
+        avoid.push(asteroidManager.asteroids); 
+        newPlayer.hyperspace(avoid, WORLDSIZE); 
         newPlayer.clientId = socket.id;
         console.log('Client id in new player create', newPlayer.clientId); 
         activeClients[socket.id] = {

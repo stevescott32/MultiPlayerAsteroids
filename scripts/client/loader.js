@@ -55,6 +55,11 @@ MyGame.loader = (function () {
             onComplete: null
         },
         {
+            scripts: ['alien'],
+            message: 'Alien models loaded',
+            onComplete: null
+        },
+        {
             scripts: ['powerUpManager', 'powerUp'],
             message: 'Power Up models loaded',
             onComplete: null
@@ -116,6 +121,9 @@ MyGame.loader = (function () {
            }, {
             key: 'spacefield',
             source: 'assets/evening.jpg'
+            }, {
+            key: 'alien',
+            source: 'assets/ships/greenShip.png'
         },
         {
         key: 'powerUp',
