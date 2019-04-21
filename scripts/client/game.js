@@ -233,6 +233,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         if(MyGame.utilities.Collisions.detectCircleCollision(playerSelf.model,powerUpManager.currentPowerUp))
         {
             playerSelf.model.hasShield = true;
+            particleSystemManager.gotPowerUp(playerSelf.model.position.x, playerSelf.model.position.y);
         }
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a];

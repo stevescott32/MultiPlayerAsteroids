@@ -198,6 +198,27 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
         })); 
 
     }
+    function gotPowerUp(xPos, yPos) {
+        effects.push(makeEffect({
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: 0.5, stdev: 20 }, 
+            lifetime: { mean: 1, stdev: 0.5 }, 
+            explosionLifetime: 1, 
+            density: 5, 
+            imageSrc: "assets/lasers/redBlob.png"
+        })); 
+        effects.push(makeEffect({
+            position: { x: xPos, y: yPos },
+            size: { mean: 0.03, stdev: 0.01 }, 
+            speed: { mean: 0.5, stdev: 20 }, 
+            lifetime: { mean: 1, stdev: 0.5 }, 
+            explosionLifetime: 1, 
+            density: 8, 
+            imageSrc: "assets/laser.png"
+        })); 
+
+    }
 
     function startGame() {
         effects = []; 
@@ -222,6 +243,7 @@ MyGame.components.ParticleSystemManager = function (managerSpec) {
         clearScreen: clearScreen, 
         startGame: startGame,
         update: update,
+        gotPowerUp: gotPowerUp,
         get effects() { return effects; },
     }
 
