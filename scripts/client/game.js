@@ -12,6 +12,9 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     let laserManager = {};
     let messageHistory = null;
 
+    let powerUpRenderer = {};
+    let powerUpManager = {};
+
     let lastTimeStamp = performance.now(),
         myKeyboard = null;
     let playerSelf = {},
@@ -20,8 +23,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         messageId = 1,
         socket = io(),
         asteroidTexture = MyGame.assets['asteroid'],
-        laserTexture = MyGame.assets['laser'];
+        laserTexture = MyGame.assets['laser'],
+        powerUpTexture = MyGame.assets['powerUp'];
 
+        console.log(powerUpTexture)
     //------------------------------------------------------------------
     //
     // Handler for when the server ack's the socket connection.  We receive
@@ -122,6 +127,18 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         } else { console.log('No Lasers'); }
     });
 
+    socket.on('powerUp', function (data) {
+        if (data.available) {
+            try {
+                powerUpManager.powerUpAvailable = data.available;
+                powerUpManager.currentPowerUp = data.powerUp;
+                console.log(powerUpManager.currentPowerUp);
+            } catch {
+                console.log('Error invalid Power Up received');
+            }
+        } else { console.log('No Power Up Available'); }
+    });
+
     // if a log message has been received from the server,
     // send it to the logger
     socket.on('log', function (message) {
@@ -139,6 +156,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         playerSelf.model.direction = data.direction;
         playerSelf.model.momentum.x = data.momentum.x;
         playerSelf.model.momentum.y = data.momentum.y;
+        playerSelf.model.hasShield = data.hasShield;
 
 
         //
@@ -212,6 +230,11 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
     }
 
     function detectCollisions() {
+        if(MyGame.utilities.Collisions.detectCircleCollision(playerSelf.model,powerUpManager.currentPowerUp))
+        {
+            playerSelf.model.hasShield = true;
+            particleSystemManager.gotPowerUp(playerSelf.model.position.x, playerSelf.model.position.y);
+        }
         for (let a = 0; a < asteroidManager.asteroids.length; a++) {
             let asteroid = asteroidManager.asteroids[a];
             for (let z = 0; z < laserManager.laserArray.length; z++) {
@@ -225,7 +248,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
 
             }
             // detect collisions between asteroids and the player 
-            if (!asteroid.isDead && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
+            if (!asteroid.isDead && !playerSelf.model.hasShield && MyGame.utilities.Collisions.detectCircleCollision(asteroid, playerSelf.model)) {
                 particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y);
                 let avoid = [];
                 avoid.push(asteroidManager.asteroids);
@@ -242,7 +265,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 };
                 for (let z = 0; z < laserManager.laserArray.length; z++) {
                     let laser = laserManager.laserArray[z];
-                    if (playerSelf.model.playerId != laser.playerId &&
+                    if (playerSelf.model.playerId != laser.playerId && playerSelf.model.hasShield &&
                         MyGame.utilities.Collisions.detectCircleCollision(ship, laser)) {
                         laser.isDead = true;
                         // particleSystemManager.createShipExplosion(playerSelf.model.position.x, playerSelf.model.position.y); 
@@ -264,6 +287,7 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         for (let id in playerOthers) {
             playerOthers[id].model.update(elapsedTime);
         }
+        powerUpRenderer.update(elapsedTime);
         laserManager.update(elapsedTime);
         detectCollisions();
     }
@@ -289,6 +313,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
                 renderer.Laser.render(laser, laserTexture);
             }
         }
+        if(powerUpManager.powerUpAvailable)
+        {
+            powerUpRenderer.render(powerUpManager.currentPowerUp, powerUpTexture)
+        }
         // render any ongoing particle effects
         renderer.ParticleSystemManager.render(particleSystemManager);
         // render main player
@@ -298,6 +326,10 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             let player = playerOthers[id];
             renderer.PlayerRemote.render(player.model, player.texture);
         }
+        // var c = document.getElementById("id-canvas");
+        // var ctx = c.getContext("2d");
+
+        
 
     }
 
@@ -336,6 +368,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
             initialAsteroids: 8
         });
 
+        powerUpManager = components.PowerUpManager({
+            size: .05,
+            interval: 20,
+            imageSrc: '../assets/wrench.png',
+        })
+
         particleSystemManager = components.ParticleSystemManager({});
 
         laserManager = components.LaserManager({
@@ -359,6 +397,12 @@ MyGame.screens['gamePlay'] = function (game, graphics, renderer, input, componen
         };
 
         messageHistory = MyGame.utilities.Queue();
+
+        powerUpRenderer = renderer.PowerUp({
+            spriteSheet: '../assets/wrench.png',
+            spriteCount: 8,
+            spriteTime: [100, 100, 100, 100, 100, 100, 100, 100],   // ms per frame
+        }, graphics);
         //
         // Create the keyboard input handler and register the keyboard commands
                 //

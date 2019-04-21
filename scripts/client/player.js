@@ -26,6 +26,8 @@ MyGame.components.Player = function() {
     let lastLaserTime = 0; 
     let score = 0; 
     let inGame = true; 
+    let hasShield = true;
+    // let currentPowerUp = "";
 
     Object.defineProperty(player, 'thrustRate', {
         get: () => thrustRate,
@@ -78,6 +80,15 @@ MyGame.components.Player = function() {
         get: () => inGame,
         set: value => inGame = value
     });
+
+    Object.defineProperty(player, 'hasShield', {
+        get: () => hasShield,
+        set: value => hasShield = value
+    });
+    // Object.defineProperty(currentPowerUp, 'currPowerUp', {
+    //     get: () => currentPowerUp,
+    //     set: value => currentPowerUp = value
+    // });
 
 
     //------------------------------------------------------------------
